@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>マリモクロニクル — 巻物（縦書き）</title>
+<style>
+:root{
+  --paper:#f5f2ea; --paper-warm:#fbf8ee; --ink:#14223f; --ink-soft:#3a3630;
+  --ink-mute:#6b6657; --ink-faint:#8a8276; --rule:#bdb7a9; --rule-soft:#d4cdb8;
+  --vermilion:#8b3a2a; --marimo-blue:#0096D6; --warm-amber:#c87632; --warm-grey:#6b6657;
+  --serif-en:"Cormorant Garamond","Garamond",Georgia,serif;
+  --serif-jp:"Noto Serif JP","YuMincho","Hiragino Mincho Pro",serif;
+  --sans-jp:"Noto Sans JP","Yu Gothic","Hiragino Sans",sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink-soft);font-family:var(--sans-jp);height:100vh;overflow:hidden;}
+
+/* ヘッダー（横方向、左固定） */
+.m-head{position:fixed;top:0;left:0;right:0;height:54px;padding:0 24px;border-bottom:1px solid var(--rule);background:var(--paper-warm);display:flex;align-items:center;gap:14px;z-index:10;}
+.m-head .logo{height:34px;}
+.m-head .brand{font-family:var(--serif-en);font-style:italic;font-size:10.5px;letter-spacing:0.22em;color:var(--vermilion);text-transform:uppercase;}
+.m-head .title{font-family:var(--sans-jp);font-weight:900;font-size:16px;letter-spacing:0.06em;color:var(--ink);}
+.m-head .sub{font-size:10.5px;font-weight:500;color:var(--ink-mute);letter-spacing:0.04em;margin-left:8px;}
+.m-head .scroll-hint{margin-left:auto;font-family:var(--serif-en);font-style:italic;font-size:11px;color:var(--ink-faint);letter-spacing:0.16em;}
+.m-head a{font-family:var(--sans-jp);font-size:11px;color:var(--ink);text-decoration:none;border:1px solid var(--ink);padding:5px 12px;font-weight:700;letter-spacing:0.04em;margin-left:6px;}
+.m-head a:hover{background:var(--ink);color:#fff;}
+
+/* 巻物本体：横スクロール、右が古い→左が新しい */
+.makimono{position:fixed;top:54px;left:0;right:0;bottom:0;overflow-x:auto;overflow-y:hidden;writing-mode:vertical-rl;text-orientation:mixed;}
+.makimono-inner{display:flex;flex-direction:row-reverse;height:100%;padding:32px;writing-mode:vertical-rl;}
+
+/* 各年のカラム（縦書きで右→左に進む） */
+.m-year{display:flex;flex-direction:row;height:100%;writing-mode:vertical-rl;border-left:1px solid var(--rule-soft);padding:0 24px;}
+.m-year:first-child{border-left:none;}
+.m-year-head{padding:8px 18px 12px;border-right:3px solid;border-color:#888;margin-right:18px;height:100%;}
+.m-year-head .m-year-num{font-family:var(--serif-en);font-size:36px;color:var(--ink);font-weight:500;letter-spacing:0.02em;writing-mode:horizontal-tb;text-align:center;margin-bottom:14px;}
+.m-year-head .m-year-key{font-family:var(--sans-jp);font-weight:800;font-size:14px;color:var(--vermilion);letter-spacing:0.12em;margin-bottom:10px;}
+.m-year-head .m-year-band{font-family:var(--sans-jp);font-weight:900;font-size:18px;color:var(--ink);letter-spacing:0.06em;line-height:1.6;}
+
+/* トラック（横並びのバンド：思想／MARIMO WAY／社会経済） */
+.m-tracks{display:flex;flex-direction:row;gap:24px;height:100%;}
+.m-track{padding:0 8px;border-right:1px dotted var(--rule-soft);min-width:60px;}
+.m-track:last-child{border-right:none;}
+.m-track-h{font-family:var(--serif-en);font-style:italic;font-size:10px;letter-spacing:0.22em;color:var(--ink-faint);text-transform:uppercase;writing-mode:vertical-rl;padding-top:8px;margin-bottom:14px;border-top:1px solid var(--rule);}
+.m-text{font-family:var(--sans-jp);}
+
+.ev{display:block;font-size:12px;line-height:1.7;padding:1px 12px 1px 0;position:relative;color:var(--ink-mute);writing-mode:vertical-rl;margin:6px 0;}
+.ev::before{content:"・";position:absolute;top:0;color:var(--ink-faint);}
+.ev-mid{font-size:15px;font-weight:700;color:var(--ink);border-right:2.5px solid var(--ink);padding:6px 12px 6px 0;margin:8px -2px;}
+.ev-mid::before{display:none;}
+.ev-maj{font-size:21px;font-weight:800;letter-spacing:0.02em;color:var(--ink);border-right:3px solid var(--vermilion);padding:8px 14px 8px 0;margin:12px -3px;line-height:1.5;}
+.ev-maj::before{display:none;}
+
+.m-track-thought .ev-mid,.m-track-thought .ev-maj{border-right-color:var(--marimo-blue);}
+.m-track-org .ev-mid,.m-track-org .ev-maj{border-right-color:var(--marimo-blue);}
+.ev.kind-society.ev-mid,.ev.kind-society.ev-maj{border-right-color:var(--warm-amber);}
+.ev.kind-economy.ev-mid,.ev.kind-economy.ev-maj{border-right-color:var(--warm-grey);}
+
+/* サブブロック（社会/経済） */
+.m-subblock{margin-bottom:14px;}
+.m-sub-h{display:inline-block;padding:1px 7px 2px;font-weight:700;font-size:10px;color:#fff;letter-spacing:0.18em;margin-bottom:6px;writing-mode:horizontal-tb;}
+.m-society .m-sub-h{background:var(--warm-amber);}
+.m-economy .m-sub-h{background:var(--warm-grey);}
+
+/* 号カード（縦書きの中の象徴号） */
+.m-issue{display:block;margin:8px 0;padding:8px 12px;border-right:4px solid var(--marimo-blue);font-family:var(--sans-jp);cursor:pointer;color:inherit;text-decoration:none;}
+.m-issue:hover{background:rgba(0,150,214,0.06);}
+.m-issue.r5{background:rgba(0,150,214,0.18);border:1px solid var(--marimo-blue);border-right-width:4px;padding:11px 14px;}
+.m-issue.r5:hover{background:rgba(0,150,214,0.26);}
+.m-issue .m-no{font-family:var(--serif-en);font-style:italic;font-size:11px;letter-spacing:0.16em;color:var(--marimo-blue);font-weight:700;margin-bottom:4px;writing-mode:horizontal-tb;display:inline-block;}
+.m-issue .m-ttl{display:block;font-size:14px;font-weight:700;color:var(--ink);line-height:1.6;margin-top:6px;}
+.m-issue.r5 .m-ttl{font-size:20px;font-weight:800;line-height:1.5;letter-spacing:0.02em;}
+
+/* フッター（詩的字句） */
+.m-year-foot{padding:8px 0 8px 18px;margin-left:18px;border-left:1px dotted var(--rule);height:100%;}
+.m-poetic{font-family:var(--serif-jp);font-size:13px;color:var(--ink-soft);letter-spacing:0.04em;line-height:2;writing-mode:vertical-rl;}
+</style>
+</head>
+<body>
+
+<header class="m-head">
+  <a href="chronicle_TOP.html" class="logo-link"><img src="data:image/png;base64,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" class="logo" alt="MARIMO" /></a>
+  <div>
+    <div class="brand">President Chronicle</div>
+    <div class="title">マリモクロニクル<span class="sub">— 巻物／縦書き版</span></div>
+  </div>
+  <span class="scroll-hint">← scroll right to advance through time（→ 古／← 新）</span>
+  <a href="chronicle_TOP.html">統合版へ</a>
+  <a href="chronicle_FULLTEXT_complete.html">全文へ</a>
+</header>
+
+<div class="makimono">
+  <div class="makimono-inner">
+    
+<section class="m-year" data-year="2007" data-phase="1a">
+  <header class="m-year-head" style="border-color:#C9A14A;">
+    <div class="m-year-num">2007</div>
+    <div class="m-year-key">◆ 開示</div>
+    <div class="m-year-band">未熟性と偽装の同時進行——開示元年</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r5" data-no="1"><span class="m-no">第 1 号</span><span class="m-ttl">社長メッセージ配信にあたって</span></div><div class="m-issue r4" data-no="2"><span class="m-no">第 2 号</span><span class="m-ttl">チームワークの大切さ</span></div><div class="m-issue r5" data-no="3"><span class="m-no">第 3 号</span><span class="m-ttl">不正は許さない</span></div>
+      <div class="m-text"><span class="ev ev-def">『ありのままの自分と、ちょっと背伸びした自分を発信する』(第1号)</span><span class="ev ev-def">未熟性の自己開示を経営行為へ</span><span class="ev ev-def">『不正は許さない』(第3号)で性善説と統制の二刀流を言語化</span><span class="ev ev-def">『素晴らしい人生3つの管理 健康・知識・こころ』(第5号)</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">12/9 社長メッセージ配信開始［週1回］</span><span class="ev ev-def">初期5号で集中発射［チームワーク／不正／コミットメント／3つの管理］</span><span class="ev ev-mid">トップダウン→参加型への移行宣言</span><span class="ev ev-mid">MARIMO WAY 冊子化の胎動</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-def kind-society">6/20 改正建築基準法施行、確認申請滞留［日］</span><span class="ev ev-mid kind-society">年金記録5000万件『消えた年金』［日］</span><span class="ev ev-mid kind-society">食品偽装連鎖 ミートホープ・白い恋人・赤福・船場吉兆［日］</span><span class="ev ev-maj kind-society">9/12 第一次安倍内閣退陣→福田康夫［日］</span><span class="ev ev-mid kind-society">参院選自民惨敗 ねじれ国会［日］</span><span class="ev ev-def kind-society">1/9 防衛省昇格［日］</span><span class="ev ev-maj kind-society">6/29 iPhone 発売［米］</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-maj kind-economy">8月 BNPパリバ・ショック</span><span class="ev ev-mid kind-economy">サブプライム問題顕在化［米］</span><span class="ev ev-def kind-economy">日経平均 18000→15000円台［東京］</span><span class="ev ev-def kind-economy">新興デベロッパー破綻の予兆</span><span class="ev ev-mid kind-economy">改正建基法で住宅着工急減</span><span class="ev ev-mid kind-economy">原油100ドル初突破</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「開示、元年。深川真は未熟を、社会は偽装を。ふたつの告白が同時に降った年。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2008" data-phase="1b">
+  <header class="m-year-head" style="border-color:#B87642;">
+    <div class="m-year-num">2008</div>
+    <div class="m-year-key">◆ 万策／足元</div>
+    <div class="m-year-band">万策尽きて、足元へ——リーマンの年</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r4" data-no="5"><span class="m-no">第 5 号</span><span class="m-ttl">素晴らしい人生を送るための、3つの管理</span></div><div class="m-issue r4" data-no="6"><span class="m-no">第 6 号</span><span class="m-ttl">2008年 年頭所感</span></div><div class="m-issue r5" data-no="8"><span class="m-no">第 8 号</span><span class="m-ttl">万策尽きたのか？</span></div><div class="m-issue r4" data-no="10"><span class="m-no">第 10 号</span><span class="m-ttl">現場が重要</span></div><div class="m-issue r5" data-no="13"><span class="m-no">第 13 号</span><span class="m-ttl">マリモの強み</span></div><div class="m-issue r4" data-no="14"><span class="m-no">第 14 号</span><span class="m-ttl">就職セミナーにて</span></div><div class="m-issue r5" data-no="20"><span class="m-no">第 20 号</span><span class="m-ttl">社員手帳（MARIMO WAY）配布</span></div><div class="m-issue r4" data-no="27"><span class="m-no">第 27 号</span><span class="m-ttl">上場延期について</span></div>
+      <div class="m-text"><span class="ev ev-def">1月 年頭で『足元固め・無駄の排除』(第6号)</span><span class="ev ev-def">1月 『万策尽きたのか？』(第8号)現場に問う</span><span class="ev ev-def">『マリモの強み』(第13号)で思想言語化</span><span class="ev ev-def">『結果＝能力×熱意×考え方』(第14号)人材観の核</span><span class="ev ev-def">危機の先読み・現場への権威還付</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">4月 MARIMO WAY 初版（社員手帳）配布 物質化［第20号］</span><span class="ev ev-mid">上場準備（春までの最大目標）</span><span class="ev ev-def">第27号 上場延期決断（現実受容の起点）</span><span class="ev ev-def">営業改革</span><span class="ev ev-def">販売現場テコ入れ</span><span class="ev ev-def">ブランド再整理（広告・PR一新）</span><span class="ev ev-def">P&amp;B委員会発足</span><span class="ev ev-def">CR（コスト削減）一斉実施</span><span class="ev ev-def">役員報酬カット決断</span><span class="ev ev-def">中国・大連 視察を本格化（次世代の海外戦略胎動）</span><span class="ev ev-def">在庫マンション売り切り戦略 緊急発動</span><span class="ev ev-def">創業40周年プロジェクト準備</span><span class="ev ev-def">賞与 寒い冬でも継続支給で団結維持</span><span class="ev ev-def">危機前夜→危機直撃への態勢転換</span><span class="ev ev-def">全社朝礼で『万策尽きたのか？』を共有</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-def kind-society">1月 大阪府知事 橋下徹当選［大阪］</span><span class="ev ev-def kind-society">4月 後期高齢者医療制度開始 紛糾［日］</span><span class="ev ev-mid kind-society">6/8 秋葉原通り魔事件［日］</span><span class="ev ev-def kind-society">6/14 岩手・宮城内陸地震 M7.2［東北］</span><span class="ev ev-def kind-society">6/14 東京メトロ副都心線開通</span><span class="ev ev-def kind-society">7月 洞爺湖サミット・環境首脳宣言［北海道］</span><span class="ev ev-def kind-society">中国冷凍ギョーザ事件波及［日中］</span><span class="ev ev-maj kind-society">8月 北京五輪</span><span class="ev ev-def kind-society">聖火リレー混乱・チベット問題［中］</span><span class="ev ev-mid kind-society">9月 福田退陣→麻生太郎［日］</span><span class="ev ev-def kind-society">麻生首相 漢字読み間違いで支持率急落</span><span class="ev ev-maj kind-society">11月 オバマ当選［米］Yes We Can</span><span class="ev ev-def kind-society">11月 厚労省元次官連続襲撃事件［日］</span><span class="ev ev-mid kind-society">ワーキングプア・ネットカフェ難民 可視化［日］</span><span class="ev ev-def kind-society">非正規切り</span><span class="ev ev-def kind-society">年越し派遣村［日比谷］「派遣村」が新語大賞</span><span class="ev ev-def kind-society">『おくりびと』アカデミー外国語映画賞［米］</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-def kind-economy">3月 ベア・スターンズ救済合併 JPMorgan［米］</span><span class="ev ev-def kind-economy">7/11 原油147ドル史上最高値→年末32ドルへ暴落</span><span class="ev ev-maj kind-economy">9/15 リーマン・ブラザーズ破綻［米］</span><span class="ev ev-def kind-economy">世界金融危機 信用収縮</span><span class="ev ev-def kind-economy">9/29 米下院TARP否決→ダウ史上最大下げ→10/3再可決</span><span class="ev ev-mid kind-economy">10月 日経平均7000円台へ暴落</span><span class="ev ev-def kind-economy">アイスランド国家破綻危機［欧州周縁］</span><span class="ev ev-def kind-economy">10月 大和生命 戦後初の保険会社破綻［日］</span><span class="ev ev-mid kind-economy">新興デベ連鎖倒産 アーバンコーポ・モリモト・ゼファー・スルガコーポ［日］</span><span class="ev ev-def kind-economy">11月 GM・クライスラー経営危機表面化</span><span class="ev ev-def kind-economy">12月 米FRB ゼロ金利・量的緩和開始［米］</span><span class="ev ev-mid kind-economy">円高80円台</span><span class="ev ev-mid kind-economy">派遣切り</span><span class="ev ev-def kind-economy">公定歩合0.3%へ</span><span class="ev ev-def kind-economy">日経年間下落率42% 過去最悪</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「1月、深川真が問うた。9月、金融工学が答えた。『万策、つきたのか。』」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2009" data-phase="1b">
+  <header class="m-year-head" style="border-color:#B87642;">
+    <div class="m-year-num">2009</div>
+    <div class="m-year-key">◆ 再生／利他</div>
+    <div class="m-year-band">再生マンションと利他の年</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r5" data-no="78"><span class="m-no">第 78 号</span><span class="m-ttl">住宅ＣＯ２排出ゼロ義務づけ</span></div>
+      <div class="m-text"><span class="ev ev-def">第18号〜『利他と感謝』シリーズ化</span><span class="ev ev-def">11月 稲盛和夫の経営講話を直接聴講(第78号)</span><span class="ev ev-def">盛和塾との本格接続 精神的支柱獲得</span><span class="ev ev-def">『理念と経営』『会計の7原則』を吸収</span><span class="ev ev-def">危機で理念が試される</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">再生マンション事業 即日完売で救命ボートに［業界異例の連続即日完売］</span><span class="ev ev-def">1月 業界初 売れ残り在庫一掃の即日完売スキーム確立</span><span class="ev ev-def">マリモコミュニティ成長戦略</span><span class="ev ev-def">中国不動産マーケット情報収集を本格化（広東・大連）</span><span class="ev ev-def">朝礼の中軸を MARIMO WAY 輪読へ移行</span><span class="ev ev-def">利他と感謝シリーズ 第18号〜</span><span class="ev ev-def">リーダー育成プログラム着手</span><span class="ev ev-def">賞与支給継続で社員繋ぎ止め</span><span class="ev ev-def">理念・ルール・販売管理の再構築</span><span class="ev ev-def">アフターサービス精査・顧客情報管理整備</span><span class="ev ev-def">苦情・クレーム対応のシステム化</span><span class="ev ev-mid">MARIMO WAY『利他と感謝』を危機対応の羅針盤として運用</span><span class="ev ev-def">11月 稲盛和夫 経営講話を直接聴講（盛和塾接続の起点）</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-def kind-society">1/20 オバマ大統領就任［米］Change We Can Believe In</span><span class="ev ev-def kind-society">2月 SMAP草彅事件で全番組差し替え狂騒［日］</span><span class="ev ev-def kind-society">4月 北朝鮮ミサイル発射→国連安保理非難声明</span><span class="ev ev-maj kind-society">4月 新型インフル(H1N1)パンデミック宣言［WHO］</span><span class="ev ev-mid kind-society">5月 裁判員制度スタート［日］</span><span class="ev ev-def kind-society">6/25 マイケル・ジャクソン死去 世界中追悼［米］</span><span class="ev ev-maj kind-society">7月 衆院解散→8/30 衆院選で自民→民主政権交代［日］</span><span class="ev ev-mid kind-society">9/16 鳩山由紀夫首相就任 友愛政治</span><span class="ev ev-def kind-society">鳩山内閣 コンクリートから人へ</span><span class="ev ev-mid kind-society">事業仕分け（蓮舫）国民的中継</span><span class="ev ev-def kind-society">11/27 政府デフレ宣言（菅直人副総理）</span><span class="ev ev-def kind-society">12月 ドバイショック 債務危機［UAE］</span><span class="ev ev-def kind-society">年越し派遣村が常設化</span><span class="ev ev-def kind-society">無縁社会の論議</span><span class="ev ev-def kind-society">『おくりびと』『崖の上のポニョ』日本映画好調</span><span class="ev ev-def kind-society">高校無償化議論</span><span class="ev ev-def kind-society">自殺者3万人台続く</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-def kind-economy">1/15 米FRB ゼロ金利導入維持</span><span class="ev ev-def kind-economy">量的緩和拡大</span><span class="ev ev-def kind-economy">3月 米ストレステスト 銀行救済 株式底打ち</span><span class="ev ev-def kind-economy">4/2 G20ロンドン首脳会議 5兆ドルの景気対策合意</span><span class="ev ev-mid kind-economy">GDP前年比-5.2%（戦後最悪）</span><span class="ev ev-mid kind-economy">失業率5.5%・企業倒産年間1.6万件</span><span class="ev ev-def kind-economy">8月 民主党マニフェスト 子ども手当・高速無料化</span><span class="ev ev-def kind-economy">JAL経営危機 公的支援議論</span><span class="ev ev-def kind-economy">9月 日銀 政策金利0.1%維持</span><span class="ev ev-def kind-economy">円高90円台</span><span class="ev ev-def kind-economy">12月 ドバイショック 世界連鎖懸念</span><span class="ev ev-maj kind-economy">亀井静香 中小企業金融円滑化法（モラトリアム法）成立</span><span class="ev ev-mid kind-economy">マンション供給 前年比半減</span><span class="ev ev-def kind-economy">地価 全国下落</span><span class="ev ev-def kind-economy">J-REIT 大量解散・統合</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「不況の暦に、利他という古語が、戻ってきた。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2010" data-phase="2">
+  <header class="m-year-head" style="border-color:#4F7B4F;">
+    <div class="m-year-num">2010</div>
+    <div class="m-year-key">◆ 視野／外へ</div>
+    <div class="m-year-band">視野拡大——危機を越えた一人の経営者、外へ出る</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      
+      <div class="m-text"><span class="ev ev-def">発信範囲が国家観・社会観・自己防衛論・健康管理まで拡張</span><span class="ev ev-def">現場管理者から時代認識を語る経営者へスケールアップ</span><span class="ev ev-def">危機を越えた自信が言語に現れる年</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">中国事業本格構想（大連・蘇州視察）</span><span class="ev ev-def">中国 共同事業先 選定本格化（人脈社会への適応）</span><span class="ev ev-mid">広島市内初進出（マンション）</span><span class="ev ev-def">名古屋・福岡支店 強化</span><span class="ev ev-def">全国マンション販売 前年比改善</span><span class="ev ev-def">全国展開デベとしての自負を言語化</span><span class="ev ev-def">ブランドの独自性と全国対応力を言語化</span><span class="ev ev-mid">『あたらしい、あたりまえを。』ブランドフレーズ萌芽</span><span class="ev ev-def">第三者機関による顧客満足度調査開始</span><span class="ev ev-def">HP・パンフレットのブランド統一プロジェクト</span><span class="ev ev-def">社員研修・MARIMO WAY 浸透 第2期</span><span class="ev ev-def">再生マンション事業 安定収益化</span><span class="ev ev-def">盛和塾 学びの社内還元 加速</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-def kind-society">1月 民主党 小沢代表更迭問題</span><span class="ev ev-def kind-society">1/19 JAL会社更生法申請 戦後最大級倒産［日］</span><span class="ev ev-def kind-society">2月 バンクーバー冬季五輪 浅田真央銀</span><span class="ev ev-def kind-society">高橋大輔銅</span><span class="ev ev-def kind-society">4月 普天間移設問題 鳩山立ち往生</span><span class="ev ev-def kind-society">6/8 鳩山退陣→菅直人内閣</span><span class="ev ev-mid kind-society">6/13 はやぶさ帰還［豪→相模原］日本中熱狂</span><span class="ev ev-def kind-society">7月 参院選 民主敗北 ねじれ国会再来</span><span class="ev ev-def kind-society">9月 検察特捜部 証拠改竄事件［大阪地検］</span><span class="ev ev-maj kind-society">9月 尖閣諸島 中国漁船衝突→船長釈放［日中］</span><span class="ev ev-mid kind-society">陸山会事件 政治とカネ再燃</span><span class="ev ev-def kind-society">日本郵政民営化見直し</span><span class="ev ev-def kind-society">11月 ロシア・メドヴェージェフ大統領 北方領土訪問</span><span class="ev ev-def kind-society">高齢化率23%突破</span><span class="ev ev-def kind-society">健康増進法 禁煙議論</span><span class="ev ev-mid kind-society">AKB48総選挙［東京］</span><span class="ev ev-def kind-society">『無縁社会』NHKスペシャル反響</span><span class="ev ev-def kind-society">『食べログ』『Twitter』本格普及</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-def kind-economy">1/19 JAL更生法申請 戦後最大級倒産（負債2.3兆円）</span><span class="ev ev-def kind-economy">3月 ギリシャ初のEU救済交渉開始</span><span class="ev ev-maj kind-economy">4月 ギリシャ危機 欧州中央銀行緊急融資 欧州ソブリン問題拡大</span><span class="ev ev-mid kind-economy">5月 米ダウ瞬間1000ドル下落 フラッシュ・クラッシュ［米］</span><span class="ev ev-def kind-economy">8月 円高84円台 単独介入観測</span><span class="ev ev-maj kind-economy">10月 日銀包括緩和・ゼロ金利復活・基金買入［日］</span><span class="ev ev-def kind-economy">11月 G20ソウル 通貨戦争懸念</span><span class="ev ev-mid kind-economy">円高80円台定着 輸出苦境</span><span class="ev ev-mid kind-economy">海外M&amp;A急増（キリン×サントリー破談）</span><span class="ev ev-def kind-economy">都心マンション限定回復、地方低迷</span><span class="ev ev-def kind-economy">J-REIT 反転の兆し</span><span class="ev ev-def kind-economy">REIT指数底入れ→上昇基調</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「危機の外側に、もうひとつ世界があった。——海が、ひらいていた。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2011" data-phase="2">
+  <header class="m-year-head" style="border-color:#4F7B4F;">
+    <div class="m-year-num">2011</div>
+    <div class="m-year-key">◆ 絆／公共</div>
+    <div class="m-year-band">3.11——経営が公共になる年</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r5" data-no="106"><span class="m-no">第 106 号</span><span class="m-ttl">2011年 年頭所感</span></div>
+      <div class="m-text"><span class="ev ev-def">震災対応を通じて会社の存在意義を社会の中で問い直す(第106号他)</span><span class="ev ev-def">上場の意味・働き方・アフターサービスの『社会的意義』を連続して論じる</span><span class="ev ev-def">言葉が公共化する年</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">3/11 震災対応（被災地の顧客物件緊急調査・支援）</span><span class="ev ev-mid">上場目的の再整理</span><span class="ev ev-mid">中国プロジェクト第1弾着工</span><span class="ev ev-def">守りと攻めの同時進行</span><span class="ev ev-def">MARIMO WAY『毬藻＝きれいな水でしか生息しない』メタファが試練に照らされる</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">3/11 東日本大震災 M9.0［三陸沖］</span><span class="ev ev-maj kind-society">3月 福島第一原発メルトダウン［福島］</span><span class="ev ev-def kind-society">死者・行方不明者 約2万人</span><span class="ev ev-mid kind-society">計画停電・節電・絆・ボランティア</span><span class="ev ev-mid kind-society">7/17 なでしこW杯優勝［独］</span><span class="ev ev-mid kind-society">菅直人→9月 野田佳彦</span><span class="ev ev-def kind-society">スマートフォン普及加速</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-mid kind-economy">供給網混乱・電力制約で自動車・電機操業停止</span><span class="ev ev-maj kind-economy">10月 円史上最高値75円［東京］</span><span class="ev ev-mid kind-economy">復興需要の芽</span><span class="ev ev-def kind-economy">赤字国債・国債増発</span><span class="ev ev-mid kind-economy">タイ洪水で二重被害</span><span class="ev ev-def kind-economy">マンション着工 前年比微増（復興需要と低金利）</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「揺れた地の上に、もう一度『何のための会社か』と、書き直した。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2012" data-phase="2">
+  <header class="m-year-head" style="border-color:#4F7B4F;">
+    <div class="m-year-num">2012</div>
+    <div class="m-year-key">◆ 制度／問い直し</div>
+    <div class="m-year-band">制度を編み直す年</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      
+      <div class="m-text"><span class="ev ev-def">人事制度改訂・朝礼改革の意図を繰返し説明</span><span class="ev ev-def">『何のために働くのか』の教育</span><span class="ev ev-def">挑戦を促しつつ理念浸透の土台を再整備</span><span class="ev ev-def">盛和塾の学びを社内還元し続ける</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">不動産流動化事業（ノンリコースローン物件）本格始動</span><span class="ev ev-mid">人事・朝礼・採用・育成の制度再設計</span><span class="ev ev-mid">MARIMO WAY を朝礼輪読するスタイル定着</span><span class="ev ev-def">理念共有→行動指針への翻訳</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">5/22 東京スカイツリー開業［東京］</span><span class="ev ev-mid kind-society">8月 3党合意で消費税増税法成立［日］</span><span class="ev ev-mid kind-society">10月 iPS細胞で山中伸弥ノーベル賞［京都］</span><span class="ev ev-mid kind-society">9月 尖閣国有化 反日デモ［日中］</span><span class="ev ev-maj kind-society">12月 衆院選自民圧勝→第2次安倍晋三［日］</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-mid kind-economy">アベノミクス直前 円高83円台 デフレ長期化</span><span class="ev ev-def kind-economy">GDP実質微成長</span><span class="ev ev-maj kind-economy">12月 円安・株高へ急転換（80円→85円）</span><span class="ev ev-def kind-economy">企業は新収益源・事業転換を模索</span><span class="ev ev-mid kind-economy">都心不動産 都市再生特別地区で大型開発議論</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「災いの次に、仕組みの棚卸しが、やってきた。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2013" data-phase="2">
+  <header class="m-year-head" style="border-color:#4F7B4F;">
+    <div class="m-year-num">2013</div>
+    <div class="m-year-key">◆ 接続／外延</div>
+    <div class="m-year-band">会社史と個人史が重なる年</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r4" data-no="141"><span class="m-no">第 141 号</span><span class="m-ttl">2013年 年頭所感</span></div>
+      <div class="m-text"><span class="ev ev-def">第141号『入社19年の振り返り』で自身の歩みを会社史に接続</span><span class="ev ev-def">稲盛経営者賞受賞で自信と責任感が高まる</span><span class="ev ev-def">内省と発信の両立</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">マレーシア・中国・インドネシア案件本格化</span><span class="ev ev-mid">新人事制度</span><span class="ev ev-mid">ジョブローテーション本格化</span><span class="ev ev-def">顧客相談体制整備</span><span class="ev ev-def">MARIMO WAY 第2版に向けた追補検討</span><span class="ev ev-mid">アジア人材採用始動</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">9/8 東京五輪招致決定『お・も・て・な・し』［ブエノスアイレス］</span><span class="ev ev-mid kind-society">6月 富士山世界遺産登録</span><span class="ev ev-def kind-society">グローバル化・ASEAN注目・キャリア流動化</span><span class="ev ev-mid kind-society">あまちゃん・じぇじぇじぇ</span><span class="ev ev-mid kind-society">12月 特定秘密保護法強行採決［日］</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-maj kind-economy">4/4 日銀 黒田東彦・異次元緩和 2%インフレ目標［日］</span><span class="ev ev-mid kind-economy">株高・円安100円台・企業収益V字回復</span><span class="ev ev-mid kind-economy">REIT市場活況 投資マネー流入</span><span class="ev ev-mid kind-economy">2020東京五輪決定で湾岸再開発に火</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「自分の19年が、会社の19年に、静かに結ばれた。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2014" data-phase="2">
+  <header class="m-year-head" style="border-color:#4F7B4F;">
+    <div class="m-year-num">2014</div>
+    <div class="m-year-key">◆ 多角／生活密着</div>
+    <div class="m-year-band">暮らしの多層へ——多角化が制度になる</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      
+      <div class="m-text"><span class="ev ev-def">福利厚生・有休取得・資格取得・高齢化と雇用</span><span class="ev ev-def">盛和塾の学びを社内還元</span><span class="ev ev-def">生活者目線への傾斜</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-mid">収益不動産方針［自社管理・戸建賃貸・節税不動産投資］</span><span class="ev ev-def">多角化が制度・商品として輪郭を得る</span><span class="ev ev-maj">『両極端をあわせもつ』が MARIMO WAY の中心原理に</span><span class="ev ev-mid">健康経営・働き方関連通達整備</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">4/1 消費税8%［日］個人消費冷水</span><span class="ev ev-mid kind-society">1月 STAP細胞騒動</span><span class="ev ev-maj kind-society">7/1 集団的自衛権閣議決定</span><span class="ev ev-mid kind-society">8/20 広島土砂災害 死者74名</span><span class="ev ev-mid kind-society">9/27 御嶽山噴火 死者58名</span><span class="ev ev-def kind-society">アナ雪</span><span class="ev ev-def kind-society">高齢化率26%</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-mid kind-economy">消費税8%で個人消費に影響 GDP一時減速</span><span class="ev ev-maj kind-economy">10/31 日銀追加緩和（黒田バズーカ2）</span><span class="ev ev-mid kind-economy">円安110円台突破</span><span class="ev ev-mid kind-economy">超低金利で投資用不動産・節税需要拡大</span><span class="ev ev-def kind-economy">地価9年ぶり下げ止まり</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「会社は、生活の何層目まで届けばいいのか。——問いが、商品になった。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2015" data-phase="3">
+  <header class="m-year-head" style="border-color:#3D6FA8;">
+    <div class="m-year-num">2015</div>
+    <div class="m-year-key">◆ 正当性／社会的信用</div>
+    <div class="m-year-band">正当性の獲得——資本市場と手を結ぶ</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r4" data-no="166"><span class="m-no">第 166 号</span><span class="m-ttl">2015年 年頭所感</span></div>
+      <div class="m-text"><span class="ev ev-def">第166号 J-REIT を目標に掲げる</span><span class="ev ev-def">組織再編・M&amp;Aも進める</span><span class="ev ev-def">CSRを明示 社会的正当性も求める経営へ</span><span class="ev ev-def">利益と理念の両立を『社会的信用』で語る</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-def">仕入れ方針の再転換</span><span class="ev ev-mid">J-REIT 準備</span><span class="ev ev-mid">M&amp;A 本格化</span><span class="ev ev-mid">完全週休2日制</span><span class="ev ev-def">組織改編</span><span class="ev ev-def">拡大と再編が同時進行</span><span class="ev ev-maj">MARIMO WAY 第2版（CSR 項目追補）</span><span class="ev ev-def">『社会からの信用』を指標化</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-mid kind-society">3月 北陸新幹線開業［金沢］</span><span class="ev ev-maj kind-society">9/19 安保法制成立［日］国論二分</span><span class="ev ev-mid kind-society">10月 マイナンバー通知開始［日］</span><span class="ev ev-maj kind-society">11月 パリ同時多発テロ［仏］</span><span class="ev ev-mid kind-society">5月 大阪都構想住民投票否決［大阪］</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-mid kind-economy">超低金利・利回り追求でREITや不動産金融に追い風</span><span class="ev ev-mid kind-economy">M&amp;A件数過去最高級</span><span class="ev ev-maj kind-economy">8月 チャイナショックで日経急落［中→東京］</span><span class="ev ev-mid kind-economy">インバウンド爆買い</span><span class="ev ev-def kind-economy">地価首都圏＋4% 全国ベースも上昇転換</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「儲けだけでは足りない時代が、静かに、手を差し出した。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2016" data-phase="3">
+  <header class="m-year-head" style="border-color:#3D6FA8;">
+    <div class="m-year-num">2016</div>
+    <div class="m-year-key">◆ 構える／選別</div>
+    <div class="m-year-band">構える年——拡大から管理へ</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      
+      <div class="m-text"><span class="ev ev-def">攻め一辺倒ではなく『選択と集中』を明確化</span><span class="ev ev-def">熊本地震など外部ショックに応答しながら上位概念へ</span><span class="ev ev-def">『構える』語の登場で守備の思想が前面に</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">10月 マリモホールディングス設立 HD経営体制へ移行</span><span class="ev ev-mid">J-REIT運用体制の進展</span><span class="ev ev-def">再開発・収益基盤の整備</span><span class="ev ev-def">『両利きの経営』的な複線化</span><span class="ev ev-mid">MARIMO WAY の朝礼輪読 全社定着</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">4/14・4/16 熊本地震 M7.3 死者273名［熊本］</span><span class="ev ev-maj kind-society">6月 Brexit国民投票［英］</span><span class="ev ev-maj kind-society">11月 米大統領選トランプ勝利［米］</span><span class="ev ev-mid kind-society">5月 オバマ広島訪問［広島］</span><span class="ev ev-mid kind-society">8月 天皇陛下『お気持ち表明』</span><span class="ev ev-mid kind-society">ポケモンGO</span><span class="ev ev-mid kind-society">SMAP解散</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-maj kind-economy">2/16 日銀マイナス金利［日］資金は不動産・REITへ</span><span class="ev ev-maj kind-economy">9月 長短金利操作付き量的・質的緩和（YCC）導入</span><span class="ev ev-mid kind-economy">地価上昇＋地方マンション不調の二極化</span><span class="ev ev-def kind-economy">収益不動産には追い風だが選別進む</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「拡張する会社が、はじめて『構える』という語を、おぼえた。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2017" data-phase="3">
+  <header class="m-year-head" style="border-color:#3D6FA8;">
+    <div class="m-year-num">2017</div>
+    <div class="m-year-key">◆ 面影／歴史の再編集</div>
+    <div class="m-year-band">歴史を編集する年——自社史を語り直す</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r5" data-no="189"><span class="m-no">第 189 号</span><span class="m-ttl">4月全体朝礼～マリモの歴史①デベロッパー転身前～</span></div><div class="m-issue r5" data-no="190"><span class="m-no">第 190 号</span><span class="m-ttl">5月全体朝礼～マリモの歴史②デベロッパー転身後～</span></div><div class="m-issue r5" data-no="191"><span class="m-no">第 191 号</span><span class="m-ttl">6月全体朝礼～マリモの歴史③現在（2017年）までの10年間～</span></div>
+      <div class="m-text"><span class="ev ev-def">第189・190・191号『マリモの歴史①②③』で自社史を3回に分けて語り直す</span><span class="ev ev-def">自分の経営を創業者史の延長線に置き直す</span><span class="ev ev-def">創業者 深川武夫の『事業宣言』(H4)『会社は一隻の大型船』(H12)を改めて位置づける</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-mid">ソルティア（福岡・LCV）始動</span><span class="ev ev-def">収益不動産好調</span><span class="ev ev-mid">働き方改革</span><span class="ev ev-mid">ハラスメント対応</span><span class="ev ev-def">会社文化の再定義</span><span class="ev ev-maj">新生 MARIMO WAY 整備（『創業のこころ 七篇』編纂進行）</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-def kind-society">働き方改革</span><span class="ev ev-def kind-society">ハラスメント意識の上昇（日本版 #MeToo は翌年）</span><span class="ev ev-mid kind-society">森友・加計問題</span><span class="ev ev-maj kind-society">北朝鮮ミサイル・Jアラート［日］</span><span class="ev ev-mid kind-society">7月 九州北部豪雨</span><span class="ev ev-mid kind-society">藤井聡太四段デビュー29連勝</span><span class="ev ev-def kind-society">選択的夫婦別姓議論</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-def kind-economy">都市部コンパクト住戸需要</span><span class="ev ev-mid kind-economy">人手不足で建設コスト上昇基調</span><span class="ev ev-maj kind-economy">11月 日経平均バブル後最高値2万3000円</span><span class="ev ev-mid kind-economy">仮想通貨ブーム ビットコイン200万円台</span><span class="ev ev-mid kind-economy">かぼちゃの馬車・TATERU等 怪しい不動産スキーム膨張</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「深川真が自分の会社を、もう一度、読みなおした。——面影、ひらく。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2018" data-phase="4">
+  <header class="m-year-head" style="border-color:#6B5794;">
+    <div class="m-year-num">2018</div>
+    <div class="m-year-key">◆ ピーク／次の思想</div>
+    <div class="m-year-band">ピークの裏側で思想を準備する年</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      
+      <div class="m-text"><span class="ev ev-def">フィロソフィの重要性</span><span class="ev ev-def">余暇の使い方</span><span class="ev ev-def">自己成長を繰り返し説く</span><span class="ev ev-def">社員教育を経営の中心テーマに置く</span><span class="ev ev-def">『心をベースに経営する』表現の高頻度化</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">43 都道府県進出</span><span class="ev ev-mid">熊本即日完売</span><span class="ev ev-mid">中国大型案件好調</span><span class="ev ev-def">10年先構想が濃くなる</span><span class="ev ev-def">人材育成投資も強まる</span><span class="ev ev-mid">MARIMO WAY に基づく社員塾・経営塾の検討</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">7月 西日本豪雨 死者237名</span><span class="ev ev-mid kind-society">スルガ銀行不正（かぼちゃの馬車）</span><span class="ev ev-mid kind-society">5月 日大アメフト反則</span><span class="ev ev-maj kind-society">9/6 北海道胆振東部地震</span><span class="ev ev-mid kind-society">2月 平昌五輪羽生連覇</span><span class="ev ev-def kind-society">SDGs浸透</span><span class="ev ev-mid kind-society">7月 麻原彰晃ら死刑執行</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-def kind-economy">建築費・人件費上昇</span><span class="ev ev-mid kind-economy">融資審査厳格化（かぼちゃの馬車・スルガ銀行ショック）</span><span class="ev ev-maj kind-economy">10月 日経平均27年ぶり高値2万4千円→12月急落（米中摩擦）</span><span class="ev ev-mid kind-economy">投資用ワンルームローン不適切販売続発</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「頂上が見えたとき、ひとは、次の山のことを考えはじめる。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2019" data-phase="4">
+  <header class="m-year-head" style="border-color:#6B5794;">
+    <div class="m-year-num">2019</div>
+    <div class="m-year-key">◆ 殻／改元</div>
+    <div class="m-year-band">殻を破れ、時代も変わる——令和と2030ビジョン</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r5" data-no="209"><span class="m-no">第 209 号</span><span class="m-ttl">1月全体朝礼～5年先、10年先を見すえた構造改革を～</span></div>
+      <div class="m-text"><span class="ev ev-def">構造改革を掲げ、50周年の節目で10年ビジョン</span><span class="ev ev-def">ホテルなど新規事業への好奇心</span><span class="ev ev-def">『殻を破れ』の指令で組織文化に揺さぶり</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">第50期経営方針発表会『ROAD to 2030 殻を破れ！』提示（第209号）</span><span class="ev ev-def">組織再編［新規事業・50周年行事］</span><span class="ev ev-mid">MARIMO WAY のビジョン枠組み追加（『ソーシャルビジネスカンパニー』の萌芽）</span><span class="ev ev-mid">ホテル・海外・非不動産への踏み出し</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">5/1 令和改元</span><span class="ev ev-def kind-society">サステナビリティ・地方創生が社会の共通語に</span><span class="ev ev-maj kind-society">10/1 消費税10%+軽減税率</span><span class="ev ev-mid kind-society">9-11月 ラグビーW杯日本初ベスト8</span><span class="ev ev-mid kind-society">7/18 京アニ放火</span><span class="ev ev-mid kind-society">10/31 沖縄首里城焼失</span><span class="ev ev-mid kind-society">10月 台風19号 関東甲信水害</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-maj kind-economy">インバウンド3188万人過去最多</span><span class="ev ev-mid kind-economy">ホテル需要強い一方 人口減少・将来不安深まる</span><span class="ev ev-mid kind-economy">米中摩擦・香港デモ</span><span class="ev ev-def kind-economy">日経平均2万3000円台で推移</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「改元の年に、会社が、自分の殻を破ろうとした。——時代も、割れた。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2020" data-phase="5">
+  <header class="m-year-head" style="border-color:#A94B7B;">
+    <div class="m-year-num">2020</div>
+    <div class="m-year-key">◆ 転回／ソーシャル</div>
+    <div class="m-year-band">大転回——コロナとソーシャル元年</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r5" data-no="218"><span class="m-no">第 218 号</span><span class="m-ttl">2020年 年頭朝礼</span></div><div class="m-issue r4" data-no="220"><span class="m-no">第 220 号</span><span class="m-ttl">2020新入社員の皆さんへ</span></div>
+      <div class="m-text"><span class="ev ev-def">第218号『コロナ危機対応』で事業撤退・工程見直し・働き方変更を決断</span><span class="ev ev-def">同時にソーシャルビジネス、MAP、DX/変革元年（第220号）を打ち出す</span><span class="ev ev-def">危機を使って『転回』する経営哲学</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-mid">中国事業見直し</span><span class="ev ev-def">未着工案件延期</span><span class="ev ev-mid">週休3日制</span><span class="ev ev-mid">ココノミ買収（食のD2C参入）</span><span class="ev ev-def">ソーシャル比率という新しい物差し</span><span class="ev ev-maj">MARIMO WAY『ソーシャルビジネスカンパニー』ビジョン本格化</span><span class="ev ev-maj">MAP策定：ビジネス50×ソーシャル50</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">3/11 WHOパンデミック宣言［世界］</span><span class="ev ev-maj kind-society">4/7 緊急事態宣言［日］</span><span class="ev ev-maj kind-society">8月 安倍首相辞任→菅義偉内閣</span><span class="ev ev-mid kind-society">東京五輪1年延期</span><span class="ev ev-mid kind-society">Go To キャンペーン</span><span class="ev ev-mid kind-society">鬼滅の刃大ヒット</span><span class="ev ev-mid kind-society">BLM運動［米］</span><span class="ev ev-mid kind-society">11月 バイデン当選</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-maj kind-economy">GDP前年比-4.5%</span><span class="ev ev-mid kind-economy">観光・ホテル・飲食に大打撃</span><span class="ev ev-def kind-economy">雇用調整助成金［持続化給付金・特別定額給付金10万円］</span><span class="ev ev-def kind-economy">超金融緩和で株価は年末回復</span><span class="ev ev-mid kind-economy">Zoom等DX関連急成長</span><span class="ev ev-def kind-economy">住宅取引は一時停滞後 郊外志向・広さ需要で回復</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「同じ年に、世界は止まり、会社は、転がりはじめた。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2021" data-phase="5">
+  <header class="m-year-head" style="border-color:#A94B7B;">
+    <div class="m-year-num">2021</div>
+    <div class="m-year-key">◆ 市場の目／外部視線</div>
+    <div class="m-year-band">外から見られる会社へ——上場構想の年</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r4" data-no="228"><span class="m-no">第 228 号</span><span class="m-ttl">2021年 年頭メッセージ</span></div>
+      <div class="m-text"><span class="ev ev-def">上場を強く意識</span><span class="ev ev-def">マンションの付加価値・コミュニティ支援・医療福祉連携へ発想拡大</span><span class="ev ev-def">市場視線を経営に取り込む</span><span class="ev ev-def">『外から見られる』ことで内が整う構造</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">第228号 マリモ上場構想→ホールディングス上場への変更</span><span class="ev ev-mid">アセットマネジメント事業本部化</span><span class="ev ev-def">住宅・投資住宅の再編</span><span class="ev ev-mid">MARIMO WAY に基づく『経営のこころ 3つの夢』（生きがい・人間性の道場・待遇向上）を制度化</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-mid kind-society">2月 ミャンマー軍クーデター</span><span class="ev ev-maj kind-society">7-9月 東京五輪・パラ無観客開催</span><span class="ev ev-mid kind-society">7月 熱海土石流</span><span class="ev ev-mid kind-society">8月 タリバン政権復活［ア］</span><span class="ev ev-mid kind-society">9/1 デジタル庁発足</span><span class="ev ev-maj kind-society">10月 菅→岸田文雄</span><span class="ev ev-def kind-society">ワクチン普及で社会再始動</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-def kind-economy">世界的緩和で不動産価格高止まり</span><span class="ev ev-mid kind-economy">ESG・将来期待による企業価値評価が重視</span><span class="ev ev-mid kind-economy">半導体不足</span><span class="ev ev-maj kind-economy">新築マンション首都圏平均価格6260万円 過去最高更新</span><span class="ev ev-def kind-economy">米長期金利上昇</span><span class="ev ev-mid kind-economy">FRB テーパリング議論開始</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「鏡を、机のうえにおく。——市場という鏡を。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2022" data-phase="5">
+  <header class="m-year-head" style="border-color:#A94B7B;">
+    <div class="m-year-num">2022</div>
+    <div class="m-year-key">◆ 喪失／Purpose</div>
+    <div class="m-year-band">喪失が Purpose を生んだ年</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r5" data-no="245"><span class="m-no">第 245 号</span><span class="m-ttl">第53期経営方針発表会 社長総括～マリモグループパーパス発表～</span></div><div class="m-issue r5" data-no="248"><span class="m-no">第 248 号</span><span class="m-ttl">石の上にも3年は正しいか・</span></div>
+      <div class="m-text"><span class="ev ev-def">死生観</span><span class="ev ev-def">父（深川武夫）の死</span><span class="ev ev-def">8月 稲盛和夫の死</span><span class="ev ev-def">CSV・パーパスを発表（第248号）『ヒューマニティとビジネスの力で、社会の課題を解決し、人々の豊かな暮らしを創造し続ける。』上位言語を得る</span><span class="ev ev-def">失うことで、語れる言葉が生まれた</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-mid">上場4課題の明文化</span><span class="ev ev-def">仕入れ抑制</span><span class="ev ev-mid">農業・福祉・フィリピン住宅などソーシャル事業の実装</span><span class="ev ev-maj">Purpose 制定</span><span class="ev ev-maj">MARIMO WAY 第3版の骨格固め（パーパス＋ビジョン＋バリュー&amp;カルチャー＋行動指針の体系図を確立）</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">2/24 ロシアのウクライナ侵攻［露→宇］</span><span class="ev ev-maj kind-society">7/8 安倍晋三元首相銃撃事件［奈良］</span><span class="ev ev-mid kind-society">旧統一教会問題 政治と宗教の関係を再点検</span><span class="ev ev-def kind-society">北京冬季五輪</span><span class="ev ev-mid kind-society">9月 エリザベス2世崩御［英］</span><span class="ev ev-mid kind-society">11-12月 W杯ドイツ・スペイン撃破</span><span class="ev ev-def kind-society">インフレ・円安・生活不安</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-maj kind-economy">10月 円151円台 32年ぶり安値</span><span class="ev ev-mid kind-economy">資源高・円安・建築費高騰でデベに逆風</span><span class="ev ev-def kind-economy">価格転嫁・粗利維持・在庫管理困難化</span><span class="ev ev-mid kind-economy">FRB大幅利上げ</span><span class="ev ev-def kind-economy">日銀は異次元緩和継続で日米金利差拡大</span><span class="ev ev-maj kind-economy">12月 黒田サプライズでYCC 0.5%へ</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「失うことで、はじめて、語れる言葉が、あった。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2023" data-phase="6">
+  <header class="m-year-head" style="border-color:#5A5A5A;">
+    <div class="m-year-num">2023</div>
+    <div class="m-year-key">◆ 人的資本／提携と育成</div>
+    <div class="m-year-band">人が資本になる年——イオン提携と上司の育成責任</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r5" data-no="253"><span class="m-no">第 253 号</span><span class="m-ttl">2023年 年頭メッセージ～シナジーある大手との資本業務提携～</span></div>
+      <div class="m-text"><span class="ev ev-def">第253号 イオンモール資本業務提携を大成果と位置づける</span><span class="ev ev-def">同時に『大企業病』や上司の育成責任を厳しく問う</span><span class="ev ev-def">創業者 深川武夫『部下を殺す上司は退場すべし』(H12.6.12)の再活性化</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-mid">グループ再編</span><span class="ev ev-maj">イオンモール資本業務提携</span><span class="ev ev-mid">ジョブ型人事制度</span><span class="ev ev-mid">ベースアップ</span><span class="ev ev-mid">セットアップオフィス始動</span><span class="ev ev-maj">MARIMO WAY 2023 版刊行（パーパス・ビジョン・行動指針三十則・お客様対応7つの心得・マリモホットラインを体系化）</span><span class="ev ev-def">『社員の人間性を高める道場』を全社に徹底</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">3月 WBC日本優勝 栗山監督・大谷翔平［米］</span><span class="ev ev-mid kind-society">5月 G7広島サミット</span><span class="ev ev-mid kind-society">8月 福島処理水海洋放出</span><span class="ev ev-mid kind-society">10月 旧統一教会解散命令請求</span><span class="ev ev-def kind-society">ジャニーズ性加害問題</span><span class="ev ev-maj kind-society">AI/ChatGPT浸透で業務地殻変動</span><span class="ev ev-mid kind-society">賃上げ3.58% 30年ぶり水準</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-mid kind-economy">コアCPI 3%超でインフレ定着</span><span class="ev ev-def kind-economy">金利正常化観測</span><span class="ev ev-def kind-economy">資材高・人件費高</span><span class="ev ev-mid kind-economy">マイナス金利解除視野</span><span class="ev ev-def kind-economy">資本提携・新収益源・生産性改善が必須化</span><span class="ev ev-maj kind-economy">日経平均33年ぶり3万3千円</span><span class="ev ev-maj kind-economy">3月 米銀破綻（SVB等）</span><span class="ev ev-mid kind-economy">円安140-150円台</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「会社を資本とよぶなら、人も、また資本とよばねばならぬ。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2024" data-phase="6">
+  <header class="m-year-head" style="border-color:#5A5A5A;">
+    <div class="m-year-num">2024</div>
+    <div class="m-year-key">◆ 交代／第三の創業</div>
+    <div class="m-year-band">交代の年——一人の経営者・上場方針・政策の同時転換</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r5" data-no="265"><span class="m-no">第 265 号</span><span class="m-ttl">2024年 年頭所感</span></div><div class="m-issue r5" data-no="268"><span class="m-no">第 268 号</span><span class="m-ttl">2024新入社員の皆さんへ</span></div>
+      <div class="m-text"><span class="ev ev-def">第265号でマリモ社長交代を前提</span><span class="ev ev-def">自分はホールディングス側から全体を支える立場へ</span><span class="ev ev-def">業務改善・人間力・木鶏会再開</span><span class="ev ev-def">第268号『第三の創業』の言語化</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-def">3事業体制［国内不動産・海外不動産・非不動産］明確化</span><span class="ev ev-mid">上場延期受容</span><span class="ev ev-def">業務改善推進本部発足</span><span class="ev ev-maj">『第三の創業』ビジョン発表</span><span class="ev ev-mid">MARIMO WAY『創業のこころ』を次世代に継承するプロジェクト開始</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">1/1 能登半島地震 M7.6 死者400+［能登］</span><span class="ev ev-mid kind-society">1/2 羽田空港衝突事故</span><span class="ev ev-def kind-society">人口減少・担い手不足</span><span class="ev ev-def kind-society">組織学習の必要性</span><span class="ev ev-mid kind-society">大谷翔平50-50達成［米］</span><span class="ev ev-mid kind-society">兵庫県知事問題・パワハラ議論</span><span class="ev ev-maj kind-society">11月 米大統領選トランプ返り咲き</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-maj kind-economy">3月 日銀マイナス金利解除</span><span class="ev ev-maj kind-economy">7月 追加利上げ→8/5 日経株急落（一時31%下落）</span><span class="ev ev-def kind-economy">マイナス金利解除で金利正常化</span><span class="ev ev-mid kind-economy">建築費・労務費上昇</span><span class="ev ev-def kind-economy">上場市場の選別強化</span><span class="ev ev-mid kind-economy">1月 新NISA開始で家計投資マネー流入</span><span class="ev ev-mid kind-economy">円安160円台一時突破 為替介入</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「交代の音が、いくつも同時に、鳴った年。」</div>
+  </footer>
+</section>
+
+
+<section class="m-year" data-year="2025" data-phase="6">
+  <header class="m-year-head" style="border-color:#5A5A5A;">
+    <div class="m-year-num">2025</div>
+    <div class="m-year-key">◆ 人づくり／育成の資本化</div>
+    <div class="m-year-band">人づくり元年——クロニクル後半の起点</div>
+  </header>
+  <div class="m-tracks">
+    <div class="m-track m-track-thought">
+      <div class="m-track-h">深川真</div>
+      <div class="m-issue r5" data-no="271"><span class="m-no">第 271 号</span><span class="m-ttl">2024振り返り&amp;2025年頭所感</span></div><div class="m-issue r4" data-no="272"><span class="m-no">第 272 号</span><span class="m-ttl">第56期　経営方針発表会</span></div>
+      <div class="m-text"><span class="ev ev-def">2024年の振り返りを踏まえ、自身も新しい生き方へ移行</span><span class="ev ev-def">同志の幸せと成長を強く語る</span><span class="ev ev-def">育成投資の倍増方針</span><span class="ev ev-def">クロニクル後半の序章</span></div>
+    </div>
+    <div class="m-track m-track-org">
+      <div class="m-track-h">MARIMO WAY</div>
+      <div class="m-text"><span class="ev ev-maj">MSS 創業</span><span class="ev ev-def">国内・海外・MSS の三権分立</span><span class="ev ev-mid">2030 年目標『上場・MSS全黒字・海外安定』</span><span class="ev ev-mid">育成投資倍増方針</span><span class="ev ev-maj">第271号 MARIMO WAY を基盤にした全社員対象『人づくり元年プロジェクト』始動</span></div>
+    </div>
+    <div class="m-track m-track-world">
+      <div class="m-track-h">社会・経済</div>
+      <div class="m-subblock m-society"><span class="m-sub-h">社会</span><div class="m-text"><span class="ev ev-maj kind-society">4/13 大阪・関西万博開幕</span><span class="ev ev-def kind-society">人材流出・リスキリング・組織学習が社会的課題として定着</span><span class="ev ev-mid kind-society">合計特殊出生率1.2割れ見込</span><span class="ev ev-mid kind-society">AI エージェント普及で『人間の仕事とは』が再問化</span><span class="ev ev-mid kind-society">石破茂内閣</span></div></div>
+      <div class="m-subblock m-economy"><span class="m-sub-h">経済</span><div class="m-text"><span class="ev ev-mid kind-economy">インフレと人手不足が常態化</span><span class="ev ev-def kind-economy">企業に生産性・選ばれる組織・長期投資の両立が求められる</span><span class="ev ev-mid kind-economy">日銀追加利上げ観測</span><span class="ev ev-def kind-economy">金利正常化進行</span><span class="ev ev-mid kind-economy">円安・輸入インフレ継続</span><span class="ev ev-maj kind-economy">都心マンション1億円超が常態化 地方との乖離拡大</span></div></div>
+    </div>
+  </div>
+  <footer class="m-year-foot">
+    <div class="m-poetic">「会社が、いちばん大切にすべきものは、けっきょく、人だった。」</div>
+  </footer>
+</section>
+
+  </div>
+</div>
+
+<script>
+document.querySelectorAll(".m-issue").forEach(card => {
+  card.addEventListener("click", () => {
+    const no = card.dataset.no;
+    if (no) location.href = `chronicle_FULLTEXT_complete.html#no=${no}`;
+  });
+});
+
+// 巻物：縦スクロールホイールを横スクロールにマップ
+const mk = document.querySelector(".makimono");
+mk.addEventListener("wheel", e => {
+  if (e.deltaY !== 0 && e.deltaX === 0) {
+    e.preventDefault();
+    mk.scrollLeft += e.deltaY;
+  }
+}, { passive: false });
+</script>
+
+</body>
+</html>

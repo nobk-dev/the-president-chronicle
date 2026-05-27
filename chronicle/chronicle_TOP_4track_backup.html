@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "President Chronicle Web V0",
+  "schemaVersion": 1,
+  "description": "THE PRESIDENT CHRONICLE 本体ウェブ版 v0 骨格。2007–2025 の 19 年を横スクロール年表で展開し、4 トラック（①思想／②組織／③社会／④経済）＋照応キー縦帯で『情報の歴史21』方式を実装。フェーズナビで 1-a〜4 を切替、号カードをクリックすると右ドロワーで号の全文プレビュー（v0 は代表号 11 本）。書籍装幀の継承として和紙色背景・Cormorant Garamond × Noto Serif JP・朱と Marimo Blue の差し色を配置。"
+}
+</script>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>THE PRESIDENT CHRONICLE — Web v2.9 Vertical</title>
+<style>
+:root {
+  color-scheme: light;
+  --paper: #f5f2ea;
+  --paper-warm: #fbf8ee;
+  --paper-edge: #ece4ce;
+  --ink: #14223f;
+  --ink-soft: #3a3630;
+  --ink-mute: #6b6657;
+  --ink-faint: #8a8276;
+  --rule: #bdb7a9;
+  --rule-soft: #d4cdb8;
+  --vermilion: #8b3a2a;
+  --vermilion-soft: #b56b56;
+  --marimo-blue: #0096D6;
+  --dark-blue: #0f2e6a;
+  --serif-en: "Cormorant Garamond", "Garamond", "Baskerville", Georgia, serif;
+  --serif-jp: "Noto Serif JP", "YuMincho", "Hiragino Mincho Pro", "MS Mincho", serif;
+  --sans-jp: "Noto Serif JP", "YuMincho", "Hiragino Mincho Pro", "MS Mincho", serif;
+  --tag-green: #4F7B4F;
+  --tag-green-ink: #2c4a2c;
+  --tag-ochre: #C9A14A;
+  --year-h: 280px;
+  --gutter-w: 196px;
+  --col-thought: 480px;
+  --col-org: 232px;
+  --col-society: 208px;
+  --col-economy: 208px;
+  --col-keys: 116px;
+  --col-poetic: 136px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink-soft); font-family: var(--sans-jp); }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; background: radial-gradient(1200px 600px at 10% -10%, rgba(212,205,184,0.35), transparent 60%), radial-gradient(800px 500px at 110% 110%, rgba(189,183,169,0.25), transparent 60%); }
+
+header.site { position: relative; z-index: 2; padding: 42px 48px 18px; border-bottom: 1px solid var(--rule); background: linear-gradient(180deg, var(--paper) 0%, var(--paper-warm) 100%); }
+.hero { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: auto 1fr auto; gap: 34px; align-items: end; }
+.hero-logo { display: flex; align-items: flex-end; padding-bottom: 6px; }
+.hero-logo img { width: 84px; height: auto; display: block; }
+.hero-main h1 { margin: 0; font-family: var(--serif-en); font-weight: 500; font-size: 56px; letter-spacing: 0.02em; color: var(--ink); line-height: 1.0; }
+.hero-main .jp-title { margin-top: 14px; font-family: var(--sans-jp); font-weight: 800; font-size: 22px; letter-spacing: 0.10em; color: var(--ink); }
+.hero-main .sub { margin-top: 10px; font-family: var(--sans-jp); font-weight: 500; font-size: 11.5px; letter-spacing: 0.04em; color: var(--ink-mute); }
+.hero-meta { text-align: right; font-family: var(--serif-en); font-style: italic; font-size: 10.5px; letter-spacing: 0.3em; color: var(--ink-mute); line-height: 2.0; border-left: 1px dotted var(--rule); padding-left: 24px; }
+.hero-meta .big { font-style: normal; font-size: 22px; letter-spacing: 0.18em; color: var(--ink); display: block; margin-bottom: 2px; }
+.hero-meta .sm { display: block; }
+
+.phase-nav { position: sticky; top: 0; z-index: 30; background: var(--paper); border-bottom: 1px solid var(--rule); border-top: 1px double var(--rule); padding: 12px 48px; box-shadow: 0 1px 4px rgba(20,34,63,0.06); }
+.phase-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.phase-label { font-family: var(--serif-en); font-style: italic; font-size: 10px; letter-spacing: 0.24em; color: var(--ink-faint); text-transform: uppercase; margin-right: 8px; }
+.phase-btn { appearance: none; border: 1px solid var(--rule); background: transparent; padding: 6px 12px; border-radius: 0; font-family: var(--sans-jp); font-weight: 600; font-size: 11.5px; letter-spacing: 0.04em; color: var(--ink-soft); cursor: pointer; transition: all 0.2s; display: flex; align-items: baseline; gap: 6px; }
+.phase-btn .ph-num { font-family: var(--serif-en); font-style: italic; font-size: 9.5px; letter-spacing: 0.14em; color: var(--ink-faint); }
+.phase-btn:hover { border-color: var(--ink); color: var(--ink); }
+.phase-btn.active { color: #fff; }
+.phase-btn.active .ph-num { color: rgba(255,255,255,0.7); }
+
+main.chronicle { padding: 24px 0 30px; }
+body::before { z-index: -1 !important; }
+.chrono-title { max-width: 1400px; margin: 0 auto 16px; padding: 0 48px; display: flex; justify-content: space-between; align-items: baseline; }
+.chrono-title .left { font-family: var(--serif-en); font-style: italic; font-size: 10px; letter-spacing: 0.24em; color: var(--ink-faint); text-transform: uppercase; }
+.chrono-title .right { font-family: var(--sans-jp); font-weight: 500; font-size: 11px; letter-spacing: 0.04em; color: var(--ink-mute); }
+
+.chrono-wrap { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+.v-headers { position: sticky; top: 52px; z-index: 20; display: flex; background: var(--paper-warm); border-top: 1px solid var(--rule); border-bottom: 1px double var(--rule); height: 60px; box-shadow: 0 2px 6px rgba(20,34,63,0.04); }
+.vh { padding: 10px 12px; border-right: 1px dotted var(--rule); display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.vh:last-child { border-right: none; }
+.vh .tl-num { font-family: var(--serif-en); font-style: italic; font-size: 10.5px; letter-spacing: 0.22em; color: var(--vermilion); font-weight: 500; }
+.vh .tl-jp { font-family: var(--sans-jp); font-size: 14px; letter-spacing: 0.06em; color: var(--ink); font-weight: 800; }
+.vh .tl-sub { font-family: var(--serif-en); font-style: italic; font-size: 9px; letter-spacing: 0.18em; color: var(--ink-faint); text-transform: uppercase; }
+.vh.gutter { width: var(--gutter-w); }
+.vh.thought { width: var(--col-thought); }
+.vh.org { width: var(--col-org); }
+.vh.society { width: var(--col-society); }
+.vh.economy { width: var(--col-economy); }
+.vh.keys { width: var(--col-keys); }
+.vh.poetic { width: var(--col-poetic); }
+
+.chrono-v { display: flex; position: relative; border-left: 1px solid var(--rule); border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--paper); }
+.col-v { position: relative; height: var(--total-h, calc(var(--year-h) * 19)); border-right: 1px dotted var(--rule); }
+.col-v:last-child { border-right: none; }
+.col-v.gutter { width: var(--gutter-w); background: linear-gradient(90deg, var(--paper-warm) 0%, var(--paper) 100%); }
+.col-v.thought { width: var(--col-thought); }
+.col-v.org { width: var(--col-org); }
+.col-v.society { width: var(--col-society); }
+.col-v.economy { width: var(--col-economy); }
+.col-v.keys { width: var(--col-keys); }
+.col-v.poetic { width: var(--col-poetic); background: linear-gradient(90deg, var(--paper) 0%, var(--paper-edge) 100%); }
+
+.hgrid { position: absolute; left: 0; right: 0; height: 1px; background: var(--rule-soft); opacity: 0.55; }
+.hgrid.decade { background: var(--rule); opacity: 0.9; }
+
+.phase-stripe { position: absolute; left: 8px; width: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--sans-jp); font-weight: 700; font-size: 9px; letter-spacing: 0.04em; writing-mode: vertical-rl; text-orientation: mixed; padding: 8px 0; }
+.year-label { position: absolute; left: 30px; width: 156px; text-align: left; font-family: var(--serif-en); font-weight: 500; font-size: 17px; letter-spacing: 0.04em; color: var(--ink); line-height: 1.0; padding-top: 12px; }
+.year-label .yn { font-family: var(--serif-en); font-weight: 500; font-size: 17px; letter-spacing: 0.04em; color: var(--ink); }
+.year-label .ymk { display: block; margin-top: 7px; font-family: var(--sans-jp); font-weight: 800; font-size: 15px; letter-spacing: 0.04em; color: var(--ink); padding: 3px 7px 4px; background: rgba(139, 58, 42, 0.08); border-left: 2.5px solid var(--vermilion); line-height: 1.2; }
+.year-label.decade .ymk { background: rgba(139, 58, 42, 0.16); color: var(--vermilion); }
+.year-label:hover .ymk { background: rgba(139, 58, 42, 0.2); color: var(--vermilion); }
+.year-label.decade { color: var(--vermilion); }
+.year-label .jp { display: block; font-family: var(--sans-jp); font-weight: 500; font-size: 8.5px; letter-spacing: 0.04em; color: var(--ink-faint); margin-top: 3px; }
+.tick { position: absolute; right: 0; height: 1px; width: 14px; background: var(--ink-mute); opacity: 0.55; transform: translateY(-0.5px); cursor: pointer; }
+.tick.key { height: 2px; width: 28px; background: var(--vermilion); opacity: 1; }
+.tick.key.r5 { background: var(--vermilion); width: 34px; }
+.tick.key.r4 { background: var(--dark-blue); width: 28px; }
+.tick.key.r3 { background: var(--ink-mute); width: 22px; }
+.tick-no { position: absolute; right: 38px; font-family: var(--serif-en); font-style: italic; font-size: 9px; letter-spacing: 0.08em; color: var(--ink-faint); transform: translateY(-6px); white-space: nowrap; }
+
+/* === Track I icard：松岡式 3 階層（rank 5=象徴／rank 4=普通／rank 3+regular=細目） === */
+.icard { position: absolute; transform: translateY(-50%); appearance: none; background: var(--paper-warm); border: 1px solid var(--rule); border-left: 2px solid var(--rule-soft); cursor: pointer; padding: 4px 9px 5px; text-align: left; font-family: var(--sans-jp); width: 218px; min-height: 28px; box-shadow: 0.5px 0.5px 0 rgba(20,34,63,0.06); transition: transform 0.15s, background 0.15s, box-shadow 0.15s, z-index 0s, border-color 0.15s; overflow: hidden; }
+.icard:hover { background: #fff; border-color: var(--ink); transform: translateY(-52%) translateX(2px); box-shadow: 2px 2px 0 rgba(20,34,63,0.18); z-index: 7; }
+
+/* r5（象徴）：marimo blue ブロック背景＋深青バー＋極太大型 */
+.icard.r5 {
+  border: 1px solid var(--marimo-blue);
+  border-left: 4px solid var(--marimo-blue);
+  background: rgba(0, 150, 214, 0.18);
+  padding: 7px 11px 8px;
+  min-height: 38px;
+}
+/* r4（普通）：marimo blue バー＋太字中サイズ */
+.icard.r4 {
+  border: 1px solid var(--marimo-blue);
+  border-left: 2.5px solid var(--marimo-blue);
+  padding: 5px 10px 6px;
+}
+/* r3（細目寄り）／regular（細目） */
+.icard.r3 { border: 1px solid var(--ink-mute); border-left: 2px solid var(--ink-mute); }
+.icard.regular { border: 1px solid var(--rule-soft); border-left: 2px solid var(--rule); background: var(--paper); }
+
+/* 号番号 */
+.icard .no { font-family: var(--serif-en); font-style: italic; font-size: 10.5px; letter-spacing: 0.14em; color: var(--marimo-blue); display: inline; margin-right: 5px; }
+.icard.r5 .no { font-size: 12px; font-weight: 700; letter-spacing: 0.18em; color: var(--marimo-blue); }
+.icard.r4 .no { color: var(--marimo-blue); font-weight: 700; font-size: 11px; }
+.icard.r3 .no { color: var(--ink-mute); }
+.icard.regular .no { color: var(--ink-faint); font-size: 10px; letter-spacing: 0.08em; }
+.icard .mo { font-family: var(--serif-en); font-style: italic; font-size: 9.5px; color: var(--ink-faint); display: inline; margin-right: 4px; }
+.icard.r5 .mo { font-size: 11px; color: var(--ink-mute); }
+
+/* タイトル */
+.icard .ttl { display: block; font-size: 11px; letter-spacing: 0; line-height: 1.3; color: var(--ink); font-weight: 600; margin-top: 1px; }
+.icard.r5 .ttl { font-size: 19px; line-height: 1.28; font-weight: 800; letter-spacing: -0.005em; margin-top: 3px; }
+.icard.r4 .ttl { font-size: 14px; line-height: 1.38; font-weight: 700; margin-top: 2px; }
+.icard.r3 .ttl { font-size: 11.5px; font-weight: 600; }
+.icard.regular .ttl { font-size: 11px; font-weight: 500; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; }
+
+.yr-card { position: absolute; left: 8px; right: 8px; transform: translateY(-50%); padding: 4px 4px; background: transparent; border: none; font-family: var(--sans-jp); cursor: pointer; transition: background 0.15s; }
+.yr-card:hover { background: rgba(20,34,63,0.045); }
+.yr-card .yrlbl { display: inline-block; padding: 1px 5px 2px; margin-right: 5px; background: var(--tag-green); color: #fff; font-family: var(--sans-jp); font-weight: 700; font-size: 9px; letter-spacing: 0.04em; line-height: 1.2; vertical-align: 1px; }
+.yr-card .txt { font-size: 10px; line-height: 1.5; letter-spacing: 0; color: var(--ink-soft); font-weight: 500; }
+.col-v.org .yr-card .yrlbl { background: var(--marimo-blue); }
+.col-v.org .yr-card.major .yrlbl { background: var(--marimo-blue); }
+.col-v.society .yr-card .yrlbl { background: #c87632; }
+.col-v.economy .yr-card .yrlbl { background: #6b6657; }
+
+/* === 情報の歴史風 3階層タイポグラフィ === */
+/* デフォルト：小さい列挙（そこまでのもの） */
+.yr-card.list-mode .ev { display: block; font-size: 9.5px; line-height: 1.45; padding-left: 9px; position: relative; margin: 2px 0 2px; }
+.yr-card.list-mode .ev::before { content: "・"; position: absolute; left: 0; top: -1px; color: var(--ink-mute); font-weight: 700; font-size: 11px; }
+.yr-card.list-mode .ev a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px dotted var(--rule); transition: color 0.12s, border-color 0.12s; font-weight: 500; }
+.yr-card.list-mode .ev a:hover { color: var(--vermilion); border-bottom-color: var(--vermilion); }
+
+/* ★：普通のニュース（情報の歴史中サイズ、太字） */
+.yr-card.list-mode .ev.mid {
+  display: block;
+  font-size: 14px;
+  line-height: 1.42;
+  margin: 5px -2px 5px -2px;
+  padding: 2px 4px 2px 10px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-left: 2.5px solid var(--ink);
+  position: relative;
+  font-family: var(--sans-jp);
+}
+.yr-card.list-mode .ev.mid::before { content: ""; display: none; }
+.yr-card.list-mode .ev.mid a { color: var(--ink); font-weight: 700; border-bottom: none; }
+.yr-card.list-mode .ev.mid a:hover { color: var(--vermilion); }
+
+/* ★★：象徴的なもの（色ブロック背景＋極太、情報の歴史の見出しブロック風） */
+.yr-card.list-mode .ev.maj {
+  display: block;
+  font-size: 19px;
+  line-height: 1.32;
+  margin: 9px -3px 9px -3px;
+  padding: 6px 9px 7px 12px;
+  font-weight: 800;
+  letter-spacing: -0.005em;
+  background: rgba(220, 180, 50, 0.28);
+  border-left: 4px solid var(--vermilion);
+  font-family: var(--sans-jp);
+}
+.yr-card.list-mode .ev.maj::before { content: ""; display: none; }
+.yr-card.list-mode .ev.maj a { color: var(--ink); font-weight: 800; border-bottom: none; }
+.yr-card.list-mode .ev.maj a:hover { color: var(--vermilion); }
+
+/* トラックごとの色分け：T1+T2 = marimo blue（マリモ軸／内側）、T3 = 暖色（社会）、T4 = グレー系（経済） */
+/* T2: 組織（marimo blue 系） */
+.col-v.org .yr-card.list-mode .ev.mid { border-left-color: var(--marimo-blue); }
+.col-v.org .yr-card.list-mode .ev.maj { background: rgba(0, 150, 214, 0.18); border-left-color: var(--marimo-blue); }
+/* T3: 社会（暖色 アンバー／オレンジ系） */
+.col-v.society .yr-card.list-mode .ev.mid { border-left-color: #c87632; }
+.col-v.society .yr-card.list-mode .ev.maj { background: rgba(225, 158, 60, 0.32); border-left-color: #c87632; }
+/* T4: 経済（グレー系） */
+.col-v.economy .yr-card.list-mode .ev.mid { border-left-color: #6b6657; }
+.col-v.economy .yr-card.list-mode .ev.maj { background: rgba(120, 110, 95, 0.22); border-left-color: #6b6657; }
+.col-v.society .yr-card.list-mode .ev::before { color: #c87632; }
+.col-v.economy .yr-card.list-mode .ev::before { color: #6b6657; }
+
+.key-band { position: absolute; left: 50%; transform: translate(-50%, -50%); width: 84px; padding: 14px 6px 12px; background: rgba(20,34,63,0.06); border: 1px solid var(--ink); font-family: var(--sans-jp); text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.key-band:hover { background: rgba(20,34,63,0.14); }
+.key-band .kj { writing-mode: vertical-rl; text-orientation: mixed; font-size: 22px; letter-spacing: -0.02em; color: var(--ink); font-weight: 900; line-height: 1.08; display: block; max-height: calc(var(--year-h) - 40px); }
+.key-band::before { content: "◆"; position: absolute; top: -1px; left: -1px; font-size: 9px; color: var(--vermilion); background: var(--paper); width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+
+.poetic-line { position: absolute; left: 50%; transform: translate(-50%, -50%); max-height: calc(var(--year-h) - 36px); writing-mode: vertical-rl; text-orientation: mixed; font-family: var(--serif-jp); font-size: 11px; letter-spacing: 0.08em; line-height: 1.6; color: var(--ink-soft); font-style: normal; font-weight: 400; padding: 4px 2px; text-align: start; cursor: help; }
+
+body.filter-on .icard:not(.match),
+body.filter-on .tick:not(.match),
+body.filter-on .tick-no:not(.match),
+body.filter-on .yr-card:not(.match),
+body.filter-on .key-band:not(.match),
+body.filter-on .poetic-line:not(.match),
+body.filter-on .phase-stripe:not(.match),
+body.filter-on .year-label:not(.match) { opacity: 0.14; filter: grayscale(0.6); }
+
+.mw30-btn { appearance: none; border: 1px solid var(--ink); background: var(--ink); color: #fff; padding: 6px 14px; border-radius: 0; font-family: var(--sans-jp); font-weight: 700; font-size: 11px; letter-spacing: 0.08em; cursor: pointer; }
+.mw30-btn:hover { background: var(--vermilion); border-color: var(--vermilion); }
+.mw30-overlay { position: fixed; inset: 0; background: rgba(20,34,63,0.55); z-index: 60; display: none; overflow-y: auto; padding: 40px 20px; }
+.mw30-overlay.open { display: block; }
+.mw30-panel { max-width: 1100px; margin: 0 auto; background: var(--paper); padding: 36px 42px 48px; border: 1px solid var(--ink); position: relative; font-family: var(--sans-jp); }
+.mw30-head { display: flex; align-items: baseline; gap: 18px; border-bottom: 1px double var(--rule); padding-bottom: 14px; margin-bottom: 22px; }
+.mw30-head h2 { margin: 0; font-family: var(--sans-jp); font-weight: 900; font-size: 24px; letter-spacing: 0.06em; color: var(--ink); }
+.mw30-head .en { font-family: var(--serif-en); font-style: italic; font-size: 12px; letter-spacing: 0.24em; color: var(--vermilion); text-transform: uppercase; }
+.mw30-close { position: absolute; top: 14px; right: 14px; appearance: none; border: 1px solid var(--ink); background: transparent; width: 32px; height: 32px; font-size: 16px; line-height: 1; color: var(--ink); cursor: pointer; }
+.mw30-chapter { margin-bottom: 26px; }
+.mw30-chapter h3 { margin: 0 0 12px; font-family: var(--sans-jp); font-weight: 800; font-size: 14px; letter-spacing: 0.12em; display: inline-block; padding: 4px 10px; background: var(--tag-green); color: #fff; }
+.mw30-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.mw30-card { border: 1px solid var(--rule); border-left: 3px solid var(--vermilion); background: var(--paper-warm); padding: 8px 10px 10px; min-height: 62px; cursor: pointer; transition: background 0.12s, border-color 0.12s, transform 0.12s; }
+.mw30-card:hover { background: #fff; border-color: var(--vermilion); transform: translateX(2px); }
+.mw30-card .mwno { font-family: var(--serif-en); font-style: italic; font-size: 10px; letter-spacing: 0.18em; color: var(--vermilion); }
+.mw30-card .mwtitle { display: block; margin-top: 2px; font-size: 12px; line-height: 1.3; letter-spacing: 0; color: var(--ink); font-weight: 700; }
+.mw30-detail { display: none; padding: 22px 28px 28px; margin-top: 14px; border: 1px solid var(--ink); background: var(--paper-warm); position: relative; }
+.mw30-detail.open { display: block; }
+.mw30-detail-back { appearance: none; border: 1px solid var(--ink-mute); background: transparent; color: var(--ink-mute); padding: 5px 12px; font-family: var(--serif-en); font-style: italic; font-size: 10.5px; letter-spacing: 0.16em; cursor: pointer; margin-bottom: 14px; }
+.mw30-detail-back:hover { color: var(--ink); border-color: var(--ink); }
+.mw30-detail-num { font-family: var(--serif-en); font-style: italic; font-size: 14px; letter-spacing: 0.22em; color: var(--vermilion); margin-bottom: 4px; }
+.mw30-detail-ttl { margin: 0 0 14px; font-family: var(--sans-jp); font-weight: 800; font-size: 24px; letter-spacing: 0.04em; color: var(--ink); line-height: 1.4; border-left: 4px solid var(--vermilion); padding-left: 12px; }
+.mw30-detail-ex { margin: 0 0 16px; font-family: var(--serif-jp); font-size: 15px; line-height: 2.05; letter-spacing: 0.03em; color: var(--ink-soft); white-space: pre-line; text-align: justify; }
+.mw30-detail-source { margin: 0 0 18px; padding: 8px 12px; background: rgba(139,58,42,0.05); border-left: 2px solid var(--vermilion); font-family: var(--serif-jp); font-size: 10.5px; letter-spacing: 0.06em; color: var(--ink-faint); }
+.mw30-detail-source .src-label { font-family: var(--serif-en); font-style: italic; color: var(--vermilion); font-weight: 600; margin-right: 6px; letter-spacing: 0.16em; }
+.mw30-detail-rel { padding-top: 14px; border-top: 1px dotted var(--rule); }
+.mw30-detail-rel-h { font-family: var(--serif-en); font-style: italic; font-size: 10.5px; letter-spacing: 0.22em; color: var(--ink-faint); text-transform: uppercase; margin-bottom: 8px; }
+.mw30-rel-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+.mw30-rel-item { display: block; padding: 8px 10px 9px; border: 1px solid var(--rule-soft); background: #fff; text-decoration: none; color: var(--ink-soft); font-family: var(--sans-jp); transition: background 0.12s, border-color 0.12s, color 0.12s; cursor: pointer; }
+.mw30-rel-item:hover { background: rgba(139,58,42,0.06); border-color: var(--vermilion); color: var(--ink); }
+.mw30-rel-item .rno { font-family: var(--serif-en); font-style: italic; font-size: 10px; letter-spacing: 0.16em; color: var(--vermilion); margin-right: 6px; }
+.mw30-rel-item .rttl { font-size: 12.5px; line-height: 1.45; letter-spacing: 0.02em; }
+.mw30-rel-empty { font-family: var(--sans-jp); font-size: 11.5px; color: var(--ink-faint); font-style: italic; }
+@media (max-width: 1024px) { .mw30-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 680px) { .mw30-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.all272-btn { appearance: none; border: 1px solid var(--vermilion); background: var(--vermilion); color: #fff; padding: 6px 14px; border-radius: 0; font-family: var(--sans-jp); font-weight: 700; font-size: 11px; letter-spacing: 0.08em; cursor: pointer; }
+.all272-btn:hover { background: var(--ink); border-color: var(--ink); }
+.all272-overlay { position: fixed; inset: 0; background: rgba(20,34,63,0.55); z-index: 60; display: none; overflow-y: auto; padding: 30px 16px; }
+.all272-overlay.open { display: block; }
+.all272-panel { max-width: 1280px; margin: 0 auto; background: var(--paper); padding: 28px 32px 36px; border: 1px solid var(--ink); position: relative; font-family: var(--sans-jp); }
+.all272-head { display: flex; align-items: baseline; gap: 18px; border-bottom: 1px double var(--rule); padding-bottom: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+.all272-head h2 { margin: 0; font-family: var(--sans-jp); font-weight: 900; font-size: 22px; letter-spacing: 0.06em; color: var(--ink); }
+.all272-head .en { font-family: var(--serif-en); font-style: italic; font-size: 11.5px; letter-spacing: 0.24em; color: var(--vermilion); text-transform: uppercase; }
+.all272-head .meta { margin-left: auto; font-family: var(--sans-jp); font-size: 10.5px; letter-spacing: 0.04em; color: var(--ink-mute); }
+.all272-close { position: absolute; top: 12px; right: 12px; appearance: none; border: 1px solid var(--ink); background: transparent; width: 30px; height: 30px; font-size: 16px; line-height: 1; color: var(--ink); cursor: pointer; }
+.all272-phase { margin-bottom: 16px; }
+.all272-phase-title { display: inline-block; padding: 3px 10px; margin-bottom: 8px; font-family: var(--sans-jp); font-weight: 800; font-size: 11.5px; letter-spacing: 0.08em; color: #fff; }
+.all272-phase-title .pr { font-family: var(--serif-en); font-style: italic; font-size: 9.5px; letter-spacing: 0.2em; margin-right: 6px; opacity: 0.85; }
+.all272-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+.all272-cell { appearance: none; background: var(--paper-warm); border: 1px solid var(--rule-soft); border-left: 2px solid var(--rule); padding: 4px 5px 5px; cursor: pointer; text-align: left; font-family: var(--sans-jp); min-height: 50px; transition: background 0.12s, border-color 0.12s, transform 0.12s; overflow: hidden; }
+.all272-cell:hover { background: #fff; border-color: var(--ink); transform: translateY(-1px); }
+.all272-cell.r5 { border: 1px solid var(--vermilion); border-left: 3px solid var(--vermilion); background: #fbf2ee; }
+.all272-cell.r4 { border: 1px solid var(--ink); border-left: 2.5px solid var(--dark-blue); }
+.all272-cell.r3 { border: 1px solid var(--ink-mute); border-left: 2px solid var(--ink-mute); }
+.all272-cell .cn { font-family: var(--serif-en); font-style: italic; font-size: 8.5px; letter-spacing: 0.12em; color: var(--vermilion); display: block; line-height: 1; }
+.all272-cell.r4 .cn { color: var(--dark-blue); }
+.all272-cell.r3 .cn { color: var(--ink-mute); }
+.all272-cell.regular .cn { color: var(--ink-faint); font-size: 8px; }
+.all272-cell .cm { font-family: var(--serif-en); font-style: italic; font-size: 7.5px; color: var(--ink-faint); margin-left: 3px; }
+.all272-cell .ct { display: -webkit-box; margin-top: 2px; font-size: 9.5px; letter-spacing: 0; line-height: 1.18; color: var(--ink); font-weight: 700; overflow: hidden; text-overflow: ellipsis; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.all272-cell.regular .ct { font-size: 9px; font-weight: 500; color: var(--ink-soft); }
+@media (max-width: 1100px) { .all272-grid { grid-template-columns: repeat(6, 1fr); } }
+@media (max-width: 760px) { .all272-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 480px) { .all272-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.drawer-body .fulltext-sec { margin: 0 0 18px; padding: 14px 16px; background: rgba(139,58,42,0.04); border: 1px solid var(--rule); border-left: 3px solid var(--vermilion); }
+.drawer-body .fulltext-sec .ft-head { font-family: var(--sans-jp); font-weight: 800; font-size: 12px; letter-spacing: 0.06em; color: var(--vermilion); margin-bottom: 8px; }
+.drawer-body .fulltext-sec .ft-body { font-family: var(--serif-jp); font-size: 12.5px; line-height: 1.8; letter-spacing: 0.02em; color: var(--ink-soft); max-height: 300px; overflow-y: auto; padding-right: 6px; }
+.drawer-body .fulltext-sec .ft-empty { font-family: var(--sans-jp); font-size: 11px; color: var(--ink-faint); font-style: italic; line-height: 1.6; }
+
+.drawer-backdrop { position: fixed; inset: 0; background: rgba(20,34,63,0.28); opacity: 0; pointer-events: none; transition: opacity 0.28s; z-index: 50; }
+.drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(540px, 92vw); background: var(--paper); border-left: 1px solid var(--ink); transform: translateX(100%); transition: transform 0.32s cubic-bezier(.2,.7,.2,1); z-index: 51; display: flex; flex-direction: column; box-shadow: -8px 0 24px rgba(20,34,63,0.12); }
+.drawer.open { transform: translateX(0); }
+.drawer-head { padding: 22px 28px 16px; border-bottom: 1px double var(--rule); display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; background: linear-gradient(180deg, var(--paper-warm) 0%, var(--paper) 100%); }
+.dh-left { flex: 1; }
+.dh-no { font-family: var(--serif-en); font-style: italic; font-size: 11px; letter-spacing: 0.24em; color: var(--vermilion); margin-bottom: 6px; }
+.dh-ttl { font-family: var(--sans-jp); font-weight: 800; font-size: 20px; letter-spacing: 0.04em; color: var(--ink); line-height: 1.28; }
+.dh-meta { margin-top: 8px; font-family: var(--serif-en); font-style: italic; font-size: 10px; letter-spacing: 0.18em; color: var(--ink-faint); }
+.dh-close { appearance: none; background: transparent; border: 1px solid var(--ink); width: 34px; height: 34px; font-size: 18px; line-height: 1; color: var(--ink); cursor: pointer; flex-shrink: 0; }
+.drawer-body { padding: 22px 28px 40px; overflow-y: auto; flex: 1; font-family: var(--sans-jp); font-weight: 500; font-size: 13px; line-height: 1.72; color: var(--ink-soft); letter-spacing: 0.01em; }
+/* === コンパクトなメタストリップ === */
+.drawer-body .meta-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 6px 0 18px; padding: 0; font-family: var(--sans-jp); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-mute); }
+.drawer-body .meta-strip .ms-phase { display: inline-block; padding: 3px 10px 4px; font-family: var(--serif-en); font-style: italic; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; border: 1px solid var(--ink); color: var(--ink); background: transparent; }
+.drawer-body .meta-strip .ms-rank { font-family: var(--serif-en); font-style: italic; font-size: 11px; letter-spacing: 0.16em; color: var(--vermilion); font-weight: 600; }
+.drawer-body .meta-strip .ms-cat { color: var(--ink-mute); border-left: 1px dotted var(--rule); padding-left: 10px; font-size: 11px; }
+.drawer-body .meta-strip .ms-key { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 4px; background: rgba(139,58,42,0.07); color: var(--ink); font-weight: 700; font-size: 11.5px; }
+.drawer-body .meta-strip .ms-key::before { content: "◆"; color: var(--vermilion); font-size: 9px; }
+/* === 年の文脈ブロック（統合版） === */
+.drawer-body .ctx-card { margin: 18px 0 14px; padding: 16px 18px 14px; background: var(--paper-warm); border: 1px solid var(--rule); border-left: 3px solid var(--ink); }
+.drawer-body .ctx-card .ctx-h { font-family: var(--serif-en); font-style: italic; font-size: 10px; letter-spacing: 0.22em; color: var(--ink-faint); text-transform: uppercase; margin-bottom: 8px; }
+.drawer-body .ctx-card .ctx-band { font-family: var(--sans-jp); font-weight: 800; font-size: 14px; line-height: 1.45; letter-spacing: 0.04em; color: var(--ink); margin-bottom: 6px; }
+.drawer-body .ctx-card .ctx-poetic { font-family: var(--serif-jp); font-size: 12.5px; line-height: 1.7; color: var(--ink-soft); font-style: normal; padding: 6px 0 0; border-top: 1px dotted var(--rule); margin-top: 8px; }
+.drawer-body .ctx-card .ctx-memo { margin-top: 10px; padding-top: 8px; border-top: 1px dotted var(--rule); font-family: var(--sans-jp); font-size: 11.5px; line-height: 1.7; color: var(--ink-mute); letter-spacing: 0.02em; }
+.drawer-body .ctx-card .ctx-memo::before { content: "memo　"; font-family: var(--serif-en); font-style: italic; font-size: 9.5px; letter-spacing: 0.22em; color: var(--vermilion); text-transform: uppercase; margin-right: 4px; }
+/* === 編集価値（rank issue 専用、軽量） === */
+.drawer-body .editorial-note { margin: 14px 0 8px; padding: 10px 14px; background: rgba(139,58,42,0.05); border-left: 3px solid var(--vermilion); font-family: var(--serif-jp); font-size: 13px; line-height: 1.75; color: var(--ink-soft); letter-spacing: 0.03em; }
+.drawer-body .editorial-note::before { content: "編集価値"; display: block; font-family: var(--sans-jp); font-size: 9.5px; letter-spacing: 0.18em; color: var(--vermilion); font-weight: 800; margin-bottom: 4px; }
+/* TRACK ヘッダーをコンパクトに */
+.drawer-body .blabel { display: inline-block; font-family: var(--sans-jp); font-size: 9px; letter-spacing: 0.10em; color: var(--ink-mute); background: transparent; border-bottom: 1px solid var(--rule); font-weight: 700; padding: 0 0 3px; margin-bottom: 6px; line-height: 1.2; width: 100%; }
+.drawer-body .phase-tag { display: inline-block; padding: 3px 10px; margin-bottom: 16px; font-family: var(--serif-en); font-style: italic; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; border: 1px solid var(--ink); color: var(--ink); }
+.drawer-body .block { margin-bottom: 18px; }
+.drawer-body .blabel { display: inline-block; font-family: var(--sans-jp); font-size: 9.5px; letter-spacing: 0.06em; color: #fff; background: var(--tag-green); font-weight: 700; padding: 2px 7px 3px; margin-bottom: 8px; line-height: 1; }
+.drawer-body .rank-line { font-family: var(--serif-en); font-size: 11px; letter-spacing: 0.18em; color: var(--vermilion); margin-bottom: 12px; }
+.drawer-body .placeholder-note { margin-top: 22px; padding: 10px 12px; background: rgba(20,34,63,0.05); border: 1px dashed var(--rule); font-size: 10.5px; letter-spacing: 0.04em; color: var(--ink-faint); line-height: 1.6; }
+
+footer.site { position: relative; z-index: 2; margin-top: 50px; padding: 44px 48px 32px; border-top: 1px double var(--rule); background: linear-gradient(180deg, var(--paper-warm) 0%, var(--paper-edge) 100%); }
+.foot-inner { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 36px; }
+.foot-block h3 { margin: 0 0 10px; font-family: var(--serif-en); font-style: italic; font-size: 10.5px; letter-spacing: 0.24em; color: var(--vermilion); text-transform: uppercase; font-weight: 500; }
+.foot-block .jp-h { font-family: var(--sans-jp); font-weight: 700; font-size: 13.5px; letter-spacing: 0.06em; color: var(--ink); margin-bottom: 10px; }
+.foot-block p { margin: 0 0 8px; font-size: 11px; line-height: 1.7; letter-spacing: 0.02em; color: var(--ink-mute); font-family: var(--sans-jp); font-weight: 500; }
+.foot-block dl { margin: 0; display: grid; grid-template-columns: 88px 1fr; gap: 4px 12px; font-size: 10.5px; color: var(--ink-soft); }
+.foot-block dt { font-family: var(--serif-en); font-style: italic; letter-spacing: 0.18em; color: var(--ink-faint); }
+.foot-block dd { margin: 0; letter-spacing: 0.02em; font-family: var(--sans-jp); font-weight: 500; }
+.foot-strip { max-width: 1240px; margin: 26px auto 0; padding-top: 16px; border-top: 1px dotted var(--rule); text-align: center; font-family: var(--serif-en); font-style: italic; font-size: 10px; letter-spacing: 0.32em; color: var(--ink-faint); text-transform: uppercase; }
+
+@media (max-width: 860px) {
+  header.site { padding: 28px 22px 14px; }
+  .hero { grid-template-columns: auto 1fr; gap: 18px; }
+  .hero-logo img { width: 56px; }
+  .hero-meta { grid-column: 1 / -1; text-align: left; border-left: none; border-top: 1px dotted var(--rule); padding: 14px 0 0; }
+  .hero-main h1 { font-size: 34px; }
+  .phase-nav { padding: 10px 22px; }
+  .chrono-title { padding: 0 22px; }
+  footer.site { padding: 34px 22px 22px; }
+  .foot-inner { grid-template-columns: 1fr; gap: 24px; }
+  .chrono-wrap { overflow-x: auto; padding: 0; }
+  .v-headers, .chrono-v { min-width: 1400px; }
+}
+
+.fulltext-sec .ft-fulllink{display:inline-block;margin-top:14px;padding:11px 18px 12px;background:var(--vermilion);color:#fff;font-family:var(--sans-jp);font-size:12.5px;font-weight:700;letter-spacing:0.06em;text-decoration:none;border:1px solid var(--vermilion);transition:background 0.15s,color 0.15s;}
+.fulltext-sec .ft-fulllink:hover{background:#fff;color:var(--vermilion);}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="hero">
+    <div class="hero-logo">
+      <img src="data:image/png;base64,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" alt="Marimo Holdings">
+    </div>
+    <div class="hero-main">
+      <h1>THE PRESIDENT CHRONICLE</h1>
+      <div class="jp-title">マリモクロニクル</div>
+      <div class="sub">深川真が、社員に贈り続けた全 272 通のメッセージ。全 709,501 文字で語る。</div>
+    </div>
+    <div class="hero-meta">
+      <span class="big">268</span>
+      <span class="sm">issues &middot; 709,501 字</span>
+      <span class="sm">2007.12.09 → 2025</span>
+      <span class="sm">Marimo Group</span>
+    </div>
+  </div>
+</header>
+
+<nav class="phase-nav">
+  <div class="phase-inner" id="phaseNav">
+    <span class="phase-label">Phase</span>
+    <button class="phase-btn active" data-phase="all"><span class="ph-num">·</span>全期</button>
+    <button class="all272-btn" id="all272Btn">◆ 全268号 一覧</button>
+    <button class="mw30-btn" id="mw30Btn">◆ MARIMO WAY 行動指針 三十則</button>
+  </div>
+</nav>
+
+<div class="all272-overlay" id="all272Overlay" aria-hidden="true">
+  <div class="all272-panel">
+    <button class="all272-close" id="all272Close" aria-label="閉じる">×</button>
+    <div class="all272-head">
+      <h2>全 268 号 一覧</h2>
+      <span class="en">All Issues · 2007.12.09 → 2025</span>
+      <span class="meta" id="all272Meta">象徴号 33 ／ 通常号 235 ／ 欠番 5</span>
+    </div>
+    <div id="all272Body"></div>
+  </div>
+</div>
+
+<div class="mw30-overlay" id="mw30Overlay" aria-hidden="true">
+  <div class="mw30-panel">
+    <button class="mw30-close" id="mw30Close" aria-label="閉じる">×</button>
+    <div class="mw30-head">
+      <h2>MARIMO WAY 行動指針 三十則</h2>
+      <span class="en">Action Guidelines · Since 2023</span>
+    </div>
+    <div id="mw30Body"></div>
+  </div>
+</div>
+
+<main class="chronicle">
+  <div class="chrono-title">
+    <div class="left">Chronological Field &middot; 縦の年表</div>
+    <div class="right">↓ 2007.12.09 → 2025　縦スクロール &nbsp;/&nbsp; 全268号 &nbsp;/&nbsp; v2.9</div>
+  </div>
+
+  <div class="chrono-wrap">
+    <div class="v-headers">
+      <div class="vh gutter"><span class="tl-num">YEAR</span><span class="tl-jp">年次 ／ 号</span><span class="tl-sub">Phase &middot; Issues</span></div>
+      <div class="vh thought"><span class="tl-num">TRACK I</span><span class="tl-jp">深川真、あるいは一経営者として</span><span class="tl-sub">Fukagawa Makoto &middot; 268 issues</span></div>
+      <div class="vh org"><span class="tl-num">TRACK II</span><span class="tl-jp">MARIMO THE WAY</span><span class="tl-sub">Marimo Way &middot; Organization</span></div>
+      <div class="vh society"><span class="tl-num">TRACK III</span><span class="tl-jp">そのとき、社会は</span><span class="tl-sub">Then, Society &middot; 日本</span></div>
+      <div class="vh economy"><span class="tl-num">TRACK IV</span><span class="tl-jp">そのとき、経済は</span><span class="tl-sub">Then, Economy &middot; 不動産</span></div>
+
+      <div class="vh poetic"><span class="tl-num">◇</span><span class="tl-jp">詩的字句</span><span class="tl-sub">Captions</span></div>
+    </div>
+
+    <div class="chrono-v" id="chronoV">
+      <div class="col-v gutter"      id="colGutter"></div>
+      <div class="col-v thought"     id="colThought"></div>
+      <div class="col-v org"         id="colOrg"></div>
+      <div class="col-v society"     id="colSociety"></div>
+      <div class="col-v economy"     id="colEconomy"></div>
+
+      <div class="col-v poetic"      id="colPoetic"></div>
+    </div>
+  </div>
+</main>
+
+<div class="drawer-backdrop" id="backdrop"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div class="dh-left">
+      <div class="dh-no" id="dhNo">—</div>
+      <div class="dh-ttl" id="dhTtl">—</div>
+      <div class="dh-meta" id="dhMeta">—</div>
+    </div>
+    <button class="dh-close" id="dhClose" aria-label="閉じる">×</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<footer class="site">
+  <div class="foot-inner">
+    <div class="foot-block">
+      <h3>Method &middot; 編集方針</h3>
+      <div class="jp-h">縦組クロニクル ／ 4 トラック（照応キーは年次に合体）</div>
+      <p>本クロニクルは松岡正剛『情報の歴史21』に倣い、時間を縦軸・主題を横列に配置する。深川真という「一経営者」の声、MARIMO WAY と組織の歩み、その時代の社会と経済の「地」を、左から右へ読み進む。</p>
+      <p>各年を縫うのが<strong style="color:var(--vermilion);">照応キー</strong>——「開示」「万策」「再生」「面影」「喪失」「転回」「交代」など、編集工学の要となる概念である。</p>
+    </div>
+    <div class="foot-block">
+      <h3>Source &middot; 底本</h3>
+      <div class="jp-h">社長メッセージ全 268 号 ＋ MARIMO WAY 2023</div>
+      <dl>
+        <dt>Period</dt><dd>2007.12.09 — 2025</dd>
+        <dt>Volumes</dt><dd>全 268 号（欠番5：168／174／176／256／261）</dd>
+        <dt>Characters</dt><dd>709,501 字</dd>
+        <dt>Key Issues</dt><dd>33 本を象徴号として抽出</dd>
+        <dt>Principles</dt><dd>MARIMO WAY 行動指針 三十則</dd>
+        <dt>Author</dt><dd>深川 真</dd>
+        <dt>Publisher</dt><dd>マリモグループ</dd>
+      </dl>
+    </div>
+    <div class="foot-block">
+      <h3>Layout &middot; 版面</h3>
+      <div class="jp-h">v2.9 縦組密度版</div>
+      <p>TRACK I は全 268 号を 3 レーンの統一カードで配置。実タイトル流し込み済（13 docx から自動抽出）。TRACK II はベタ打ち、III/IV は箇条書き＋各イベントの参照リンク（Google 検索）。</p>
+      <p>『◆ 全268号 一覧』ボタンから全号を圧縮グリッドで一望可能。30 則は別モーダル。各カードクリックで右ドロワー＋全文ビュー（本文流し込みは次バージョン）。</p>
+    </div>
+  </div>
+  <div class="foot-strip">
+    THE PRESIDENT CHRONICLE &middot; WEB v2.9 VERTICAL &middot; PUBLISHED FOR MARIMO GROUP &middot; MMXXVI
+  </div>
+</footer>
+
+<script>
+const _D1 = {"phases":[{"id":"1a","num":"1-a","name":"遺伝子コード","start":2007.94,"end":2008.08,"color":"#C9A14A","issue_start":1,"issue_end":10},{"id":"1b","num":"1-b","name":"危機と再建","start":2008.08,"end":2010.0,"color":"#B87642","issue_start":11,"issue_end":79},{"id":"2","num":"2","name":"公共性と多角化","start":2010.0,"end":2015.0,"color":"#4F7B4F","issue_start":80,"issue_end":165},{"id":"3","num":"3","name":"金融化と自社史","start":2015.0,"end":2018.0,"color":"#3D6FA8","issue_start":166,"issue_end":197},{"id":"4","num":"4","name":"ピークと転回準備","start":2018.0,"end":2020.0,"color":"#6B5794","issue_start":198,"issue_end":217},{"id":"5","num":"5","name":"大転回と上位言語","start":2020.0,"end":2023.0,"color":"#A94B7B","issue_start":218,"issue_end":252},{"id":"6","num":"6","name":"第三の創業／人づくり","start":2023.0,"end":2026.0,"color":"#5A5A5A","issue_start":253,"issue_end":272}],"years":[{"year":2007,"phase":"1a","key":"開示","bandTitle":"未熟性と偽装の同時進行——開示元年","thought":"『ありのままの自分と、ちょっと背伸びした自分を発信する』(第1号)／未熟性の自己開示を経営行為へ／『不正は許さない』(第3号)で性善説と統制の二刀流を言語化／『素晴らしい人生3つの管理 健康・知識・こころ』(第5号)","org":"★★12/9 社長メッセージ配信開始［週1回］／初期5号で集中発射［チームワーク／不正／コミットメント／3つの管理］／★トップダウン→参加型への移行宣言／★MARIMO WAY 冊子化の胎動","society":"6/20 改正建築基準法施行、確認申請滞留［日］／★年金記録5000万件『消えた年金』［日］／★食品偽装連鎖 ミートホープ・白い恋人・赤福・船場吉兆［日］／★★9/12 第一次安倍内閣退陣→福田康夫［日］／★参院選自民惨敗 ねじれ国会［日］／1/9 防衛省昇格［日］／★★6/29 初代iPhone 発売［米］","economy":"★★8月 BNPパリバ・ショック／★サブプライム問題顕在化［米］／日経平均 18000→15000円台［東京］／新興デベロッパー破綻の予兆／★改正建基法で住宅着工急減／★原油100ドル初突破","keyIssuesRaw":"第1号『社長メッセージ配信にあたって』／第3号『不正は許さない』／第5号『3つの管理』","poetic":"「開示、元年。深川真は未熟を、社会は偽装を。ふたつの告白が同時に降った年。」","memo":"序章のハブ。2008年の『万策』と対で読ませると、開示（内）vs 偽装（外）の構図が立つ"},{"year":2008,"phase":"1b","key":"万策／足元","bandTitle":"万策尽きて、足元へ——リーマンの年","thought":"1月 年頭で『足元固め・無駄の排除』(第6号)／1月 『万策尽きたのか？』(第8号)現場に問う／『マリモの強み』(第13号)で思想言語化／『結果＝能力×熱意×考え方』(第14号)人材観の核／危機の先読み・現場への権威還付","org":"★★4月 MARIMO WAY 初版（社員手帳）配布 物質化［第20号］／★上場準備（春までの最大目標）／第27号 上場延期決断（現実受容の起点）／営業改革／販売現場テコ入れ／ブランド再整理（広告・PR一新）／P&B委員会発足／CR（コスト削減）一斉実施／役員報酬カット決断／中国・大連 視察を本格化（次世代の海外戦略胎動）／在庫マンション売り切り戦略 緊急発動／創業40周年プロジェクト準備／賞与 寒い冬でも継続支給で団結維持／危機前夜→危機直撃への態勢転換／全社朝礼で『万策尽きたのか？』を共有","society":"1月 大阪府知事 橋下徹当選［大阪］／4月 後期高齢者医療制度開始 紛糾［日］／★6/8 秋葉原通り魔事件［日］／6/14 岩手・宮城内陸地震 M7.2［東北］／6/14 東京メトロ副都心線開通／7月 洞爺湖サミット・環境首脳宣言［北海道］／中国冷凍ギョーザ事件波及［日中］／★★8月 北京五輪／聖火リレー混乱・チベット問題［中］／★9月 福田退陣→麻生太郎［日］／麻生首相 漢字読み間違いで支持率急落／★★11月 オバマ当選［米］Yes We Can／11月 厚労省元次官連続襲撃事件［日］／★ワーキングプア・ネットカフェ難民 可視化［日］／非正規切り／年越し派遣村［日比谷］「派遣村」が新語大賞／『おくりびと』アカデミー外国語映画賞［米］","economy":"3月 ベア・スターンズ救済合併 JPMorgan［米］／7/11 原油147ドル史上最高値→年末32ドルへ暴落／★★9/15 リーマン・ブラザーズ破綻［米］／世界金融危機 信用収縮／9/29 米下院TARP否決→ダウ史上最大下げ→10/3再可決／★10月 日経平均7000円台へ暴落／アイスランド国家破綻危機［欧州周縁］／10月 大和生命 戦後初の保険会社破綻［日］／★新興デベ連鎖倒産 アーバンコーポ・モリモト・ゼファー・スルガコーポ［日］／11月 GM・クライスラー経営危機表面化／12月 米FRB ゼロ金利・量的緩和開始［米］／★円高80円台／★派遣切り／公定歩合0.3%へ／日経年間下落率42% 過去最悪","keyIssuesRaw":"第8号『万策尽きたのか？』／第6号『2008年 年頭所感』／第13号『マリモの強み』／第20号『社員手帳(MARIMO WAY)配布』","poetic":"「1月、深川真が問うた。9月、金融工学が答えた。『万策、つきたのか。』」","memo":"2008年の縦帯は強烈。『万策』の問いと応答が年をまたいで照応"},{"year":2009,"phase":"1b","key":"再生／利他","bandTitle":"再生マンションと利他の年","thought":"第18号〜『利他と感謝』シリーズ化／11月 稲盛和夫の経営講話を直接聴講(第78号)／盛和塾との本格接続 精神的支柱獲得／『理念と経営』『会計の7原則』を吸収／危機で理念が試される","org":"★★再生マンション事業 即日完売で救命ボートに［業界異例の連続即日完売］／1月 業界初 売れ残り在庫一掃の即日完売スキーム確立／マリモコミュニティ成長戦略／中国不動産マーケット情報収集を本格化（広東・大連）／朝礼の中軸を MARIMO WAY 輪読へ移行／利他と感謝シリーズ 第18号〜／リーダー育成プログラム着手／賞与支給継続で社員繋ぎ止め／理念・ルール・販売管理の再構築／アフターサービス精査・顧客情報管理整備／苦情・クレーム対応のシステム化／★MARIMO WAY『利他と感謝』を危機対応の羅針盤として運用／11月 稲盛和夫 経営講話を直接聴講（盛和塾接続の起点）","society":"1/20 オバマ大統領就任［米］Change We Can Believe In／2月 SMAP草彅事件で全番組差し替え狂騒［日］／4月 北朝鮮ミサイル発射→国連安保理非難声明／★★4月 新型インフル(H1N1)パンデミック宣言［WHO］／★5月 裁判員制度スタート［日］／6/25 マイケル・ジャクソン死去 世界中追悼［米］／★★7月 衆院解散→8/30 衆院選で自民→民主政権交代［日］／★9/16 鳩山由紀夫首相就任 友愛政治／鳩山内閣 コンクリートから人へ／★事業仕分け（蓮舫）国民的中継／11/27 政府デフレ宣言（菅直人副総理）／12月 ドバイショック 債務危機［UAE］／年越し派遣村が常設化／無縁社会の論議／『おくりびと』『崖の上のポニョ』日本映画好調／高校無償化議論／自殺者3万人台続く","economy":"1/15 米FRB ゼロ金利導入維持／量的緩和拡大／3月 米ストレステスト 銀行救済 株式底打ち／4/2 G20ロンドン首脳会議 5兆ドルの景気対策合意／★GDP前年比-5.2%（戦後最悪）／★失業率5.5%・企業倒産年間1.6万件／8月 民主党マニフェスト 子ども手当・高速無料化／JAL経営危機 公的支援議論／9月 日銀 政策金利0.1%維持／円高90円台／12月 ドバイショック 世界連鎖懸念／★★亀井静香 中小企業金融円滑化法（モラトリアム法）成立／★マンション供給 前年比半減／地価 全国下落／J-REIT 大量解散・統合","keyIssuesRaw":"第78号『稲盛和夫氏の経営講話』／『利他と感謝①』（第18号）","poetic":"「不況の暦に、利他という古語が、戻ってきた。」","memo":"『再生マンション』（物）と『利他』（心）の二重の再生が同年に重なる。マリモ流の再生物語の原型"},{"year":2010,"phase":"2","key":"視野／外へ","bandTitle":"視野拡大——危機を越えた一人の経営者、外へ出る","thought":"発信範囲が国家観・社会観・自己防衛論・健康管理まで拡張／現場管理者から時代認識を語る経営者へスケールアップ／危機を越えた自信が言語に現れる年","org":"★★中国事業本格構想（大連・蘇州視察）／中国 共同事業先 選定本格化（人脈社会への適応）／★広島市内初進出（マンション）／名古屋・福岡支店 強化／全国マンション販売 前年比改善／全国展開デベとしての自負を言語化／ブランドの独自性と全国対応力を言語化／★『あたらしい、あたりまえを。』ブランドフレーズ萌芽／第三者機関による顧客満足度調査開始／HP・パンフレットのブランド統一プロジェクト／社員研修・MARIMO WAY 浸透 第2期／再生マンション事業 安定収益化／盛和塾 学びの社内還元 加速","society":"1月 民主党 小沢代表更迭問題／1/19 JAL会社更生法申請 戦後最大級倒産［日］／2月 バンクーバー冬季五輪 浅田真央銀／高橋大輔銅／4月 普天間移設問題 鳩山立ち往生／6/8 鳩山退陣→菅直人内閣／★6/13 はやぶさ帰還［豪→相模原］日本中熱狂／7月 参院選 民主敗北 ねじれ国会再来／9月 検察特捜部 証拠改竄事件［大阪地検］／★★9月 尖閣諸島 中国漁船衝突→船長釈放［日中］／★陸山会事件 政治とカネ再燃／日本郵政民営化見直し／11月 ロシア・メドヴェージェフ大統領 北方領土訪問／高齢化率23%突破／健康増進法 禁煙議論／★AKB48総選挙［東京］／『無縁社会』NHKスペシャル反響／『食べログ』『Twitter』本格普及","economy":"1/19 JAL更生法申請 戦後最大級倒産（負債2.3兆円）／3月 ギリシャ初のEU救済交渉開始／★★4月 ギリシャ危機 欧州中央銀行緊急融資 欧州ソブリン問題拡大／★5月 米ダウ瞬間1000ドル下落 フラッシュ・クラッシュ［米］／8月 円高84円台 単独介入観測／★★10月 日銀包括緩和・ゼロ金利復活・基金買入［日］／11月 G20ソウル 通貨戦争懸念／★円高80円台定着 輸出苦境／★海外M&A急増（キリン×サントリー破談）／都心マンション限定回復、地方低迷／J-REIT 反転の兆し／REIT指数底入れ→上昇基調","keyIssuesRaw":"中国プロジェクト構想系／広島市内初進出号","poetic":"「危機の外側に、もうひとつ世界があった。——海が、ひらいていた。」","memo":"前年『再生』の内向きから、一気に外向きに転じる年"},{"year":2011,"phase":"2","key":"絆／公共","bandTitle":"3.11——経営が公共になる年","thought":"震災対応を通じて会社の存在意義を社会の中で問い直す(第106号他)／上場の意味・働き方・アフターサービスの『社会的意義』を連続して論じる／言葉が公共化する年","org":"★★3/11 震災対応（被災地の顧客物件緊急調査・支援）／★上場目的の再整理／★中国プロジェクト第1弾着工／守りと攻めの同時進行／MARIMO WAY『毬藻＝きれいな水でしか生息しない』メタファが試練に照らされる","society":"★★3/11 東日本大震災 M9.0［三陸沖］／★★3月 福島第一原発メルトダウン［福島］／死者・行方不明者 約2万人／★計画停電・節電・絆・ボランティア／★7/17 なでしこW杯優勝［独］／★菅直人→9月 野田佳彦／スマートフォン普及加速","economy":"★供給網混乱・電力制約で自動車・電機操業停止／★★10月 円史上最高値75円［東京］／★復興需要の芽／赤字国債・国債増発／★タイ洪水で二重被害／マンション着工 前年比微増（復興需要と低金利）","keyIssuesRaw":"震災対応関連号（第106号他）／上場目的整理号","poetic":"「揺れた地の上に、もう一度『何のための会社か』と、書き直した。」","memo":"『絆』は社会と経営を同時に貫く希少な照応キー。書籍でも独立章の価値あり"},{"year":2012,"phase":"2","key":"制度／問い直し","bandTitle":"制度を編み直す年","thought":"人事制度改訂・朝礼改革の意図を繰返し説明／『何のために働くのか』の教育／挑戦を促しつつ理念浸透の土台を再整備／盛和塾の学びを社内還元し続ける","org":"★★不動産流動化事業（ノンリコースローン物件）本格始動／★人事・朝礼・採用・育成の制度再設計／★MARIMO WAY を朝礼輪読するスタイル定着／理念共有→行動指針への翻訳","society":"★★5/22 東京スカイツリー開業［東京］／★8月 3党合意で消費税増税法成立［日］／★10月 iPS細胞で山中伸弥ノーベル賞［京都］／★9月 尖閣国有化 反日デモ［日中］／★★12月 衆院選自民圧勝→第2次安倍晋三［日］","economy":"★アベノミクス直前 円高83円台 デフレ長期化／GDP実質微成長／★★12月 円安・株高へ急転換（80円→85円）／企業は新収益源・事業転換を模索／★都心不動産 都市再生特別地区で大型開発議論","keyIssuesRaw":"人事制度改訂告知号／朝礼改革号","poetic":"「災いの次に、仕組みの棚卸しが、やってきた。」","memo":"『制度』の照応は地味だが、後年の人的資本経営への遠景として重要"},{"year":2013,"phase":"2","key":"接続／外延","bandTitle":"会社史と個人史が重なる年","thought":"第141号『入社19年の振り返り』で自身の歩みを会社史に接続／稲盛経営者賞受賞で自信と責任感が高まる／内省と発信の両立","org":"★★マレーシア・中国・インドネシア案件本格化／★新人事制度／★ジョブローテーション本格化／顧客相談体制整備／MARIMO WAY 第2版に向けた追補検討／★アジア人材採用始動","society":"★★9/8 東京五輪招致決定『お・も・て・な・し』［ブエノスアイレス］／★6月 富士山世界遺産登録／グローバル化・ASEAN注目・キャリア流動化／★あまちゃん・じぇじぇじぇ／★12月 特定秘密保護法強行採決［日］","economy":"★★4/4 日銀 黒田東彦・異次元緩和 2%インフレ目標［日］／★株高・円安100円台・企業収益V字回復／★REIT市場活況 投資マネー流入／★2020東京五輪決定で湾岸再開発に火","keyIssuesRaw":"第141号『入社19年の振り返り』／稲盛経営者賞受賞号","poetic":"「自分の19年が、会社の19年に、静かに結ばれた。」","memo":"2017年『歴史の再編集』の伏線がここに。自分史×会社史の初期照応"},{"year":2014,"phase":"2","key":"多角／生活密着","bandTitle":"暮らしの多層へ——多角化が制度になる","thought":"福利厚生・有休取得・資格取得・高齢化と雇用／盛和塾の学びを社内還元／生活者目線への傾斜","org":"★収益不動産方針［自社管理・戸建賃貸・節税不動産投資］／多角化が制度・商品として輪郭を得る／★★『両極端をあわせもつ』が MARIMO WAY の中心原理に／★健康経営・働き方関連通達整備","society":"★★4/1 消費税8%［日］個人消費冷水／★1月 STAP細胞騒動／★★7/1 集団的自衛権閣議決定／★8/20 広島土砂災害 死者74名／★9/27 御嶽山噴火 死者58名／アナ雪／高齢化率26%","economy":"★消費税8%で個人消費に影響 GDP一時減速／★★10/31 日銀追加緩和（黒田バズーカ2）／★円安110円台突破／★超低金利で投資用不動産・節税需要拡大／地価9年ぶり下げ止まり","keyIssuesRaw":"福利厚生拡充号／戸建賃貸開始号","poetic":"「会社は、生活の何層目まで届けばいいのか。——問いが、商品になった。」","memo":"『多角』の語を単なる事業拡大でなく『生活層への浸透』として読むのがミソ"},{"year":2015,"phase":"3","key":"正当性／社会的信用","bandTitle":"正当性の獲得——資本市場と手を結ぶ","thought":"第166号 J-REIT を目標に掲げる／組織再編・M&Aも進める／CSRを明示 社会的正当性も求める経営へ／利益と理念の両立を『社会的信用』で語る","org":"仕入れ方針の再転換／★J-REIT 準備／★M&A 本格化／★完全週休2日制／組織改編／拡大と再編が同時進行／★★MARIMO WAY 第2版（CSR 項目追補）／『社会からの信用』を指標化","society":"★3月 北陸新幹線開業［金沢］／★★9/19 安保法制成立［日］国論二分／★10月 マイナンバー通知開始［日］／★★11月 パリ同時多発テロ［仏］／★5月 大阪都構想住民投票否決［大阪］","economy":"★超低金利・利回り追求でREITや不動産金融に追い風／★M&A件数過去最高級／★★8月 チャイナショックで日経急落［中→東京］／★インバウンド爆買い／地価首都圏＋4% 全国ベースも上昇転換","keyIssuesRaw":"第166号『J-REIT構想』／CSR明示号","poetic":"「儲けだけでは足りない時代が、静かに、手を差し出した。」","memo":"『正当性』は現代経営の中核概念。2022年パーパスへの遠景"},{"year":2016,"phase":"3","key":"構える／選別","bandTitle":"構える年——拡大から管理へ","thought":"攻め一辺倒ではなく『選択と集中』を明確化／熊本地震など外部ショックに応答しながら上位概念へ／『構える』語の登場で守備の思想が前面に","org":"★★10月 マリモホールディングス設立 HD経営体制へ移行／★J-REIT運用体制の進展／再開発・収益基盤の整備／『両利きの経営』的な複線化／★MARIMO WAY の朝礼輪読 全社定着","society":"★★4/14・4/16 熊本地震 M7.3 死者273名［熊本］／★★6月 Brexit国民投票［英］／★★11月 米大統領選トランプ勝利［米］／★5月 オバマ広島訪問［広島］／★8月 天皇陛下『お気持ち表明』／★ポケモンGO／★SMAP解散","economy":"★★2/16 日銀マイナス金利［日］資金は不動産・REITへ／★★9月 長短金利操作付き量的・質的緩和（YCC）導入／★地価上昇＋地方マンション不調の二極化／収益不動産には追い風だが選別進む","keyIssuesRaw":"HD化発表号／熊本地震対応号","poetic":"「拡張する会社が、はじめて『構える』という語を、おぼえた。」","memo":"2019年『殻を破れ』の反対極。『構える→殻→破る』の三拍子の第一拍"},{"year":2017,"phase":"3","key":"面影／歴史の再編集","bandTitle":"歴史を編集する年——自社史を語り直す","thought":"第189・190・191号『マリモの歴史①②③』で自社史を3回に分けて語り直す／自分の経営を創業者史の延長線に置き直す／創業者 深川武夫の『事業宣言』(H4)『会社は一隻の大型船』(H12)を改めて位置づける","org":"★ソルティア（福岡・LCV）始動／収益不動産好調／★働き方改革／★ハラスメント対応／会社文化の再定義／★★新生 MARIMO WAY 整備（『創業のこころ 七篇』編纂進行）","society":"働き方改革／ハラスメント意識の上昇（日本版 #MeToo は翌年）／★森友・加計問題／★★北朝鮮ミサイル・Jアラート［日］／★7月 九州北部豪雨／★藤井聡太四段デビュー29連勝／選択的夫婦別姓議論","economy":"都市部コンパクト住戸需要／★人手不足で建設コスト上昇基調／★★11月 日経平均バブル後最高値2万3000円／★仮想通貨ブーム ビットコイン200万円台／★かぼちゃの馬車・TATERU等 怪しい不動産スキーム膨張","keyIssuesRaw":"第189〜191号『マリモの歴史①②③』／MARIMO WAY 刷新号","poetic":"「深川真が自分の会社を、もう一度、読みなおした。——面影、ひらく。」","memo":"★松岡正剛的に最重要の年。『面影編集』がまさに実行された年。書籍では独立章が必要"},{"year":2018,"phase":"4","key":"ピーク／次の思想","bandTitle":"ピークの裏側で思想を準備する年","thought":"フィロソフィの重要性／余暇の使い方／自己成長を繰り返し説く／社員教育を経営の中心テーマに置く／『心をベースに経営する』表現の高頻度化","org":"★★43 都道府県進出／★熊本即日完売／★中国大型案件好調／10年先構想が濃くなる／人材育成投資も強まる／★MARIMO WAY に基づく社員塾・経営塾の検討","society":"★★7月 西日本豪雨 死者237名／★スルガ銀行不正（かぼちゃの馬車）／★5月 日大アメフト反則／★★9/6 北海道胆振東部地震／★2月 平昌五輪羽生連覇／SDGs浸透／★7月 麻原彰晃ら死刑執行","economy":"建築費・人件費上昇／★融資審査厳格化（かぼちゃの馬車・スルガ銀行ショック）／★★10月 日経平均27年ぶり高値2万4千円→12月急落（米中摩擦）／★投資用ワンルームローン不適切販売続発","keyIssuesRaw":"フィロソフィ重視号／10年構想発表系","poetic":"「頂上が見えたとき、ひとは、次の山のことを考えはじめる。」","memo":"ピークにあって『次の思想』を準備——松岡的な予兆編集の好例"},{"year":2019,"phase":"4","key":"殻／改元","bandTitle":"殻を破れ、時代も変わる——令和と2030ビジョン","thought":"構造改革を掲げ、50周年の節目で10年ビジョン／ホテルなど新規事業への好奇心／『殻を破れ』の指令で組織文化に揺さぶり","org":"★★第50期経営方針発表会『ROAD to 2030 殻を破れ！』提示（第209号）／組織再編［新規事業・50周年行事］／★MARIMO WAY のビジョン枠組み追加（『ソーシャルビジネスカンパニー』の萌芽）／★ホテル・海外・非不動産への踏み出し","society":"★★5/1 令和改元／サステナビリティ・地方創生が社会の共通語に／★★10/1 消費税10%+軽減税率／★9-11月 ラグビーW杯日本初ベスト8／★7/18 京アニ放火／★10/31 沖縄首里城焼失／★10月 台風19号 関東甲信水害","economy":"★★インバウンド3188万人過去最多／★ホテル需要強い一方 人口減少・将来不安深まる／★米中摩擦・香港デモ／日経平均2万3000円台で推移","keyIssuesRaw":"第209号系『ROAD to 2030 殻を破れ』","poetic":"「改元の年に、会社が、自分の殻を破ろうとした。——時代も、割れた。」","memo":"『改元』と『殻を破る』の社会・会社の同時転換。照応の純度が高い"},{"year":2020,"phase":"5","key":"転回／ソーシャル","bandTitle":"大転回——コロナとソーシャル元年","thought":"第218号『コロナ危機対応』で事業撤退・工程見直し・働き方変更を決断／同時にソーシャルビジネス、MAP、DX/変革元年（第220号）を打ち出す／危機を使って『転回』する経営哲学","org":"★中国事業見直し／未着工案件延期／★週休3日制／★ココノミ買収（食のD2C参入）／ソーシャル比率という新しい物差し／★★MARIMO WAY『ソーシャルビジネスカンパニー』ビジョン本格化／★★MAP策定：ビジネス50×ソーシャル50","society":"★★3/11 WHOパンデミック宣言［世界］／★★4/7 緊急事態宣言［日］／★★8月 安倍首相辞任→菅義偉内閣／★東京五輪1年延期／★Go To キャンペーン／★鬼滅の刃大ヒット／★BLM運動［米］／★11月 バイデン当選","economy":"★★GDP前年比-4.5%／★観光・ホテル・飲食に大打撃／雇用調整助成金［持続化給付金・特別定額給付金10万円］／超金融緩和で株価は年末回復／★Zoom等DX関連急成長／住宅取引は一時停滞後 郊外志向・広さ需要で回復","keyIssuesRaw":"第218号『コロナ危機対応』／ココノミ買収号／ソーシャル宣言号／第220号『DX変革元年』","poetic":"「同じ年に、世界は止まり、会社は、転がりはじめた。」","memo":"★第二の遺伝子書き換え。『転回』の語で縦帯化"},{"year":2021,"phase":"5","key":"市場の目／外部視線","bandTitle":"外から見られる会社へ——上場構想の年","thought":"上場を強く意識／マンションの付加価値・コミュニティ支援・医療福祉連携へ発想拡大／市場視線を経営に取り込む／『外から見られる』ことで内が整う構造","org":"★★第228号 マリモ上場構想→ホールディングス上場への変更／★アセットマネジメント事業本部化／住宅・投資住宅の再編／★MARIMO WAY に基づく『経営のこころ 3つの夢』（生きがい・人間性の道場・待遇向上）を制度化","society":"★2月 ミャンマー軍クーデター／★★7-9月 東京五輪・パラ無観客開催／★7月 熱海土石流／★8月 タリバン政権復活［ア］／★9/1 デジタル庁発足／★★10月 菅→岸田文雄／ワクチン普及で社会再始動","economy":"世界的緩和で不動産価格高止まり／★ESG・将来期待による企業価値評価が重視／★半導体不足／★★新築マンション首都圏平均価格6260万円 過去最高更新／米長期金利上昇／★FRB テーパリング議論開始","keyIssuesRaw":"第228号『上場構想発表』／HD上場への変更号","poetic":"「鏡を、机のうえにおく。——市場という鏡を。」","memo":"『市場の目』は2016年『構える』の延長線。外部規律の内在化の完成形"},{"year":2022,"phase":"5","key":"喪失／Purpose","bandTitle":"喪失が Purpose を生んだ年","thought":"死生観／父（深川武夫）の死／8月 稲盛和夫の死／CSV・パーパスを発表（第248号）『ヒューマニティとビジネスの力で、社会の課題を解決し、人々の豊かな暮らしを創造し続ける。』上位言語を得る／失うことで、語れる言葉が生まれた","org":"★上場4課題の明文化／仕入れ抑制／★農業・福祉・フィリピン住宅などソーシャル事業の実装／★★Purpose 制定／★★MARIMO WAY 第3版の骨格固め（パーパス＋ビジョン＋バリュー&カルチャー＋行動指針の体系図を確立）","society":"★★2/24 ロシアのウクライナ侵攻［露→宇］／★★7/8 安倍晋三元首相銃撃事件［奈良］／★旧統一教会問題 政治と宗教の関係を再点検／北京冬季五輪／★9月 エリザベス2世崩御［英］／★11-12月 W杯ドイツ・スペイン撃破／インフレ・円安・生活不安","economy":"★★10月 円151円台 32年ぶり安値／★資源高・円安・建築費高騰でデベに逆風／価格転嫁・粗利維持・在庫管理困難化／★FRB大幅利上げ／日銀は異次元緩和継続で日米金利差拡大／★★12月 黒田サプライズでYCC 0.5%へ","keyIssuesRaw":"第248号『Purpose 発表』／父の死の所感号／第245号『稲盛和夫追悼』","poetic":"「失うことで、はじめて、語れる言葉が、あった。」","memo":"★クロニクルの思想的頂点。『喪失が上位言語を呼ぶ』の構造は本書の主軸"},{"year":2023,"phase":"6","key":"人的資本／提携と育成","bandTitle":"人が資本になる年——イオン提携と上司の育成責任","thought":"第253号 イオンモール資本業務提携を大成果と位置づける／同時に『大企業病』や上司の育成責任を厳しく問う／創業者 深川武夫『部下を殺す上司は退場すべし』(H12.6.12)の再活性化","org":"★グループ再編／★★イオンモール資本業務提携／★ジョブ型人事制度／★ベースアップ／★セットアップオフィス始動／★★MARIMO WAY 2023 版刊行（パーパス・ビジョン・行動指針三十則・お客様対応7つの心得・マリモホットラインを体系化）／『社員の人間性を高める道場』を全社に徹底","society":"★★3月 WBC日本優勝 栗山監督・大谷翔平［米］／★5月 G7広島サミット／★8月 福島処理水海洋放出／★10月 旧統一教会解散命令請求／ジャニーズ性加害問題／★★AI/ChatGPT浸透で業務地殻変動／★賃上げ3.58% 30年ぶり水準","economy":"★コアCPI 3%超でインフレ定着／金利正常化観測／資材高・人件費高／★マイナス金利解除視野／資本提携・新収益源・生産性改善が必須化／★★日経平均33年ぶり3万3千円／★★3月 米銀破綻（SVB等）／★円安140-150円台","keyIssuesRaw":"第253号『イオンモール提携』／ジョブ型人事制度開始号","poetic":"「会社を資本とよぶなら、人も、また資本とよばねばならぬ。」","memo":"『提携（外）』と『育成（内）』の二項を『人的資本』で統合するのが編集仕事"},{"year":2024,"phase":"6","key":"交代／第三の創業","bandTitle":"交代の年——一人の経営者・上場方針・政策の同時転換","thought":"第265号でマリモ社長交代を前提／自分はホールディングス側から全体を支える立場へ／業務改善・人間力・木鶏会再開／第268号『第三の創業』の言語化","org":"3事業体制［国内不動産・海外不動産・非不動産］明確化／★上場延期受容／業務改善推進本部発足／★★『第三の創業』ビジョン発表／★MARIMO WAY『創業のこころ』を次世代に継承するプロジェクト開始","society":"★★1/1 能登半島地震 M7.6 死者400+［能登］／★1/2 羽田空港衝突事故／人口減少・担い手不足／組織学習の必要性／★大谷翔平50-50達成［米］／★兵庫県知事問題・パワハラ議論／★★11月 米大統領選トランプ返り咲き","economy":"★★3月 日銀マイナス金利解除／★★7月 追加利上げ→8/5 日経株急落（一時31%下落）／マイナス金利解除で金利正常化／★建築費・労務費上昇／上場市場の選別強化／★1月 新NISA開始で家計投資マネー流入／★円安160円台一時突破 為替介入","keyIssuesRaw":"第265号『社長交代発表』／第268号『第三の創業』／上場延期説明号","poetic":"「交代の音が、いくつも同時に、鳴った年。」","memo":"『交代』は一人の経営者・国策・市場の三層で同時に起きた——松岡的三重照応"},{"year":2025,"phase":"6","key":"人づくり／育成の資本化","bandTitle":"人づくり元年——クロニクル後半の起点","thought":"2024年の振り返りを踏まえ、自身も新しい生き方へ移行／同志の幸せと成長を強く語る／育成投資の倍増方針／クロニクル後半の序章","org":"★★MSS 創業／国内・海外・MSS の三権分立／★2030 年目標『上場・MSS全黒字・海外安定』／★育成投資倍増方針／★★第271号 MARIMO WAY を基盤にした全社員対象『人づくり元年プロジェクト』始動","society":"★★4/13 大阪・関西万博開幕／人材流出・リスキリング・組織学習が社会的課題として定着／★合計特殊出生率1.2割れ見込／★AI エージェント普及で『人間の仕事とは』が再問化／★石破茂内閣","economy":"★インフレと人手不足が常態化／企業に生産性・選ばれる組織・長期投資の両立が求められる／★日銀追加利上げ観測／金利正常化進行／★円安・輸入インフレ継続／★★都心マンション1億円超が常態化 地方との乖離拡大","keyIssuesRaw":"第271号『人づくり元年プロジェクト始動』／第272号","poetic":"「会社が、いちばん大切にすべきものは、けっきょく、人だった。」","memo":"クロニクル後半の序章。書籍の終章→続章への橋として使う"}]};
+const _D2 = {"keyIssues":[{"no":1,"year":2007,"title":"社長メッセージ配信にあたって","cat":"序章ハブ","rank":5,"note":"全272号の出発点。『未熟性の開示』という経営の身振りの宣言","y":2007.947,"phase":"1a"},{"no":2,"year":2007,"title":"チームワークの大切さ","cat":"情の軸","rank":4,"note":"『見捨てない共同体』の言語化。情トラックの原型","y":2007.961,"phase":"1a"},{"no":3,"year":2007,"title":"不正は許さない","cat":"規律の軸","rank":5,"note":"性善説と統制の二刀流の言語化。以後の倫理基盤","y":2007.975,"phase":"1a"},{"no":4,"year":2007,"title":"新年に向けて","cat":"制度の萌芽","rank":3,"note":"コミットメント文化の起点","y":2007.989,"phase":"1a"},{"no":5,"year":2007,"title":"素晴らしい人生を送るための、3つの管理","cat":"思想の軸","rank":4,"note":"健康・知識・こころ——人生と経営の同一化宣言","y":2008.003,"phase":"1a"},{"no":6,"year":2008,"title":"2008年 年頭所感","cat":"方針の軸","rank":4,"note":"上場目標と足元固めの同時宣言。危機前夜の先読み","y":2008.017,"phase":"1a"},{"no":7,"year":2008,"title":"コミットメントに関して","cat":"制度の軸","rank":3,"note":"公開・相互監視・実践の三位一体","y":2008.031,"phase":"1a"},{"no":8,"year":2008,"title":"万策尽きたのか？","cat":"照応の核","rank":5,"note":"2008年の縦帯。リーマンとの照応","y":2008.045,"phase":"1a"},{"no":10,"year":2008,"title":"現場が重要","cat":"権威の還付","rank":4,"note":"一人の経営者が現場に権威を返す象徴号","y":2008.073,"phase":"1a"},{"no":13,"year":2008,"title":"マリモの強み","cat":"自社定義","rank":5,"note":"思想→言語の結晶化の最初の到達点","y":2008.1449,"phase":"1b"},{"no":14,"year":2008,"title":"就職セミナーにて","cat":"人生方程式","rank":4,"note":"『結果＝能力×熱意×考え方』の導入。人材観の核","y":2008.1668,"phase":"1b"},{"no":18,"year":2008,"title":"利他と感謝①","cat":"思想の軸","rank":3,"note":"利他シリーズの起点","y":2008.2546,"phase":"1b"},{"no":20,"year":2008,"title":"社員手帳(MARIMO WAY)配布","cat":"組織の儀式","rank":5,"note":"MARIMO WAYの物質化——冊子として配られた瞬間","y":2008.2985,"phase":"1b"},{"no":27,"year":2008,"title":"上場延期について","cat":"現実受容","rank":4,"note":"最初の上場延期。期待と現実の往復の起点","y":2008.4522,"phase":"1b"},{"no":78,"year":2009,"title":"稲盛和夫氏の経営講話","cat":"師との邂逅","rank":5,"note":"盛和塾・利他の精神的支柱の形成の起点","y":2009.9196,"phase":"1b"},{"no":106,"year":2011,"title":"震災対応","cat":"公共の転回","rank":5,"note":"3.11直後。経営が公共性を獲得する瞬間","y":2011.0561,"phase":"2"},{"no":141,"year":2013,"title":"入社19年の振り返り","cat":"自分史の編集","rank":4,"note":"自己史と会社史の接続の初動。2017への伏線","y":2013.0662,"phase":"2"},{"no":166,"year":2015,"title":"J-REIT構想","cat":"資本市場接続","rank":4,"note":"金融化フェーズの起点","y":2015.0662,"phase":"3"},{"no":186,"year":2017,"title":"1月全体朝礼","cat":"Phase 3 開幕","rank":3,"note":"2017年の方針号","y":2017.0692,"phase":"3"},{"no":189,"year":2017,"title":"マリモの歴史①","cat":"歴史の再編集","rank":5,"note":"松岡正剛的『面影編集』が実行された3連作の1","y":2017.3042,"phase":"3"},{"no":190,"year":2017,"title":"マリモの歴史②","cat":"歴史の再編集","rank":5,"note":"松岡正剛的『面影編集』が実行された3連作の2","y":2017.3825,"phase":"3"},{"no":191,"year":2017,"title":"マリモの歴史③","cat":"歴史の再編集","rank":5,"note":"松岡正剛的『面影編集』が実行された3連作の3。現在までの10年の総括","y":2017.4608,"phase":"3"},{"no":209,"year":2019,"title":"ROAD to 2030 殻を破れ","cat":"長期ビジョン","rank":5,"note":"2019年の象徴号。令和改元と同期","y":2019.0822,"phase":"4"},{"no":218,"year":2020,"title":"コロナ危機対応","cat":"大転回","rank":5,"note":"コロナ転回の象徴","y":2020.077,"phase":"5"},{"no":220,"year":2020,"title":"DX変革元年","cat":"DXの起点","rank":4,"note":"コロナ×DXの結節点","y":2020.265,"phase":"5"},{"no":228,"year":2021,"title":"上場構想発表","cat":"市場の目","rank":4,"note":"HD上場への転換","y":2021.077,"phase":"5"},{"no":245,"year":2022,"title":"稲盛和夫追悼","cat":"師の死","rank":5,"note":"Purposeと同期する喪失の年の象徴","y":2022.5,"phase":"5"},{"no":248,"year":2022,"title":"Purpose発表","cat":"上位言語","rank":5,"note":"『ヒューマニティとビジネスの力で…』——クロニクル思想の頂点","y":2022.688,"phase":"5"},{"no":253,"year":2023,"title":"イオンモール提携","cat":"外部接続","rank":5,"note":"Phase 6の起点","y":2023.0692,"phase":"6"},{"no":265,"year":2024,"title":"社長交代発表","cat":"世代交代","rank":5,"note":"第三の創業の始動","y":2024.1083,"phase":"6"},{"no":268,"year":2024,"title":"第三の創業","cat":"組織転回","rank":5,"note":"上場延期と同時に放たれた新しい時代宣言","y":2024.5783,"phase":"6"},{"no":271,"year":2025,"title":"人づくり元年プロジェクト始動","cat":"終章→続章","rank":5,"note":"クロニクル後半の起点／未来志向の締め","y":2025.265,"phase":"6"},{"no":272,"year":2025,"title":"（最新号）","cat":"現在進行","rank":4,"note":"クロニクル暫定終端","y":2025.735,"phase":"6"}],"allIssues":[{"no":1,"y":2007.947,"phase":"1a"},{"no":2,"y":2007.961,"phase":"1a"},{"no":3,"y":2007.975,"phase":"1a"},{"no":4,"y":2007.989,"phase":"1a"},{"no":5,"y":2008.003,"phase":"1a"},{"no":6,"y":2008.017,"phase":"1a"},{"no":7,"y":2008.031,"phase":"1a"},{"no":8,"y":2008.045,"phase":"1a"},{"no":9,"y":2008.059,"phase":"1a"},{"no":10,"y":2008.073,"phase":"1a"},{"no":11,"y":2008.101,"phase":"1b"},{"no":12,"y":2008.1229,"phase":"1b"},{"no":13,"y":2008.1449,"phase":"1b"},{"no":14,"y":2008.1668,"phase":"1b"},{"no":15,"y":2008.1888,"phase":"1b"},{"no":16,"y":2008.2107,"phase":"1b"},{"no":17,"y":2008.2327,"phase":"1b"},{"no":18,"y":2008.2546,"phase":"1b"},{"no":19,"y":2008.2766,"phase":"1b"},{"no":20,"y":2008.2985,"phase":"1b"},{"no":21,"y":2008.3205,"phase":"1b"},{"no":22,"y":2008.3424,"phase":"1b"},{"no":23,"y":2008.3644,"phase":"1b"},{"no":24,"y":2008.3863,"phase":"1b"},{"no":25,"y":2008.4083,"phase":"1b"},{"no":26,"y":2008.4302,"phase":"1b"},{"no":27,"y":2008.4522,"phase":"1b"},{"no":28,"y":2008.4741,"phase":"1b"},{"no":29,"y":2008.4961,"phase":"1b"},{"no":30,"y":2008.518,"phase":"1b"},{"no":31,"y":2008.54,"phase":"1b"},{"no":32,"y":2008.562,"phase":"1b"},{"no":33,"y":2008.5839,"phase":"1b"},{"no":34,"y":2008.6059,"phase":"1b"},{"no":35,"y":2008.6278,"phase":"1b"},{"no":36,"y":2008.6498,"phase":"1b"},{"no":37,"y":2008.6717,"phase":"1b"},{"no":38,"y":2008.6937,"phase":"1b"},{"no":39,"y":2008.7156,"phase":"1b"},{"no":40,"y":2008.7376,"phase":"1b"},{"no":41,"y":2008.7595,"phase":"1b"},{"no":42,"y":2008.7815,"phase":"1b"},{"no":43,"y":2008.8034,"phase":"1b"},{"no":44,"y":2008.8254,"phase":"1b"},{"no":45,"y":2008.8473,"phase":"1b"},{"no":46,"y":2008.8693,"phase":"1b"},{"no":47,"y":2008.8912,"phase":"1b"},{"no":48,"y":2008.9132,"phase":"1b"},{"no":49,"y":2008.9351,"phase":"1b"},{"no":50,"y":2008.9571,"phase":"1b"},{"no":51,"y":2008.979,"phase":"1b"},{"no":52,"y":2009.0468,"phase":"1b"},{"no":53,"y":2009.0804,"phase":"1b"},{"no":54,"y":2009.1139,"phase":"1b"},{"no":55,"y":2009.1475,"phase":"1b"},{"no":56,"y":2009.1811,"phase":"1b"},{"no":57,"y":2009.2146,"phase":"1b"},{"no":58,"y":2009.2482,"phase":"1b"},{"no":59,"y":2009.2818,"phase":"1b"},{"no":60,"y":2009.3154,"phase":"1b"},{"no":61,"y":2009.3489,"phase":"1b"},{"no":62,"y":2009.3825,"phase":"1b"},{"no":63,"y":2009.4161,"phase":"1b"},{"no":64,"y":2009.4496,"phase":"1b"},{"no":65,"y":2009.4832,"phase":"1b"},{"no":66,"y":2009.5168,"phase":"1b"},{"no":67,"y":2009.5504,"phase":"1b"},{"no":68,"y":2009.5839,"phase":"1b"},{"no":69,"y":2009.6175,"phase":"1b"},{"no":70,"y":2009.6511,"phase":"1b"},{"no":71,"y":2009.6846,"phase":"1b"},{"no":72,"y":2009.7182,"phase":"1b"},{"no":73,"y":2009.7518,"phase":"1b"},{"no":74,"y":2009.7854,"phase":"1b"},{"no":75,"y":2009.8189,"phase":"1b"},{"no":76,"y":2009.8525,"phase":"1b"},{"no":77,"y":2009.8861,"phase":"1b"},{"no":78,"y":2009.9196,"phase":"1b"},{"no":79,"y":2009.9532,"phase":"1b"},{"no":80,"y":2010.0481,"phase":"2"},{"no":81,"y":2010.0842,"phase":"2"},{"no":82,"y":2010.1204,"phase":"2"},{"no":83,"y":2010.1565,"phase":"2"},{"no":84,"y":2010.1927,"phase":"2"},{"no":85,"y":2010.2288,"phase":"2"},{"no":86,"y":2010.265,"phase":"2"},{"no":87,"y":2010.3012,"phase":"2"},{"no":88,"y":2010.3373,"phase":"2"},{"no":89,"y":2010.3735,"phase":"2"},{"no":90,"y":2010.4096,"phase":"2"},{"no":91,"y":2010.4458,"phase":"2"},{"no":92,"y":2010.4819,"phase":"2"},{"no":93,"y":2010.5181,"phase":"2"},{"no":94,"y":2010.5542,"phase":"2"},{"no":95,"y":2010.5904,"phase":"2"},{"no":96,"y":2010.6265,"phase":"2"},{"no":97,"y":2010.6627,"phase":"2"},{"no":98,"y":2010.6988,"phase":"2"},{"no":99,"y":2010.735,"phase":"2"},{"no":100,"y":2010.7712,"phase":"2"},{"no":101,"y":2010.8073,"phase":"2"},{"no":102,"y":2010.8435,"phase":"2"},{"no":103,"y":2010.8796,"phase":"2"},{"no":104,"y":2010.9158,"phase":"2"},{"no":105,"y":2010.9519,"phase":"2"},{"no":106,"y":2011.0561,"phase":"2"},{"no":107,"y":2011.1083,"phase":"2"},{"no":108,"y":2011.1606,"phase":"2"},{"no":109,"y":2011.2128,"phase":"2"},{"no":110,"y":2011.265,"phase":"2"},{"no":111,"y":2011.3172,"phase":"2"},{"no":112,"y":2011.3694,"phase":"2"},{"no":113,"y":2011.4217,"phase":"2"},{"no":114,"y":2011.4739,"phase":"2"},{"no":115,"y":2011.5261,"phase":"2"},{"no":116,"y":2011.5783,"phase":"2"},{"no":117,"y":2011.6306,"phase":"2"},{"no":118,"y":2011.6828,"phase":"2"},{"no":119,"y":2011.735,"phase":"2"},{"no":120,"y":2011.7872,"phase":"2"},{"no":121,"y":2011.8394,"phase":"2"},{"no":122,"y":2011.8917,"phase":"2"},{"no":123,"y":2011.9439,"phase":"2"},{"no":124,"y":2012.0576,"phase":"2"},{"no":125,"y":2012.1129,"phase":"2"},{"no":126,"y":2012.1682,"phase":"2"},{"no":127,"y":2012.2235,"phase":"2"},{"no":128,"y":2012.2788,"phase":"2"},{"no":129,"y":2012.3341,"phase":"2"},{"no":130,"y":2012.3894,"phase":"2"},{"no":131,"y":2012.4447,"phase":"2"},{"no":132,"y":2012.5,"phase":"2"},{"no":133,"y":2012.5553,"phase":"2"},{"no":134,"y":2012.6106,"phase":"2"},{"no":135,"y":2012.6659,"phase":"2"},{"no":136,"y":2012.7212,"phase":"2"},{"no":137,"y":2012.7765,"phase":"2"},{"no":138,"y":2012.8318,"phase":"2"},{"no":139,"y":2012.8871,"phase":"2"},{"no":140,"y":2012.9424,"phase":"2"},{"no":141,"y":2013.0662,"phase":"2"},{"no":142,"y":2013.1385,"phase":"2"},{"no":143,"y":2013.2108,"phase":"2"},{"no":144,"y":2013.2831,"phase":"2"},{"no":145,"y":2013.3554,"phase":"2"},{"no":146,"y":2013.4277,"phase":"2"},{"no":147,"y":2013.5,"phase":"2"},{"no":148,"y":2013.5723,"phase":"2"},{"no":149,"y":2013.6446,"phase":"2"},{"no":150,"y":2013.7169,"phase":"2"},{"no":151,"y":2013.7892,"phase":"2"},{"no":152,"y":2013.8615,"phase":"2"},{"no":153,"y":2013.9338,"phase":"2"},{"no":154,"y":2014.0692,"phase":"2"},{"no":155,"y":2014.1475,"phase":"2"},{"no":156,"y":2014.2258,"phase":"2"},{"no":157,"y":2014.3042,"phase":"2"},{"no":158,"y":2014.3825,"phase":"2"},{"no":159,"y":2014.4608,"phase":"2"},{"no":160,"y":2014.5392,"phase":"2"},{"no":161,"y":2014.6175,"phase":"2"},{"no":162,"y":2014.6958,"phase":"2"},{"no":163,"y":2014.7742,"phase":"2"},{"no":164,"y":2014.8525,"phase":"2"},{"no":165,"y":2014.9308,"phase":"2"},{"no":166,"y":2015.0662,"phase":"3"},{"no":167,"y":2015.1385,"phase":"3"},{"no":168,"y":2015.2108,"phase":"3"},{"no":169,"y":2015.2831,"phase":"3"},{"no":170,"y":2015.3554,"phase":"3"},{"no":171,"y":2015.4277,"phase":"3"},{"no":172,"y":2015.5,"phase":"3"},{"no":173,"y":2015.5723,"phase":"3"},{"no":174,"y":2015.6446,"phase":"3"},{"no":175,"y":2015.7169,"phase":"3"},{"no":176,"y":2015.7892,"phase":"3"},{"no":177,"y":2015.8615,"phase":"3"},{"no":178,"y":2015.9338,"phase":"3"},{"no":179,"y":2016.0971,"phase":"3"},{"no":180,"y":2016.2314,"phase":"3"},{"no":181,"y":2016.3657,"phase":"3"},{"no":182,"y":2016.5,"phase":"3"},{"no":183,"y":2016.6343,"phase":"3"},{"no":184,"y":2016.7686,"phase":"3"},{"no":185,"y":2016.9029,"phase":"3"},{"no":186,"y":2017.0692,"phase":"3"},{"no":187,"y":2017.1475,"phase":"3"},{"no":188,"y":2017.2258,"phase":"3"},{"no":189,"y":2017.3042,"phase":"3"},{"no":190,"y":2017.3825,"phase":"3"},{"no":191,"y":2017.4608,"phase":"3"},{"no":192,"y":2017.5392,"phase":"3"},{"no":193,"y":2017.6175,"phase":"3"},{"no":194,"y":2017.6958,"phase":"3"},{"no":195,"y":2017.7742,"phase":"3"},{"no":196,"y":2017.8525,"phase":"3"},{"no":197,"y":2017.9308,"phase":"3"},{"no":198,"y":2018.0727,"phase":"4"},{"no":199,"y":2018.1582,"phase":"4"},{"no":200,"y":2018.2436,"phase":"4"},{"no":201,"y":2018.3291,"phase":"4"},{"no":202,"y":2018.4145,"phase":"4"},{"no":203,"y":2018.5,"phase":"4"},{"no":204,"y":2018.5855,"phase":"4"},{"no":205,"y":2018.6709,"phase":"4"},{"no":206,"y":2018.7564,"phase":"4"},{"no":207,"y":2018.8418,"phase":"4"},{"no":208,"y":2018.9273,"phase":"4"},{"no":209,"y":2019.0822,"phase":"4"},{"no":210,"y":2019.1867,"phase":"4"},{"no":211,"y":2019.2911,"phase":"4"},{"no":212,"y":2019.3956,"phase":"4"},{"no":213,"y":2019.5,"phase":"4"},{"no":214,"y":2019.6044,"phase":"4"},{"no":215,"y":2019.7089,"phase":"4"},{"no":216,"y":2019.8133,"phase":"4"},{"no":217,"y":2019.9178,"phase":"4"},{"no":218,"y":2020.077,"phase":"5"},{"no":219,"y":2020.171,"phase":"5"},{"no":220,"y":2020.265,"phase":"5"},{"no":221,"y":2020.359,"phase":"5"},{"no":222,"y":2020.453,"phase":"5"},{"no":223,"y":2020.547,"phase":"5"},{"no":224,"y":2020.641,"phase":"5"},{"no":225,"y":2020.735,"phase":"5"},{"no":226,"y":2020.829,"phase":"5"},{"no":227,"y":2020.923,"phase":"5"},{"no":228,"y":2021.077,"phase":"5"},{"no":229,"y":2021.171,"phase":"5"},{"no":230,"y":2021.265,"phase":"5"},{"no":231,"y":2021.359,"phase":"5"},{"no":232,"y":2021.453,"phase":"5"},{"no":233,"y":2021.547,"phase":"5"},{"no":234,"y":2021.641,"phase":"5"},{"no":235,"y":2021.735,"phase":"5"},{"no":236,"y":2021.829,"phase":"5"},{"no":237,"y":2021.923,"phase":"5"},{"no":238,"y":2022.0613,"phase":"5"},{"no":239,"y":2022.124,"phase":"5"},{"no":240,"y":2022.1867,"phase":"5"},{"no":241,"y":2022.2493,"phase":"5"},{"no":242,"y":2022.312,"phase":"5"},{"no":243,"y":2022.3747,"phase":"5"},{"no":244,"y":2022.4373,"phase":"5"},{"no":245,"y":2022.5,"phase":"5"},{"no":246,"y":2022.5627,"phase":"5"},{"no":247,"y":2022.6253,"phase":"5"},{"no":248,"y":2022.688,"phase":"5"},{"no":249,"y":2022.7507,"phase":"5"},{"no":250,"y":2022.8133,"phase":"5"},{"no":251,"y":2022.876,"phase":"5"},{"no":252,"y":2022.9387,"phase":"5"},{"no":253,"y":2023.0692,"phase":"6"},{"no":254,"y":2023.1475,"phase":"6"},{"no":255,"y":2023.2258,"phase":"6"},{"no":256,"y":2023.3042,"phase":"6"},{"no":257,"y":2023.3825,"phase":"6"},{"no":258,"y":2023.4608,"phase":"6"},{"no":259,"y":2023.5392,"phase":"6"},{"no":260,"y":2023.6175,"phase":"6"},{"no":261,"y":2023.6958,"phase":"6"},{"no":262,"y":2023.7742,"phase":"6"},{"no":263,"y":2023.8525,"phase":"6"},{"no":264,"y":2023.9308,"phase":"6"},{"no":265,"y":2024.1083,"phase":"6"},{"no":266,"y":2024.265,"phase":"6"},{"no":267,"y":2024.4217,"phase":"6"},{"no":268,"y":2024.5783,"phase":"6"},{"no":269,"y":2024.735,"phase":"6"},{"no":270,"y":2024.8917,"phase":"6"},{"no":271,"y":2025.265,"phase":"6"},{"no":272,"y":2025.735,"phase":"6"}]};
+const _D3 = {"principles":[{"ch":1,"no":1,"title":"あたりまえのことを、あたりまえにおこなう"},{"ch":1,"no":2,"title":"報告・連絡・相談・確認"},{"ch":1,"no":3,"title":"大きな目的から、現実の仕事に落とし込め"},{"ch":1,"no":4,"title":"継続は力なり"},{"ch":1,"no":5,"title":"土俵の真ん中で相撲をとる"},{"ch":1,"no":6,"title":"バランスのとれた人間性を備える"},{"ch":1,"no":7,"title":"両極端をあわせもつ"},{"ch":1,"no":8,"title":"有意注意で感度を高める"},{"ch":1,"no":9,"title":"ものごとをシンプルにとらえる"},{"ch":1,"no":10,"title":"反省ある人生を送る"},{"ch":2,"no":11,"title":"フロンティアスピリット"},{"ch":2,"no":12,"title":"情熱はすべての源泉"},{"ch":2,"no":13,"title":"明暗を分けるのはスピード"},{"ch":2,"no":14,"title":"渦の中心になれ"},{"ch":2,"no":15,"title":"値決めは経営である"},{"ch":2,"no":16,"title":"ギャラリーでなく、プレイヤーたれ"},{"ch":2,"no":17,"title":"ベクトルを合わせる"},{"ch":2,"no":18,"title":"高い目標をもつ"},{"ch":2,"no":19,"title":"人生・仕事の結果＝考え方×熱意×能力"},{"ch":2,"no":20,"title":"現場主義に徹する"},{"ch":3,"no":21,"title":"利他の心を判断基準にする"},{"ch":3,"no":22,"title":"お客様第一主義を貫く"},{"ch":3,"no":23,"title":"相手の立場になって考える"},{"ch":3,"no":24,"title":"仲間のためにつくす"},{"ch":3,"no":25,"title":"自分が困ったことを放置しない"},{"ch":3,"no":26,"title":"素直に学ぶ"},{"ch":3,"no":27,"title":"つねに謙虚であらねばならない"},{"ch":3,"no":28,"title":"感謝の気持ちを表わす"},{"ch":3,"no":29,"title":"つねに明るく、未来を前向きにとらえる"},{"ch":3,"no":30,"title":"心に描いたとおりになる"}]};
+const DATA = Object.assign({}, _D1, _D2, _D3);
+
+(function() {
+  "use strict";
+  const TITLES={"1":"社長メッセージ配信にあたって","2":"チームワークの大切さ","3":"不正は許さない","4":"新年に向けて","5":"素晴らしい人生を送るための、3つの管理","6":"2008年 年頭所感","7":"コミットメントに関して","8":"万策尽きたのか？","9":"営業成績＝営業量×営業知識量","10":"現場が重要","11":"プランニング＆ブランディング委員会（Ｐ＆Ｂ委員会）","12":"逆境はチャンス","13":"マリモの強み","14":"就職セミナーにて","15":"頑張れ！新人営業マン","16":"忘れられた人道的危機","17":"お客様の立場になって考えてほしい","18":"利他と感謝①","19":"まりもノ風","20":"社員手帳（MARIMO WAY）配布","21":"アサーティブな人になろう","22":"4月全体朝礼～新年度スタート～","23":"初心を忘れず、緊張感をもって","24":"夢をかなえるゾウ","25":"松下幸之助をひもとく①　～歴史・命知元年・水道哲学～","26":"松下幸之助をひもとく②","27":"上場延期について","28":"今後の事業方針","29":"6月全体朝礼～危機感を共有せよ～","30":"成長企業DNA研修","31":"意味報酬について","32":"7月全体朝礼～他社倒産、社員稼業～","33":"不都合な真実」（AN INCONVENIENT TRUTH）","34":"人事異動","35":"第39期経営方針発表会 社長総括","36":"アーバンコーポレイション倒産","37":"ポレスターメガシティ小倉イーストガーデン事業中止","38":"9月全体朝礼～中期経営計画～","39":"10月全体朝礼～痛みを伴う構造改革を断行～","40":"建物管理本部を分社します","41":"営業マンよ、奮起を！","42":"今は買い時か？","43":"11月全体朝礼～販売状況～","44":"商売の原点","45":"買い取り再販事業","46":"12月全体朝礼～他社倒産、貸しはがしなど～","47":"社員向け 値引き販売のお知らせ～ポレスターの勧め～","48":"日本の財政状況と、資産防衛の必要性～ポレスターの勧め 第2弾～","49":"年末に向けて","50":"念ずれば花開く","51":"ポレスターの勧め 第3弾","52":"2009年 年頭所感","53":"ルールを守れぬ者は辞表を出せ","54":"2月全体朝礼～販売状況など～","55":"マリモの再生マンション即日完売","56":"稲盛塾長より直接ご指導いただきました","57":"マリモコミュニティの成長戦略","58":"経営理念策定の経緯","59":"利他と感謝②","60":"一歩先を考える","61":"人生は下りのエスカレーターで上をめざすようなもの","62":"無駄な努力はない","63":"5月全体朝礼～販売状況など～","64":"収益不動産を取得","65":"P青葉ＣＰ、フーデリーがオープン","66":"6月全体朝礼～転機が来ている～","67":"賞与支給に関して","68":"営業頑張れ！","69":"上海に子会社設立","70":"7月全体朝礼~振り返り月間～","71":"11月全体朝礼～基本を徹底してほしい～","72":"第39期決算確定","73":"摩麗茂建築設計コンサル(上海)有限公司","74":"言うべきは言う","75":"負けに不思議の負け無し","76":"マリモは大丈夫なの？","77":"不況さらに良し","78":"住宅ＣＯ２排出ゼロ義務づけ","79":"賞与支給に関して","80":"2010年 年頭所感","81":"1月全体朝礼～第40期経営方針振り返り～","82":"稲盛塾長 日航ＣＥＯへ","83":"2月全社朝礼～広島市初進出～","84":"4月全体朝礼～明るい飛躍の年～","85":"5月全体朝礼～中国事業～","86":"禁煙のススメ","87":"唯一の全国展開デベロッパー","88":"天は自ら助くる者を助く","89":"このままでは国家は破綻する","90":"THINK GLOBAL, ACT LOCAL","91":"7月全体朝礼 ～STAND UP広島プロジェクト開始～","92":"機会の平等 結果の平等","93":"玄米食のススメ","94":"基本業が大切","95":"コミュニティ形成支援マンション","96":"8月全社朝礼～第40期振り返り～","97":"お盆","98":"第41期経営方針発表会 社長総括","99":"9月全社朝礼 ～マリモコミュニティ株主変更のお知らせ～","100":"10月全社朝礼～本日マリモコミュニティ株主変更、営業員にエールを～","101":"11月全社朝礼～各事業の状況","102":"12月全社朝礼～ゆでガエルの話～","103":"盛和塾JAL応援団","104":"合同契約会","105":"ゆでガエル日本 そして自己防衛を","106":"2011年 年頭所感","107":"2月全体朝礼～残業に関して～","108":"困難こそ成長の源","109":"借りの人生 貸しの人生","110":"一件の積み重ね","111":"3月全体朝礼～上場の目的について～","112":"大地震に関して","113":"4月全体朝礼～震災の発生を受けて～","114":"5月全体朝礼～内覧会出席～","115":"6月全体朝礼～アフターサービスに関して～","116":"7月全体朝礼～営業について～","117":"第42期経営方針発表会 社長総括","118":"8月全体朝礼～ブランディング推進～","119":"9月全体朝礼～Beautiful Basic～","120":"上場延期のお知らせ","121":"10月全体朝礼～外部環境について～","122":"11月全体朝礼～中国プロジェクト第1弾～","123":"12月全体朝礼～2011年を振り返る～","124":"2012年 年頭所感","125":"2月全体朝礼～人事制度改訂、被災地を巡って～","126":"MARECと通常業務の考え方","127":"3月全体朝礼～盛和塾塾長例会発表者選考～","128":"仕入れ方針転0換～不動産流動化事業 本格始動～","129":"朝礼内容変更に関して","130":"新入社員の皆さんへ～何のために働くのか～","131":"4月全体朝礼～MARIMO WAYと京セラフィロソフィ～","132":"5月全体朝礼～余裕のある今こそチャレンジを～","133":"人事アンケートの結果に関して","134":"6月全体朝礼～海外出張にて～","135":"7月全体朝礼～引き渡しについて～","136":"第43期経営方針発表会 社長総括","137":"8月全体朝礼～第43期全社経営方針～","138":"9月全体朝礼～逆境を成長のチャンスに～","139":"10月全体朝礼～営業決起集会、社員旅行～","140":"11月全体朝礼～付加価値を高める～","141":"2013年 年頭所感","142":"2月全体朝礼～マレーシアプロジェクト本格始動～","143":"3月全体朝礼～入社19年を振り返って～","144":"社長室お客様相談係に関して","145":"4月全体朝礼～フィロソフィ勉強会～","146":"6月全体朝礼～稲盛経営者賞第1位受賞～","147":"7月全体朝礼～新人事制度～","148":"第44期経営方針発表会 社長総括","149":"営業・仕入の連携について","150":"9月全体朝礼～中国&インドネシアPJ～","151":"10月全体朝礼～各事業の状況～","152":"11月全体朝礼～中国PJ支援、ジョブローテーション～","153":"12月全体朝礼～仕入れインセンティブ導入、盛和塾塾長例会、ジョブローテーション②～","154":"1月全体朝礼～2014年 年頭所感～","155":"2月全体朝礼～インドネシアのサービスアパートメントオープン、ジョブローテーション③～","156":"3月全体朝礼～有休取得促進・福利厚生、自社管理、マンション事業の今後～","157":"4月全体朝礼～収益不動産方針、関西一斉調査、自社管理体制、保険加入のすすめ、資格取得","158":"5月全体朝礼～盛和塾中国四国地区塾長例会、高齢化と雇用～","159":"6月全体朝礼～盛和塾中国四国地区塾長例会 開催～","160":"7月全体朝礼～フィロソフィ勉強会振り返り～","161":"第45期経営方針発表会 社長総括","162":"9月全体朝礼～建売分譲、戸建賃貸、海外事業～","163":"10月全体朝礼～節税不動産投資事業～","164":"11月全体朝礼～マレーシア、中国、仕入れ方針転換～","165":"12月全体朝礼～戸建賃貸セミナー開催～","166":"2015年 年頭所感","167":"2月全体朝礼～経営方針振り返り～","169":"4月全体朝礼～仕入れ方針再転換、マリモコミュニティ移転～","170":"5月全体朝礼～J-REIT上場をめざす～","171":"6月全体朝礼～組織改定、M&A～","172":"7月全体朝礼～マリモの魅力～","173":"9月全体朝礼～組織改編の目的、完全週休2日制実施～","175":"北極星花園(ポレスターガーデン)竣工式典","177":"11月全体朝礼～CSRについて～","178":"12月全体朝礼～一年の振り返り～","179":"1月全体朝礼～勢い保ち 着実に～","180":"2月全体朝礼～熊本桜町再開発、カンボジア開校式、確定拠出型年金の補助引き上げ～","181":"３月全体朝礼～ザ・レジデンス廿日市駅前～","182":"4月全体朝礼～怒涛の1カ月でマリモの底力を発揮～","183":"5月全体朝礼～熊本大地震～","184":"9月全体朝礼～選択と集中～","185":"11月全体朝礼～ホールディングス経営体制～","186":"1月全体朝礼～2017年の始まり～","187":"2月全体朝礼～下期に向けて～","188":"3月全体朝礼～コンパクトマンション『ソルティア』、収益不動産好調、京セラフィロソフィアンケート結果～","189":"4月全体朝礼～マリモの歴史①デベロッパー転身前～","190":"5月全体朝礼～マリモの歴史②デベロッパー転身後～","191":"6月全体朝礼～マリモの歴史③現在（2017年）までの10年間～","192":"新生MARIMO WAYについて","193":"第48期経営方針発表会 社長総括","194":"9月全体朝礼～分譲マンション開発43県進出、社員教育の推進～","195":"10月全体朝礼～ザ・熊本ガーデンズ即日完売～","196":"11月全体朝礼～セクハラ・パワハラ、第一四半期終了～","197":"12月全体朝礼～中国視察、国内仕入れ、働き方改革～","198":"1月全体朝礼～2018年 年頭所感～","199":"2月全体朝礼～フィロソフィの重要性～","200":"3月全体朝礼～働き方改革と組織改革～","201":"4月全体朝礼～カンボジア第2校開校式、中国視察～","202":"5月全体朝礼～余暇の使い方、新卒採用に関して～","203":"6月全体朝礼～イギリスとマレーシア～","204":"7月全体朝礼～全営業部必達達成、中国『尚雅苑』第2期714戸即日完売～","205":"第49期経営方針発表会 社長総括","206":"9月全体朝礼～不正、アパートローン、環境問題～","207":"10月全体朝礼～働き方改革と自己成長～","208":"11月全体朝礼～浅草PJ、不動産開発本部 体制変更～","209":"1月全体朝礼～5年先、10年先を見すえた構造改革を～","210":"3月全体朝礼～ホテルマネジメント～","211":"4月全体朝礼～人事は優しさと厳しさのバランスが大切～","212":"6月全体朝礼～業務は攻めと守りのバランスが大切、中国PJ～","213":"第50期経営方針発表会 社長総括","214":"9月全体朝礼～マリモ10年ビジョンとCSR～","215":"10月全社朝礼～人事組織について〜","216":"株式会社マリモ 創立50周年パーティ 社長挨拶","217":"12月全体朝礼～2019年の振り返り～","218":"2020年 年頭朝礼","219":"2月全体朝礼～3つの視座の変化～","220":"2020新入社員の皆さんへ","221":"コロナショックと事業方針等の変更について","222":"マリモホームページ社長あいさつ文変更","223":"ソーシャルビジネス","224":"第51期経営方針発表会 社長総括","225":"9月全体朝礼～ソーシャルとは～","226":"野菜宅配のココノミ","227":"一人ひとりの変革元年に","228":"2021年 年頭メッセージ","229":"下期スタート","230":"3月全体朝礼～マンション事業のソーシャル度を上げる～","231":"4月全体朝礼～ココノミ社長交代、marmo住まいsalon～","232":"大企業か中小企業か","233":"第52期経営方針発表会 社長総括～マリモ上場へ～","234":"マリモハウス・ユーリックホーム・マリモコンサルティング","235":"ホールディングスの上場に目標変更","236":"アセットマネジメント事業本部","237":"マンション事業の付加価値向上","238":"2022年 年頭メッセージ","239":"死生観","240":"3月社長メッセージ～事業トピックス～","241":"4月社長メッセージ～ソーシャルビジネス、マリモ上場準備～","242":"5月 社長メッセージ～仕入れ抑制、現場回帰、社長室幹部ミーティング～","243":"6月社長メッセージ～田植え体験会、マンション事業～","244":"7月 社長メッセージ～弊社創業者であり、父である深川武夫を偲んで～","245":"第53期経営方針発表会 社長総括～マリモグループパーパス発表～","246":"稲盛和夫さん","247":"小さなカイゼン※の積み重ねが大切","248":"石の上にも3年は正しいか・","249":"ある退職者の所感について","250":"フィリピンアフォーダブル住宅事業","251":"≪2022おとなのバンド大賞≫コンテスト入賞","252":"2022年お疲れ様でした","253":"2023年 年頭メッセージ～シナジーある大手との資本業務提携～","254":"大企業病になってやしないか","255":"マリモグループ再編","257":"イオンモール株式会社と資本業務提携","258":"ジョブ型人事制度と給与ベースアップ","259":"情報が大切","260":"稲盛和夫さんへの感謝の手紙","262":"第54期経営方針発表会 社長総括","263":"部下を殺す上司は退場すべし","264":"ホールディングス上場からマリモ上場への変更","265":"2024年 年頭所感","266":"業務改善推進本部","267":"マリモの上場時期延期について","268":"2024新入社員の皆さんへ","269":"社内木鶏会 再開","270":"第55期経営方針発表会 社長総括","271":"2024振り返り&2025年頭所感","272":"第56期　経営方針発表会"};
+
+  const YEAR_START = 2007;
+  const YEAR_END = 2025;
+  const BASE_H = 280;
+  const YEAR_HEIGHTS = {};
+  for (let y = YEAR_START; y <= YEAR_END + 1; y++) {
+    if (y === 2007) YEAR_HEIGHTS[y] = 560;  /* 12 月のみ、非線形で Dec に多めに与える */
+    else if (y === 2008) YEAR_HEIGHTS[y] = 1320;
+    else if (y === 2009) YEAR_HEIGHTS[y] = 760;
+    else if (y === 2010) YEAR_HEIGHTS[y] = 720;
+    else if (y === 2011) YEAR_HEIGHTS[y] = 560;
+    else if (y === 2012) YEAR_HEIGHTS[y] = 360;
+    else if (y === 2013) YEAR_HEIGHTS[y] = 320;
+    else if (y === 2014) YEAR_HEIGHTS[y] = 320;
+    else if (y === 2015) YEAR_HEIGHTS[y] = 380;
+    else if (y === 2016) YEAR_HEIGHTS[y] = 400;
+    else if (y === 2017) YEAR_HEIGHTS[y] = 700;  /* 189/190/191 三連続 r5 のため拡大 */
+    else if (y === 2018) YEAR_HEIGHTS[y] = 360;
+    else if (y === 2019) YEAR_HEIGHTS[y] = 480;
+    else if (y === 2020) YEAR_HEIGHTS[y] = 640;
+    else if (y === 2021) YEAR_HEIGHTS[y] = 460;
+    else if (y === 2022) YEAR_HEIGHTS[y] = 680;  /* 245/248 r5 のため拡大 */
+    else if (y === 2023) YEAR_HEIGHTS[y] = 560;
+    else if (y === 2024) YEAR_HEIGHTS[y] = 540;  /* 265/268 r5 のため拡大 */
+    else if (y === 2025) YEAR_HEIGHTS[y] = 360;
+    else YEAR_HEIGHTS[y] = BASE_H;
+  }
+  const YEAR_TOPS = {};
+  { let t = 0; for (let y = YEAR_START; y <= YEAR_END + 1; y++) { YEAR_TOPS[y] = t; t += YEAR_HEIGHTS[y]; } }
+  const TOTAL_H = YEAR_TOPS[YEAR_END + 1];
+  document.documentElement.style.setProperty("--total-h", TOTAL_H + "px");
+
+  // 2008 は 1月の Phase 1a 密集（第5〜10号 = .003〜.073）が極端に詰まるため、
+  // 非線形マップで Jan 部分（0.0〜0.08）を視覚的に拡張する。
+  function vy(yr) {
+    const fy = Math.floor(yr);
+    const frac = yr - fy;
+    const top = (YEAR_TOPS[fy] != null) ? YEAR_TOPS[fy] : 0;
+    if (fy === 2007) {
+      /* 2007 は 12 月（frac >= 0.94）にのみ号がある。前半を圧縮して Dec を 70% に拡大 */
+      const H = YEAR_HEIGHTS[fy];
+      const PRE_COMPRESS = 0.30;   // 1〜11 月（frac 0–0.94）を H の 30% に圧縮
+      if (frac < 0.94) {
+        return top + (frac / 0.94) * (H * PRE_COMPRESS);
+      } else {
+        return top + (H * PRE_COMPRESS) + ((frac - 0.94) / 0.06) * (H * (1 - PRE_COMPRESS));
+      }
+    }
+    if (fy === 2008) {
+      const H = YEAR_HEIGHTS[fy]; // 1320
+      const JAN_VISUAL = 260;     // 1月部分に与える縦スペース
+      if (frac < 0.08) {
+        return top + (frac / 0.08) * JAN_VISUAL;
+      } else {
+        return top + JAN_VISUAL + ((frac - 0.08) / 0.92) * (H - JAN_VISUAL);
+      }
+    }
+    const h = YEAR_HEIGHTS[fy] || BASE_H;
+    return top + frac * h;
+  }
+
+  const nav = document.getElementById("phaseNav");
+  const all272BtnEl = document.getElementById("all272Btn");
+  DATA.phases.forEach(p => {
+    const btn = document.createElement("button");
+    btn.className = "phase-btn";
+    btn.dataset.phase = p.id;
+    btn.innerHTML = `<span class="ph-num">${p.num}</span>${p.name}`;
+    btn.addEventListener("click", () => selectPhase(p.id));
+    nav.insertBefore(btn, all272BtnEl);
+  });
+  document.querySelector('.phase-btn[data-phase="all"]').addEventListener("click", () => selectPhase("all"));
+
+  const allColsIds = ["colGutter","colThought","colOrg","colSociety","colEconomy","colPoetic"];
+  allColsIds.forEach(id => {
+    const col = document.getElementById(id);
+    for (let y = YEAR_START; y <= YEAR_END + 1; y++) {
+      const g = document.createElement("div");
+      g.className = "hgrid" + (y % 5 === 0 ? " decade" : "");
+      g.style.top = vy(y) + "px";
+      col.appendChild(g);
+    }
+  });
+
+  const colGutter = document.getElementById("colGutter");
+  DATA.phases.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "phase-stripe match";
+    el.dataset.phase = p.id;
+    el.style.top = vy(p.start) + "px";
+    el.style.height = (vy(p.end) - vy(p.start)) + "px";
+    el.style.background = p.color;
+    el.textContent = `P${p.num} ／ ${p.name}`;
+    el.title = `Phase ${p.num} ／ ${p.name}`;
+    colGutter.appendChild(el);
+  });
+  for (let y = YEAR_START; y <= YEAR_END; y++) {
+    const el = document.createElement("div");
+    el.className = "year-label match" + (y % 10 === 0 ? " decade" : "");
+    const yObj = DATA.years.find(yy => yy.year === y) || {};
+    const ph = yObj.phase || "";
+    el.dataset.phase = ph;
+    el.style.top = vy(y) + "px";
+    let jp = "";
+    if (y === 2007) jp = '<span class="jp">平成19／配信開始 12.09</span>';
+    else if (y === 2019) jp = '<span class="jp">令和元</span>';
+    else if (y === 2008) jp = '<span class="jp">平成20</span>';
+    const keyTxt = yObj.key ? `<span class="ymk" title="◆ 照応キー">${escapeHtml(yObj.key)}</span>` : "";
+    el.innerHTML = `<span class="yn">${y}</span>${jp}${keyTxt}`;
+    if (yObj.key) {
+      el.style.cursor = "pointer";
+      el.addEventListener("click", () => openYearDetail(yObj, "key"));
+    }
+    colGutter.appendChild(el);
+  }
+  const keyByNo = {};
+  DATA.keyIssues.forEach(k => { keyByNo[k.no] = k; });
+  DATA.allIssues.forEach(iss => {
+    const t = document.createElement("div");
+    const k = keyByNo[iss.no];
+    t.className = "tick match" + (k ? " key r" + k.rank : "");
+    t.dataset.phase = iss.phase;
+    t.dataset.no = iss.no;
+    t.style.top = vy(iss.y) + "px";
+    t.style.right = "10px";
+    if (k) {
+      t.title = `No.${k.no} ｜ ${k.title} ｜ ${"★".repeat(k.rank)}`;
+      t.addEventListener("click", () => openIssue(k));
+      if (k.rank === 5) {
+        const lbl = document.createElement("div");
+        lbl.className = "tick-no match";
+        lbl.dataset.phase = iss.phase;
+        lbl.style.top = vy(iss.y) + "px";
+        lbl.style.right = "10px";
+        lbl.textContent = "№" + k.no;
+        colGutter.appendChild(lbl);
+      }
+    } else {
+      t.title = `No.${iss.no}`;
+      t.addEventListener("click", () => openPlainIssue(iss));
+    }
+    colGutter.appendChild(t);
+  });
+
+  const colThought = document.getElementById("colThought");
+  const LANE_X = [12, 240];
+  const issuesByYear = {};
+  DATA.allIssues.forEach(iss => {
+    const yr = Math.floor(iss.y);
+    if (!issuesByYear[yr]) issuesByYear[yr] = [];
+    issuesByYear[yr].push(iss);
+  });
+  Object.keys(issuesByYear).forEach(yr => {
+    const arr = issuesByYear[yr].sort((a, b) => a.y - b.y);
+    arr.forEach((iss, idx) => { iss._lane = idx % 2; });
+  });
+  function monthLabel(y) {
+    const fy = Math.floor(y);
+    const m = Math.min(12, Math.max(1, Math.round((y - fy) * 12) + 1));
+    return m + "月";
+  }
+  DATA.allIssues.forEach(iss => {
+    const btn = document.createElement("button");
+    const k = keyByNo[iss.no];
+    const rank = k ? ("r" + k.rank) : "regular";
+    btn.className = "icard match " + rank;
+    btn.dataset.phase = iss.phase;
+    btn.dataset.no = iss.no;
+    btn.style.top = vy(iss.y) + "px";
+    btn.style.left = LANE_X[iss._lane] + "px";
+    const realTitle = TITLES[iss.no] || null;
+    const title = realTitle || (k ? k.title : "（欠番／本文なし）");
+    btn.innerHTML = `<span class="no">No.${iss.no}</span><span class="mo">${monthLabel(iss.y)}</span><span class="ttl">${escapeHtml(title)}</span>`;
+    btn.title = `第${iss.no}号 ${title}` + (k ? `（★${k.rank}）` : "");
+    btn.addEventListener("click", () => k ? openIssue(k) : openPlainIssue(iss));
+    colThought.appendChild(btn);
+  });
+
+  const MAJOR_ORG_YEARS = new Set([2007, 2008, 2015, 2017, 2019, 2020, 2022, 2023, 2024, 2025]);
+  function eventSearchUrl(eventText, year) {
+    const cleaned = String(eventText).replace(/[［\[][^］\]]*[］\]]\s*$/, "").trim();
+    const q = year ? `${year} ${cleaned}` : cleaned;
+    return "https://www.google.com/search?q=" + encodeURIComponent(q);
+  }
+  // ［...］内部の／は分割せず、外側の／のみで分割
+  function smartSplit(s) {
+    const out = [];
+    let buf = "";
+    let depth = 0;
+    for (const ch of s) {
+      if (ch === "［" || ch === "[") depth++;
+      else if (ch === "］" || ch === "]") depth = Math.max(0, depth - 1);
+      if (ch === "／" && depth === 0) {
+        if (buf.trim()) out.push(buf.trim());
+        buf = "";
+      } else {
+        buf += ch;
+      }
+    }
+    if (buf.trim()) out.push(buf.trim());
+    return out;
+  }
+
+  // 「★★」「★」プレフィックスで重要度クラスを返す
+  function parseMarker(item) {
+    let cls = "ev";
+    let cleaned = item;
+    if (cleaned.startsWith("★★")) { cls = "ev maj"; cleaned = cleaned.slice(2).trim(); }
+    else if (cleaned.startsWith("★")) { cls = "ev mid"; cleaned = cleaned.slice(1).trim(); }
+    return { cls, cleaned };
+  }
+
+  // 年ごとのコンテンツ重心 anchor：その年に号がいつ集中しているかで決める
+  // 2007 は 12 月のみ（frac 0.94+）→ 0.97 に anchor
+  // 他は 0.5（年中央）
+  function yearAnchor(yr) {
+    if (yr === 2007) return 0.97;
+    return 0.5;
+  }
+
+  function renderYearCardCol(colId, field, styleMajor, mode) {
+    const col = document.getElementById(colId);
+    const useList = mode === "list";
+    DATA.years.forEach(y => {
+      const card = document.createElement("div");
+      card.className = "yr-card match" + (styleMajor && MAJOR_ORG_YEARS.has(y.year) ? " major" : "") + (useList ? " list-mode" : "");
+      card.dataset.phase = y.phase;
+      card.style.top = vy(y.year + yearAnchor(y.year)) + "px";
+      const txt = y[field] || "—";
+      if (useList && txt !== "—") {
+        const items = smartSplit(String(txt));
+        const evHtml = items.map(rawE => {
+          const { cls, cleaned } = parseMarker(rawE);
+          const url = eventSearchUrl(cleaned, y.year);
+          return `<span class="${cls}"><a href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(cleaned)}</a></span>`;
+        }).join("");
+        card.innerHTML = `<span class="yrlbl">${y.year}</span>${evHtml}`;
+      } else {
+        card.innerHTML = `<span class="yrlbl">${y.year}</span><span class="txt">${escapeHtml(txt)}</span>`;
+      }
+      card.title = y[field] || "";
+      card.addEventListener("click", () => openYearDetail(y, field));
+      if (useList) {
+        card.querySelectorAll(".ev a").forEach(a => a.addEventListener("click", ev => ev.stopPropagation()));
+      }
+      col.appendChild(card);
+    });
+  }
+  renderYearCardCol("colOrg", "org", true, "list");
+  renderYearCardCol("colSociety", "society", false, "list");
+  renderYearCardCol("colEconomy", "economy", false, "list");
+
+const colPoetic = document.getElementById("colPoetic");
+  DATA.years.forEach(y => {
+    const p = document.createElement("div");
+    p.className = "poetic-line match";
+    p.dataset.phase = y.phase;
+    p.style.top = vy(y.year + yearAnchor(y.year)) + "px";
+    p.textContent = y.poetic ? y.poetic.replace(/^「|」$/g, "") : "";
+    p.title = y.poetic || "";
+    colPoetic.appendChild(p);
+  });
+
+  function selectPhase(ph) {
+    document.querySelectorAll(".phase-btn").forEach(b => {
+      b.classList.remove("active"); b.style.background = ""; b.style.borderColor = "";
+    });
+    const activeBtn = document.querySelector(`.phase-btn[data-phase="${ph}"]`);
+    if (activeBtn) {
+      activeBtn.classList.add("active");
+      if (ph !== "all") {
+        const phase = DATA.phases.find(p => p.id === ph);
+        if (phase) { activeBtn.style.background = phase.color; activeBtn.style.borderColor = phase.color; }
+      } else { activeBtn.style.background = "var(--ink)"; activeBtn.style.borderColor = "var(--ink)"; }
+    }
+    if (ph === "all") {
+      document.body.classList.remove("filter-on");
+      document.querySelectorAll(".tick, .tick-no, .icard, .yr-card, .key-band, .poetic-line, .phase-stripe, .year-label").forEach(el => el.classList.add("match"));
+      return;
+    }
+    document.body.classList.add("filter-on");
+    document.querySelectorAll(".tick, .tick-no, .icard, .yr-card, .key-band, .poetic-line, .phase-stripe, .year-label").forEach(el => {
+      if (el.dataset.phase === ph) el.classList.add("match"); else el.classList.remove("match");
+    });
+    const p = DATA.phases.find(pp => pp.id === ph);
+    if (p) {
+      const wrapTop = document.querySelector(".chrono-v").getBoundingClientRect().top + window.scrollY;
+      const target = wrapTop + vy(p.start) - 140;
+      window.scrollTo({ top: target, behavior: "smooth" });
+    }
+  }
+
+  const drawer = document.getElementById("drawer");
+  const backdrop = document.getElementById("backdrop");
+  const dhNo = document.getElementById("dhNo");
+  const dhTtl = document.getElementById("dhTtl");
+  const dhMeta = document.getElementById("dhMeta");
+  const drawerBody = document.getElementById("drawerBody");
+  function phaseLabel(p) { const ph = DATA.phases.find(x => x.id === p); return ph ? `Phase ${ph.num} ／ ${ph.name}` : "—"; }
+  function fulltextSection(no) {
+    const KESSU = {168:1,174:1,176:1,256:1,261:1};
+    if (KESSU[no]) {
+      return `<div class="fulltext-sec"><div class="ft-head">◆ 全文ビュー ／ 第 ${no} 号</div><div class="ft-body"><div class="ft-empty">この号は欠番です。本文データはありません。</div></div></div>`;
+    }
+    const fullUrl = `chronicle_FULLTEXT_complete.html#no=${no}`;
+    return `<div class="fulltext-sec"><div class="ft-head">◆ 全文ビュー ／ 第 ${no} 号</div><div class="ft-body"><div class="ft-empty" style="padding:18px 0;color:var(--ink-soft);">本文全文は<strong style="color:var(--vermilion);">完全版 HTML</strong>で提供しています（全 267 本・685,893 字）。<br>下のボタンから新しいタブで開いてください。<br><span style="font-size:10px;color:var(--ink-faint);">※ ワークスペース内の chronicle_FULLTEXT_complete.html を別途開いてください</span></div></div><a class="ft-fulllink" href="${fullUrl}">📖 完全版 HTML で 第 ${no} 号 を読む →</a></div>`;
+  }
+  function renderEventList(s, year) {
+    if (!s) return "—";
+    const items = String(s).split(/[／]/).map(x => x.trim()).filter(x => x);
+    if (items.length <= 1) return escapeHtml(s);
+    if (year) {
+      return '<ul style="margin:6px 0 0;padding-left:16px;">' + items.map(e => {
+        const url = eventSearchUrl(e, year);
+        return `<li style="margin-bottom:3px;"><a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--ink-soft);text-decoration:none;border-bottom:1px dotted var(--rule);transition:color 0.12s,border-color 0.12s;" onmouseover="this.style.color=\'var(--vermilion)\';this.style.borderBottomColor=\'var(--vermilion)\';" onmouseout="this.style.color=\'var(--ink-soft)\';this.style.borderBottomColor=\'var(--rule)\';">${escapeHtml(e)}</a></li>`;
+      }).join('') + '</ul>';
+    }
+    return '<ul style="margin:6px 0 0;padding-left:16px;">' + items.map(e => `<li style="margin-bottom:3px;">${escapeHtml(e)}</li>`).join('') + '</ul>';
+  }
+  function openIssue(k) {
+    const realTitle = TITLES[k.no] || k.title;
+    dhNo.textContent = `第 ${k.no} 号`;
+    dhTtl.textContent = realTitle;
+    dhMeta.textContent = `${k.year} ／ ${k.cat || ""}`;
+    const yearData = DATA.years.find(y => y.year === k.year) || {};
+    drawerBody.innerHTML = `
+      ${fulltextSection(k.no)}
+      <div class="meta-strip">
+        <span class="ms-phase">${phaseLabel(k.phase)}</span>
+        <span class="ms-rank">${"★".repeat(k.rank)}</span>
+        ${k.cat ? `<span class="ms-cat">${escapeHtml(k.cat)}</span>` : ""}
+        ${yearData.key ? `<span class="ms-key">${escapeHtml(yearData.key)}</span>` : ""}
+      </div>
+      ${k.note ? `<div class="editorial-note">${escapeHtml(k.note)}</div>` : ""}
+      <div class="ctx-card">
+        <div class="ctx-h">${k.year} ／ Year Context</div>
+        ${yearData.bandTitle ? `<div class="ctx-band">${escapeHtml(yearData.bandTitle)}</div>` : ""}
+        ${yearData.poetic ? `<div class="ctx-poetic">${escapeHtml(yearData.poetic)}</div>` : ""}
+        ${yearData.memo ? `<div class="ctx-memo">${escapeHtml(yearData.memo)}</div>` : ""}
+      </div>
+    `;
+    openDrawer();
+  }
+  function openYearDetail(y, kind) {
+    dhNo.textContent = `${y.year} 年`;
+    dhTtl.textContent = y.bandTitle;
+    dhMeta.textContent = `Phase ${(DATA.phases.find(p=>p.id===y.phase)||{}).num || y.phase}`;
+    drawerBody.innerHTML = `
+      <div class="meta-strip">
+        <span class="ms-phase">${phaseLabel(y.phase)}</span>
+        ${y.key ? `<span class="ms-key">${escapeHtml(y.key)}</span>` : ""}
+      </div>
+      <div class="block"><span class="blabel">TRACK I ／ 深川真、あるいは一経営者として</span>${renderEventList(y.thought)}</div>
+      <div class="block"><span class="blabel">TRACK II ／ MARIMO THE WAY</span>${renderEventList(y.org)}</div>
+      <div class="block"><span class="blabel">TRACK III ／ そのとき、社会は</span>${renderEventList(y.society, y.year)}</div>
+      <div class="block"><span class="blabel">TRACK IV ／ そのとき、経済は</span>${renderEventList(y.economy, y.year)}</div>
+      <div class="ctx-card">
+        <div class="ctx-h">${y.year} ／ Year Context</div>
+        ${y.poetic ? `<div class="ctx-poetic" style="border-top:none;padding-top:0;">${escapeHtml(y.poetic)}</div>` : ""}
+        ${y.memo ? `<div class="ctx-memo">${escapeHtml(y.memo)}</div>` : ""}
+      </div>
+    `;
+    openDrawer();
+  }
+  function openPlainIssue(iss) {
+    const yearFloor = Math.floor(iss.y);
+    const yearData = DATA.years.find(y => y.year === yearFloor) || {};
+    const phase = DATA.phases.find(p => p.id === iss.phase) || {};
+    const monthApprox = Math.min(12, Math.max(1, Math.round((iss.y - yearFloor) * 12) + 1));
+    const realTitle = TITLES[iss.no] || null;
+    dhNo.textContent = `第 ${iss.no} 号`;
+    dhTtl.textContent = realTitle ? realTitle : `${yearFloor} 年 ${monthApprox} 月頃 ／ 欠番`;
+    dhMeta.textContent = `${yearFloor} 年 ／ Phase ${phase.num || iss.phase} ／ ${yearData.key || ""}`;
+    drawerBody.innerHTML = `
+      ${realTitle ? fulltextSection(iss.no) : ""}
+      <div class="meta-strip">
+        <span class="ms-phase">${phaseLabel(iss.phase)}</span>
+        ${realTitle ? "" : `<span class="ms-cat" style="border-left:none;padding-left:0;color:var(--ink-faint);">欠番</span>`}
+        ${yearData.key ? `<span class="ms-key">${escapeHtml(yearData.key)}</span>` : ""}
+      </div>
+      <div class="ctx-card">
+        <div class="ctx-h">${yearFloor} ／ Year Context</div>
+        ${yearData.bandTitle ? `<div class="ctx-band">${escapeHtml(yearData.bandTitle)}</div>` : ""}
+        ${yearData.poetic ? `<div class="ctx-poetic">${escapeHtml(yearData.poetic)}</div>` : ""}
+        ${yearData.memo ? `<div class="ctx-memo">${escapeHtml(yearData.memo)}</div>` : ""}
+      </div>
+      <div class="block"><span class="blabel">TRACK I ／ 深川真、あるいは一経営者として</span>${renderEventList(yearData.thought)}</div>
+      <div class="block"><span class="blabel">TRACK II ／ MARIMO THE WAY</span>${renderEventList(yearData.org)}</div>
+      <div class="block"><span class="blabel">TRACK III ／ そのとき、社会は</span>${renderEventList(yearData.society, yearFloor)}</div>
+      <div class="block"><span class="blabel">TRACK IV ／ そのとき、経済は</span>${renderEventList(yearData.economy, yearFloor)}</div>
+      ${realTitle ? "" : `<div class="placeholder-note">この号は欠番（公式に飛ばされた番号）です。</div>`}
+    `;
+    openDrawer();
+  }
+  function openDrawer() { drawer.classList.add("open"); drawer.setAttribute("aria-hidden","false"); backdrop.classList.add("open"); }
+  function closeDrawer() { drawer.classList.remove("open"); drawer.setAttribute("aria-hidden","true"); backdrop.classList.remove("open"); }
+  document.getElementById("dhClose").addEventListener("click", closeDrawer);
+  backdrop.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { closeDrawer(); mw30Close(); all272Close(); } });
+
+  const PRINCIPLE_DETAILS = [{"no":1,"title":"あたりまえのことを、あたりまえにおこなう","ex":"よくこなし、決められた期日や要求されたレベルで処理していくことは、とても大切な「守りの業務」です。この「守りの業務」は簡単な仕事のように思えるので、自分ではちゃんとやっていると思いがちです。ただし「守りの業務」の完成度は、人によって、あるいは会社によって大きく違います。よくマリモはお取引先や金融機関などから良い評価をいただきますが、他社などと比べてこの部分が「きちんとした仕事ぶり」と感じてもらっているのだと自負しています。新入社員や若手社員は、まずこの基本である「守りの業務」について「ここまできちんとするのがあたりまえなのだ」という感覚を徹底的に身につけることが非常に大切です。一方で、マリモにとってのあたりまえが世間や他社とは違っている場合もあります。たとえば、私たマリモだけの特別なあたりまえが社外にも広がっていく。ちはお客様のことを『お客様』とお呼びします。『客』『お客』などとは呼びません。私たちにとっては当然のことも、徹底できている会社は意外と少ないかもしれません。モデルルームにご来場いただいたお客様に対して、私たちは必ずご本人へのお礼とアプローチをおこなっています。マリモのマンションに興味を持っていただけたことに対する感謝の気持ちを、きちんとお伝えしたいからです。ご自宅への訪問をはじめ、SNSの活用、手書きレター、営業が自ら作成したコメント入り資料の投函…。お伝えする手段はさまざまです。さらに、お客様のご要望や家族構成、お住まいのエリア、社会情勢などを考慮しながら、お客様一人ひとりにもっとも寄り添える方法を考えて、お客様へのお礼を伝えています。ご本人に直接お会いしない場合でも、お客様のご自宅や周辺環境を自分の目で確認することで、お客様がマンションを検討されている状況をより深く理解し、提案内容に活かしていくといった活動も地道に続けています。こんな私たちにとってあたりまえのことも、他社で実践されているとはあまり耳にしません。\n\n「マリモは他社とは違いますね。いろんなモデルルームに見学に行きましたが、手紙をいただいたのは初めてです」お客様からそんなお褒めの言葉をいただくと、私たちが続けているあたりまえのことが世の中から見ると少し特別であることを感じます。そして、そのことがお客様の満足につながっているのだとうれしくなります。ユーリックホームでは、同社がマリモグループの一員になってから、マリモの地域貢献活動「つながりデザインプロジェクト」を参考として、分譲地を開発するたびに地域の小学校や幼稚園・幼児施設などに知育玩具や図書を寄贈する活動をはじめました。いまではそれがユーリックホームのあたりまえになっています。注目したいのは、それまで高松市のハウスメーカーでこのような活動をしてきた企業はなかったということ。そして、ユーリックホームの活動を見て、県内着工件数No.1を謳うハウスメーカーも同じような寄贈活動をはじめたことです。マリモのあたりまえがユーリックホームに伝わり、さらに同業他社へと広がっていったのです。「高松市の公立教育機関では、これまで前例がないということで、寄贈を受けていただきにくい風潮があるのですが、最近は各機関の対応も少しずつですが変わりつつあるように感じています」ユーリックホームの担当者の言葉から、この活動が地域全体に根差しはじめていることが分かります。一人ひとりの社員が『あたりまえ』のレベルを上げていくことで、会社全体のレベルがどんどん上がっていく。そしてグループを横断しながら、さまざまな地域で『あたらしい、あたりまえ』を広げていくことができたら、これほど素晴らしいことはないと思います。このように、私たちは凡事にあたるような『あたりまえ』を着実に遂行し、そして他にはない特別な『あたりまえ』を独自に創出していく。そんな企業文化を根づかせていきたいと願っています。","rel":[1,3,4]},{"no":2,"title":"報告・連絡・相談・確認","ex":"おろそかにしてしまうのもよくない傾向です。マリモは「報告・連絡・相談」に「確認」を加えています。組織にとってこの「確認」がきわめて重要であることを、いままでの経験から認識しているからです。ユーリックホームの宅地分譲開発事業において、確認をおろそかにしたために、工事途中で大きな問題に発展しそうになったことがありました。過去の現場経験を元に自ら判断して事を急ぎ、関係者への「確認」をとらずに段取りを進めていたことが原因でした。その事実が判明した時の仕入担当者たちの行動は極めて的確でした。問題を特定し、上長へ報告するとともに関係する他部署へ相談し、確認を取ったうえで役所との協議を進めていきました。その結果、当初のスケジュール通りに工事を行うことができたのです。\n\nさらにもうひとつ、「報告・連絡・相談・確認」の「確認」がマリモ内で浸透したエピソードにもふれておきます。報告・連絡・相談・確認すべての仕事の基本は、報告・連絡・相談・確認です。新入社員にとっても役員にとっても、すべての社会人に共通する仕事の必要最低スキルでしょう。この「報告・連絡・相談・確認」という基本中の基本を徹底することが非常に重要です。仕事上で起こるミスやトラブルのほとんどは、「報告・連絡・相談」ができていないことに起因します。ゆえに「ホウ（報）・レン（連）・ソウ（相）」は多くの会社で重要視され、社会人・組織人が心得ることとして広く浸透しています。にもかかわらず、私たちはこれを怠ってしまいがちです。基本中の基本であるがゆえに、ある程度キャリアを積むと","rel":[2,7]},{"no":3,"title":"大きな目的から、現実の仕事に落とし込め","ex":"仕事を作業にしないようにしよう。事務作業、表作成、お茶くみなど、作業になりがちな業務にも大きな目的と着地点があります。迫力ある仕事は、大局の目的を意識した作業のくりかえしによって成されます。大きな偉業も地道な作業の積み重ねです。自分のすべての仕事に必ず意義・目的を付加してください。雑草という草がないように、雑務という仕事はありません。目的のない仕事を雑務と呼ぶなら、すべての仕事には目的があるのですから、雑務と呼ぶべきではないのです。「清掃もまた大きな目的から派生してきた業務で創業者が第一線で指揮をとっていた時代のこと、名古屋の入札案件で金額が決定し、担当者が入札場所に書面を持参しました。担当者は創業者に、本当にこの金額でよいかをあらためて確認しました。創業者はそのことに大変感動され、自ら「報告・連絡・相談・確認」と紙に書いて担当者に渡し、支店に貼り出すように指示されました。ただ単に報告や連絡をするだけでは一方通行です。相談をするだけだと、指示を待つという受け身の姿勢になりがちです。最後に双方で確認しあい、結論を明確にすることで、より正確で能動的な仕事ができるようになるのです。ケジュール管理に集中しすぎて、視察当日は視察者からの質問にほとんど答えられなかった」と自省する仕入担当者がいました。視察の目的を考えれば「物件情報や地域特性を視察者に理解してもらうこと」のほうが重要であり、その目的を念頭に置いて取り組めば十分な事前準備ができたと思う、と反省していました。資料作成はもちろん大切な仕事ですが、重要なのは何のための資料なのかということです。会議などの資料を作成する機会は、多くの人にあると思います。「会議に間に合うように準備しなくては」という声をよく聞きますが、それは資料作成が雑務になる前兆です。よい会議は、その会議の目的を意識した準備に支えられて成立するのです。「大きな目的を現実の仕事に落とし込む」ためには、ともに仕事をする仲間と目的を共有することも大切です。仕事には出し手と受け手がいますが、仕事を依頼する出し手は、その仕事の目的を受け手に伝えるように努めるべきです。「その仕事はなぜ必要なのか」「どんな目的や意義があるのか」をはっきり伝えられたら、そこに参加する全員が自ら考えてあることを再認識した」とマリモ本草薬膳の社員は言います。2020年に猛威を振るった新型コロナウィルス対策として、本草薬膳学院では受講生の定員数を減らし、換気・除菌活動を徹底したうえで講義を行っていましたが、調理実習講座では受講生の不安を解消するため、より一層の衛生環境整備が必要でした。\n\nそこで社員全員が協力して清掃活動に取り組んだ結果、無事に授業を行うことができました。清掃を徹底して教室をきれいに保つことは、日々の仕事に追われる中でその意義が忘れられ、雑務と捉えがちではありますが、「こうした有事のときに大きな目的のための業務であることを再認識できた」というエピソードです。平時のときから、どんな業務でも、その仕事の目的や手段を意識する習慣を身につけていきたいものです。また一方で「目的と手段を履き違える」あるいは「目的と手段がすり替わる」というケースがよくあります。物件視察でアテンドを担当した時に「資料づくりやス仕事をするようになるでしょう。一方で、受け手となる人は、依頼者が仕事のすべての目的を伝えてくれるとは限らないことも認識しておくべきです。「上司が仕事の目的を伝えてくれない…」というのは言い訳です。受け手が受け身になってはいけません。大前提として自分自身で仕事の目的を見つけようとする能動的な姿勢を持たなくてはいけません。とくに新入社員のころは、自分にあたえられた仕事にどんな目的があるのかを考える習慣をつけると、自らの成長につながります。すべての職域におけるすべての仕事は、最終的には顧客満足につながっていきます。そのことをよく認識していれば、目の前の仕事の目的や意義も見いだしやすいはずです。「意味報酬」という言葉があります。これは、仕事の成果に対して得られる金銭的報酬とは別の報酬が仕事や事業の「意味」を考えるとより深みのある仕事ができる。あることを指しています。自身が取り組んでいる仕事には重要な「意味」があり、誰かに何らかのかたちで貢献できているという喜び。それを感じること自体が「報酬」ではないか、という考え方です。これと同じように、企業にも「意味報酬」というものがあると思います。①顧客に有益なものを提供し、しっかりと利益を出す②納税して、内部留保は貯蓄と次への投資にまわすこの通常のビジネスサイクルとは別に、企業が直接的に社会貢献事業を行うことで、「価値のある会社である」「良い会社だね」というステイタスが得られる。それは企業としての「意味報酬」を得ていることになるのではないかと考えています。そして、ひいては儲けと社会貢献のバランス、サイクルが順回転していることが、企業の存続に大きく影響するように思うのです。目的を考える際に、この「意味報酬」という観点もあわせ持つことで、より深みのある仕事をすることが可能になると思います。","rel":[5,6]},{"no":4,"title":"継続は力なり","ex":"継続なきところに成功の二文字はありえません。場当たり的なその場しのぎは意味がありません。決めたことは強い意志をもって必ず最後までやりつづけよう。継続することが力であり、その力がブランドをつくり、やがて歴史をつくるのです。何事においてもやりつづけることは容易ではありません。大変な努力を必要とします。コツコツとやり通す忍耐力・精神力も不可欠です。簡単ではない積み重ねだからこそ、継続はやがて大きな力、大きな結果になるのです。まじめに、愚直に、コツコツと。地味な努力を一歩一歩積み重ねることは、マリモが創業時から受け継いできた社風です。そのマリモの姿勢の正しさを証明した好例が中国プロジェクトです。2013年、マリモは中国蘇州市で853戸の『北極星花園（ポレスターガーデン）』プロジェクトをスタートしました。未踏の地での初めての事業で「内装付きの高品質のマンションをつくる」という挑戦的な仕事です。日本では内装付きのマンションはあたりまえです。しかし、言語も価値観も異なる現地の施工スタッフと、中国ではあたりまえではないスタイルのマンションを初めてつくるということ。それは想像を絶する途方もないプロジェクトでした。しかし、やるべきことは、地味な努力を積み重ねることしかありませんでした。施工監理者はヘルメットをかぶって毎日現場を巡回しました。朝礼を行い、記録を残して、辛抱強くコミュニケーションを図る。日々発生する問題と一つひとつ向き合い、改良改善を加えていく。蘇州の夏はきわめて暑く、ときに43℃を超える炎天下の中、１日に何度も高層マンションを階段で上り下りし、汗まみれになりながら是正指示を出しつづけました。こうした日々の積み重ねが、やがて大輪を咲かせました。徹底した施工監理によって完成した『北極星花園』は、私たちが構想したとおりの日本式マンションとして中国の地に誕生したのです。\n\n施工監理だけではありません。中国プロジェクトの偉業は、販売担当者の地味な努力に支えられました。当初『北極星花園』の販売は、中国の販売代理会社に一任していましたが、よい結果は出ませんでした。そこで日本からスタッフを送り込み、販売代理会社の指導にあたりましたが、実際の現場の状況はきわめて劣悪でした。現地の販売代理会社の接客は、「で、買うの？買わないの？」とただ最終結論を問うだけの接客であり、マンションの品質や特性については何も説明していない有様でした。そこでこれまでの接客をすべてリセットし、一から教育しました。それはあいさつにはじまり、物件の特徴を一つひとつ洗い出したうえで教育し直すというようにです。そして接客ロープレ（模擬接客テスト）や小テストを何度も実施し、テストに合格しないと接客してはいけないルールをつくりました。ランキングを競って表彰する制度も定めました。こうしてコツコツと指導や改善をくりかえした結果、やがて契約件数が劇的に伸びるようになりました。販売スタッフが根気強く取り組んだ結果、大きな成果をあげることができたのです。根気強く取り組むことで成果をあげた例が、マリモ・グローバル・テクノロジーにもあります。外国籍の女性社員Aさんの話です。Aさんは休憩時間にはいつもマリモの社内報や情報誌を読んでいました。彼女はそこに書かれたすべての漢字にひらがなのルビをふり、分からない言葉はノートに書き込んで、母国語で説明を書き加え、それでも分からないことは日本人のスタッフに聞いていました。会社に捨ててしまう新聞があれば勉強のために自宅に持ち帰って、１面を１時間以上かけて読み、週末になると日本語学校に自費で通い、さらに自国にはピアノを教える人がいないからと、ピアノ教室にも通っていました。そして１年後、","rel":[4,9]},{"no":5,"title":"土俵の真ん中で相撲をとる","ex":"追い込まれてから事にあたるのではなく、余裕のあるうちに全力で取り組む。そうすることで、万が一トラブルがあっても余裕をもって対処でき、新たなチャレンジも可能となります。土俵際に追いやられてから対応するのではなく、つねに土俵の真ん中を土俵際だと思って、一歩も引けないという気持ちで仕事にあたりましょう。「土俵の真ん中で相撲をとる」とは、「余裕のある時に全力でことにあたる」ということです。創業者の時代から「失敗のない事業はない。だから失敗した場合の対処法をつねに考えながら事業を展開する」という考え方がマリモには浸透していました。他の事業に手を出すのなら、体力のある時にやる。大技を掛けようと思うなら絶好調のときに掛ける。これが「土俵の真ん中で相撲をとる」という意味なのです。マリモが新規都市への進出を重ね、分譲マンション以外の事業も展開。また、国内のみならず海外へも進出し、グループ統括会社を設立してホールディングス制を導入し、安定した経営基盤を築くことができたのは、このことを実践してきたからに他なりません。よく「段取り八分」といいますが、事前にしっかりとした準備ができるのは余裕のあるときだけです。\n\n土俵の真ん中にいるからこそ、前もって入念に対策を練り、冷静かつ大胆に行動できるのです。注意点として、あらかじめ余裕をもってゆったりとした期日を設定したり、余裕のある予算を決めるといった考え方は、大きな間違いです。逆に、期日は厳しく設定し、そのうえで期日の何日も前に仕事を完了させるように取り組むこと。これが「土俵の真ん中を土俵際だと思って全力であたる」ということです。そうすれば、仕事の精度もレベルも上がり、新たなことへも取り組みやすくなります。2008年9月のリーマンショック前後、マリモは「土俵の真ん中で相撲をとる」ことによって、文字どおり会社を存続させることができました。不動産業界は2007年ごろから耐震偽装問題やサブプライムローン問題、建築費高騰といった危険な兆候を見せていました。マリモ自体は2007年7月の決算で売上664億円・経常利益44億円という過去最高の数字をあげ、表向きは順風満帆でしたが、今後の業界動向が不透明なことは察知していました。そこで2008年2月に緊急会議を開催して、未着工のすべての物件に対して事業仕分けをおこない、合計21物件の事業中止と土地売却処分を決定「土俵の真ん中で相撲をとる」ことでリーマンショックを乗り越えた。","rel":[6,8]},{"no":6,"title":"バランスのとれた人間性を備える","ex":"理論的に考え、合理的に行動すること。そして、誰からも親しまれるような豊かな人間性を養うこと。どちらか一方に偏るのではなく、両方を兼備することが必要です。すばらしい仕事をするためには、冷静沈着な現実主義者であると同時に、「この人のためなら」と思わせるような人徳を兼ね備えていなければなりません。課題やテーマは理論的・合理的に説明できることが多いというのは事実です。何に対しても「なぜ？」と疑問を持ち、これを論理的に徹底追求し、解明していく合理的な姿勢は必要不可欠です。しかし一方で、企業というのは人で構成されていしました。それまで土地購入一辺倒だったところから土地売却へと一気に舵を切り、リーマンショックの起こる直前の7月までに合計11億円の土地売却損を計上しました。あわせてマンションの値引き16億円、保有不動産の評価損10億円、合計37億円のマイナスを期中の利益で全額吸収しつつも、その期の決算は売上656億円、経常利益26億円を確保することができました。早期に事業リストラを断行した結果、マリモはこの後に起こるリーマンショックによる不動産業界の倒産の連鎖から逃れることができました。まさに、土俵際に追いやられる前に対策を講じられた好例といえます。ますし、ビジネスは人と人との関係のうえに成り立っていますから、合理性を優先して人間の感情は無視していい、というわけにはいきません。また、人の心の問題にかぎらず、理屈では説明できない予期せぬ事象が、しばしば起こるのもビジネスの世界です。人間は頭で理屈を考えますが、人を行動に導くのは心です。\n\n理屈を抜きにして「この人のためなら」「この人を助けたい」と思わせるような人徳を備え、ともに働く人たちの心を動かすことができなければ、すばらしい仕事はできないでしょう。マリモの事業展開においても、理屈では説明しがたい戦略やチャレンジが少なくありません。全国の地方都市を中心にマンションを展開してきたことも、中国で巨大なマンションプロジェクトにトライしたことも、さらには野菜宅配や釣りWebサービスへのチャレンジなど、ある意味、常識や理屈では考えにくい大胆な試みです。こうしたバランス感覚は、創業者の時代から非常に重要視されていました。創業者はことあるごとに「バランス」の重要性を説かれ、現社長の後継指名もバランス感覚を重視して決められたという話も残されています。今もマリモでは人事制度に人間力評価を採り入れるなど、人間力と成果主義のバランスを重視しています。実際、新卒採用の面接時、入社希望の方々によく「マリモは成果だけでなく、人間力や人格を大切にしている。そこに魅力を感じました」と言われます。合理性と人間性の両面のバランスがとれていなければ、一流の社会人、ひいては一流のリーダー・管理者にはなれないのです。において、深川社長から「2030年までにマリモグループのソーシャル度を50％にする」という目標が発表されました。グループ会社も10社を超え、企業として大きな仕事をしていく中で、ビジネスでお金を儲けさせていただくだけでなく、心をベースとした経営に社長自らが率先して努める姿勢を表明しました。これはすなわち、バランスのとれた社員による、バランスのとれた経営をめざすということです。","rel":[5]},{"no":7,"title":"両極端をあわせもつ","ex":"のはむずかしいことですが、仕事を通じていろいろな場面で常に心がけることによって、この両極端を兼ね備えることができるようになるのです。米国の作家、F.Sフィッツジェラルドはこんな言葉を残しています。「第一級の知性とは、両極端の考え方を同時にあわせもち、かつ、それらを正常に機能させることのできる人間である」仕事で重要な局面に立ったとき、私たちは時には大胆に決断しなければなりません。また石橋を叩いても渡らないというくらい、慎重に判断しなければならないときもあります。驚くほどの大胆さと、じれったくなるほどの細心さ、その両極端をあわせもつ必要があります。大胆さと細心さだけではありません。ものすごく情が深く、優しい人間性を持っていながら、時には冷酷で非情な思い切りが必要ということもあります。あるいは、たいへんな理論家で、合理主義一点張りに見えて、一方では人情的、感覚的な一面も持っているということもあるでしょう。大胆さと細心さ、厳しさと優しさ、合理性と人間味、それぞれ両極端の性質が、一人の人間の中に綾をなすように存在しているわけです。\n\nそして、大胆でなければならないときに大胆さを出す、細心でなければならないときに細心さを出すという具合に、それぞれの性質を状況に応じてうまく機能させる能力がなければなりません。両極端を自己中心的に発揮したのでは、単なるご都合主義に陥ってしまいます。両極端をあわせもち、適切な判断基準で機能させること。先のフィッツジェラルドが言う「正常に機能させる」ことが重要です。ちなみに、マリモ本草薬膳が実践する中医学の世界では、「陰」と「陽」をすべての物事を治める規律としているそうです。これを「陰陽学説」と呼び、たとえば「日が昇ると明るくなり、昼となる。日が沈むと暗くなり、夜となる」というように、すべての物事は対立しながら絶妙なバランスで保たれていると説いています。人間の体においても、何かが多すぎても何かが足りなくても、体内のバランスが崩れて体調を崩す原因となります。仕事をする際にも、大胆に推し進めた方がよいことと冷静に進めていかなくてはならないことの両方があります。この２つはどこかで線引きしてきちんと分類することはできません。大胆に進めていく部分を「陽」、細心の注意を払う部分を「陰」とするならば、自分の仕事はどのようなバランスで進めていけばよいかを考えながら取り組むと、より良い結果につながります。","rel":[157,158]},{"no":8,"title":"有意注意で感度を高める","ex":"気づく人と、気づかない人。この「気づく」か「気づかない」かが人の成長や仕事の質を大きく左右します。ものごとをただ漫然とやり過ごすのではなく、自分から能動的に、ものごとに対して真剣に意識を集中させると、いろいろなことに気づけます。有意注意でものごとを見つめる習慣を身につけましょ目的をもって真剣に意識を集中させることを「有意注意」と言います。有意注意で仕事をする人は、たとえば１日で10のことに気づきます。漫然とものごとにあたる人は、１日で１つのことにしか気づけません。この差は１年…５年…10年と歳月が経つにつれてどんどん大きくなります。成長という点で両者に大きな差が生まれることは言うまでもありません。気づく力の有無で仕事の成果も大いに変わってきます。たとえば土地の仕入では、漠然とやり過ごしていれば空き地があることにも気づきません。有意注意で臨んでいれば、そこに空き地があることを発見し、それが宝の山であることにも気づけるでしょう。たとえば仕入れ担当者は物件を仕入れる際に、かならず“走り込み”や“歩き込み”を行います。町を知るための“走り込み”や物件周辺の“歩き込み”、競合物件のあぶり出しのための“走り込み”、他にもっといい物件がないかを探すための“走り込み”といった具合に、“走り込み”や“歩き込み”にはさまざまな目的や意味があります。その目的をふまえて、意識を集中して走り込むのと、ただ漠然と走り込むのでは、結果はまったく異なります。また、一つの目的だけをもって走り込むのと、複数の目的を意識して走り込むのでも、その物件がもつポテンシャルを最大限に引き出せるかどうかが変わってきます。ある担当者はその物件を「検討不可」と判断し、またある担当者は「Aという商品はできないが、Bという商品なら事業化できる」と判断するなど、有意注意の差によって結果はまるで違ってくるのです。\n\n営業活動も気づきが重要です。お客様の声に耳を傾けるとき、有意注意で臨めば、お客様の真意をつかむことができます。マンション購入を考えてくださっていたお客様が、途中で検討を中断するケースがあります。理由をお聞きすると「出産前で忙しかった」「支払いの面が不安だった」「親と意見の相違があった」などのお話をいただきます。そうしたお客様の声をなんとなく聞くのと、有意注意でヒアリングするのでは、その後の対処も変わってきます。多くの場合、お客様の理由には、再検討いただけるヒントが詰まっているものです。要するに、これも気づけるか気づけないかです。自身の意識や神経をお客様に集中させれば、お客様の真の課題に気づき、解決策を見いだすことができるのです。また、GMアソシエの社員は「マンションの管理員にも有意注意による気づきの差がある」と話します。マンション内には掲示物やサインなどが多数存在しますが、毎日見ていると、それが日常風景と化してしまい、気づくべきものに気づかないことがよくあります。しかし、優秀な管理員は掲示物が徐々に劣化していることなどに気づき、修正や貼り替えなどの提案を積極的におこないます。これらは普段から有意注意でマンションを管理している証といえます。気づけるか気づけないかは、生まれつきの感覚によるものではありません。「昔から私は鈍感で…」という人がいますが、他人より多くのこと、また重要なことに気づけないのは、有意注意による意識が足りないからと考えるべきです。気づく力は天性のものではなく、後天的に養え、意識的に訓練することで身につきます。日常の些細なことにも真剣に注意を向ける習慣を身につけ、気づく感度を高めるよう努めましょう。","rel":[]},{"no":9,"title":"ものごとをシンプルにとらえる","ex":"どのような仕事においても「結局、本質はどこにあるのか」「要点はどこにあるのか」を常に把握して進めるようにしましょう。ものごとの本質をとらえるためには、複雑な現象をシンプルにとらえなおすことが必要です。事象は単純化するほど本来の姿、真理に近づいていきます。人はものごとを複雑に考えてしまいがちです。そして、複雑にとらえたものを、そのまま複雑に誰かに伝える傾向もあります。「事の本質を理解していないと、話が伝わらない」かつてある社員は、創業者から、そんなアドバイスを受けたそうです。「私が報告や提案をするたびに『わかりにくい』『結論は何なのだ』『具体的に言え』という３つのご指摘をたびたび頂戴していました。\n\nそんなときに受けた助言が『本質を理解せよ』で、それ以来、いつも心がけるようになりました」また、心がけていく中で、結論から先に言うことの重要性にも気づいたといいます。結論から話をすると、自分の伝えたいことが相手に伝わりやすくなります。それは、物事の本質をとらえて、自然と要点だけをシンプルかつ論理的に話せるようになるからです。「結論から話す習慣をつける」ことを、日頃から意識するようにしましょう。みなさんも上長に報告や提案をする機会があると思います。そのとき「要するに何だ？」と指摘されたことはないでしょうか。結論を持たないまま長々と話をしたりはしていないでしょうか。上長は判断材料を求めています。そして判断・決断に必要な情報は、じつはそんなに多くはないのです。「企画書はA4・3枚以内で」「提案はワンシートにまとめる」などと言われる理由も同じです。","rel":[13]},{"no":10,"title":"反省ある人生を送る","ex":"私たちは、つい自分を見失いがちになります。そうならないためにも、つねに意識して反省をする習慣をつけなければなりません。自省のない日々は、心を利己的で強欲にします。心を純粋にして、自分の行動を善の方向に向けていくために反省ある人生を送りましょう。自分自身を高め、人格を維持しつづけるためには、自らを戒めつづけなければなりません。日々の行動や判断が、はたして人間として正しいものであるか、驕りがないか。その点をいつも注意し、謙虚に自問自答するのです。いつも厳しく反省を繰り返さなければ、人間は必ず傲慢になります。私にかぎってそんなことはない、という人もいますが、「人格は変化する」ということを忘れてはなりません。どんなに素晴らしい人格の持ち主でも、権力の座に就いた後、次第に心が変わって悪事を働くようになったというケースは多々あります。一方で、若いころには悪事に手を染め、人間的にもけっして誉められない人物が、晩年は人間が変わったように立派な人格者になった例もあります。\n\n謙虚だった人が傲慢になり、利他的な心をもっていた人がいつのまにか利己的に変わる。その変化のきっかけは、人生にはいくらでもあります。人格、すなわち人の心は、手入れをしなければ濁っていきますし、しっかりと手入れをおこなえば澄んでいきます。長きにわたって素晴らしい心をもちつづけるためには、日々、意識して謙虚に反省をするのです。「反省」を習慣づけることで、人格の変化を抑え、いまより悪くならないように努力し、身につけた正しい考え方を維持することが可能となります。行動指針19に書かれている『人生の方程式（人生・仕事の結果＝考え方×熱意×能力）』を実践するためにも、また身につけた立派な考え方を維持し、さらに向上させていくためにも、「反省」は欠かせないものです。立派な考え方をもつために努力することも大事ですが、それを維持するための心の手入れも怠ってはいけません。いつも心の手入れをして、自らを磨き、反省のある毎日を送る。これが人生の方程式を完結させるのです。志高く挑みつづけるために。","rel":[10]},{"no":11,"title":"フロンティアスピリット","ex":"誰かの真似をするのは簡単です。私たちは市場戦略・商品戦略・販売戦略などの社内のあらゆる分野において独自性と開拓者魂を発揮します。このフロンティアスピリットの中にこそ、大きな喜びがあることを私たちは知っています。山梨県甲府市での業者訪問で諏訪市の土地情報を入手し、あって上長へ提案し、現地調査の許可を得て諏訪市に入りました。紹介いただいた案件は立地の関係で検討がむずかしい状況でした。しかし、諏訪市のマーケットは湖と山に囲まれ、平地が少なく、分譲マンションの供給も10年以上されていなかったので、マンションが売れる要素が揃っていました。さらに調査を進めると、諏訪市は長野県内で所得が1位、国内外で名の知れた優良企業であるセイコーエプソンの本社もありました。とはいえ過去に分譲されたことがあるのは山奥のリゾートマンションのみで、他には誰もマンションを建てたことのない、たった5万人程度の人口しかいない未開の都市への進出は悩ましい判断でした。しかし、その報告を受けての経営判断は大胆でした。たしかに他のデベロッパーが手を出さない未踏の地ではある。しかし「だからこそやってみよう」と持ち前の開拓者魂で勇断し、2003年に『ポレスターレイクサイド諏訪』の分譲を開始しました。それから18年経って、諏訪市内で９棟、諏訪エリア全体（諏訪市・下諏訪町・岡谷市・茅野市）でアスピリットがあったからです。付け加えておくと、諏訪市へのチャレンジを後押ししたのは、自社のマーケティング力や技術力です。他の企画会社に頼らずに独自にマーケットを調査し、マンションを建てる力があるからこそ、自信をもってチャレンジできるのです。耐震性強化によるコストアップにいかに対応するか、諏訪湖を臨む北側にも全戸にバルコニーを設置するため、通常のマンションとは異なり2戸に1機のエレベーターを設ける方式を採るなど、商品企画においてもさまざまなチャレンジを行ったことが成功の要因になっています。新規事業を切り拓き、ビジネスとして軌道に乗せることは容易ではなく、担当者のフロンティアスピリットなくして、その道が拓かれることはありません。エピソードは多数ありますが、中でも国際人材紹介事業の立ち上げはユニークです。事業開発の発案者は、人事部の責任者でした。2012年、マリモのインドネシア進出にあたり、インドネシア人を採用することになりましたが、1年かけても日本国内での採用活動は難航。そこで、自ら採用活動を行おうと、インドネシアに乗り込みます。現地の大学を訪問する中で、彼は「あこがれの日本でどうしても働きたい」と目を輝かせる若者がたくさんいる事実を目の当たりにしました。そして、欧米では一般的だったインターンシップ制度を導入して、日本で1カ月間のインターンシップを実施し、仕事ぶりや企業とのマッチングを見極めて、その後、他の日本企業がマリモの現地人の採用活動に興味を示すことが重なったため、実際にインターンシップ付きの人材紹介スキームを他社に提案し、試験的に実施したところ、見事に内定・契約を獲得。「このビジネスモデルは行ける！」そう手応えをつかんだ矢先に、会社の海外事業方針が変更となり、彼は志半ばで国際人材紹介事業の推進を泣く泣く断念しました。いつか必ず事業化してみせる、そんな熱い想いが歳月とともに薄れつつあった2019年1月。彼は深川社長から1本の電話を受けます。「４年前に話していた国際人材の紹介ビジネス、またやる？」人事のプロフェッショナルとして積み上げてきたキャリアのことや、失敗したときのことが頭をよぎりつつ、その５ヶ月後、彼はインドネシアの都市バンドンの地に立っていました。\n\n再開した国際人材紹介事業は、以前のビジネススキームをさらにブラッシュアップし、いまグループ内でも注目のプロジェクトになっています。マリモのフロンティアスピリットは創業時から育まれ、バトンリレーのように受け継がれてきた精神です。創業者は「いつか中国大陸に日本のマンションを供給したい」という夢を語っていました。その夢は、受け継がれた開拓者魂とともに2013年に開花します。蘇州市におけるビッグプロジェクト第一弾『北極星花園（ポレスターガーデン）』の分譲です。蘇州第一プロジェクトでは、中国に日本式マンションを供給したいとの観点から、中国ではありえない仕様を採用しました。洗面所、浴室と分離した独立トイレ、玄関踏込部の段差（いわゆる「上がりかまち」）、洗面化粧台に三面鏡、外壁面には直径100mm、150mmの給気口を設置するなど、日本ではあたりまえのことですが、中国においてはかなり挑戦的な設計です。中国では内装施工を行わずに販売・引渡しをするスケルトン販売が主流です。他人よりも個性的な内装を好む国民性に対して、内装付き住宅が受け入れられるかどうかは大きなチャレンジでした。さらに装飾過多にしない代わりに、以下のように見えない部分の強化に徹底してこだわりました。■気密性（窓からの漏水、窓や玄関からのほこりの侵入を改善）■排水（トイレットペーパーが流せない、配水管がつまるなどの問題を改善）■構造（すべての躯体をRC構造にし、外壁クラックによる漏水と将来の外壁補修を防ぎ、色むらにならないよう改善）また、外壁には本物のタイルのように見えるタイル調吹付を採用。リビング壁面には吸湿性に富んだエコカラットを標準設置し、室内環境に配慮しました。このような仕様は中国デベロッパーの真似ではなく、日本のデベロッパーとしての独自性と開拓者魂をいかんなく発揮したものです。設計だけではなく、プロジェクト管理の面でも日本で培った経験を発揮しています。工程管理においては、その場しのぎの工程では突貫工事となり品質が落ちるため、労働者の能力など将来を予測した先行管理を徹底。さらに、引渡前の内覧会開催、引き取り時のサイン取得、駐車場販売などを、先行管理によりロスなく行いました。これらも他社とは違うマーケティング能力、技術力、市場分析力という、マリモ独自の力によるものです。『北極星花園（ポレスターガーデン）』は見事に竣工前完売しました。私たちの仕事が中国人にも受け入れられる結果となり、第二プロジェクト開発にもつながっています。第二プロジェクトでは反響が少なかった独立トイレは取りやめましたが、他の設計はそのまま活かして挑戦を繰り返しています。このような考動が、他国でも継続して開発事業ができる源となっているのだと思います。こうしてマリモの社史をひも解いてゆくと、マリモ独自のノウハウを駆使したフロンティアスピリットは、大きなよろこびと称賛を得ていることがわかります。走りながら考えるスピード力、技術力、マーケティング力を積み重ね、それらを駆使して新しい事業やサービスを開発していく姿勢はマリモの伝統となりました。独自性というものは、他を知らずに発揮することはできません。市況や他社の動向などを鑑み、情報のアンテナを高く張り、他社との差別化がしっかりできるということが大切です。たとえば、第三者へ業務を発注する際も、単純に第三者の提案を鵜呑みにすることなく、自分たちの視点を軸としてしっかり調査分析をした上で業務の一部を委託する。社員一人ひとりがそういう考えを持って業務に臨むことで、強い会社がつくられていくのです。私たちは未来に引き継ぐべき財産として、","rel":[209]},{"no":12,"title":"情熱はすべての源泉","ex":"情熱のないところには、何も生まれません。仕事も人生もすべて、情熱という馬力無くして成功には至らないでしょう。情熱は自らの心のエンジンを始動することでしか発生しません。その始動方法は自分自身で見つけ出すしかありません。自らの情熱の扉を開けて熱く素晴らしい人生を手に入れよう。あなたは火を近づけると燃え上がる「可燃性の人」ですか？火を近づけても燃えない「不燃性の人」ですか？それとも自分で燃え上がる「自燃性の人」でしょうか？何かを成し遂げようとする人は「自燃性」、つまり自ら燃える情熱をもつ人でなければなりません。自燃性の人は、人から言われないと仕事をしない、命令されたからする、という人ではありません。言われる前に自分からやるという積極的な人、そして使命感をもつ人が、自燃性の人です。マリモにとって未開の地だった大阪で初分譲を果たした『ポレスター城東深江橋』のプロジェクトは、自ら燃える人たちの仕事でした。この物件の場所にはもともと築35年の賃貸マンションがあり、ンション事業を行うためには、入居者の方々に転居をお願いしなければなりません。非常に高いハードルでした。さらに「立ち退きの必要な入居者のいる物件を仕入れてはいけない」という社内ルールもありました。しかし、「それでも何とか大阪でポレスターマンション１棟目を事業化したい」という担当者たちの強い情熱に押され、会社は許可を出しました。そしてメンバーはその賃貸マンションの中に事務所を構えて、立ち退き交渉をやり遂げたのです。この大いなるチャレンジの結果は周知のとおりです。１棟目を皮切りに関西エリアの事業展開を図るべく開設した関西支店は、まさしく自ら燃える担当者たちの情熱が源泉です。東京にも自ら燃える人たちの手による事例があります。収益不動産プロデュース事業において、神宮前・表参道エリアで順調に売買実績をあげている源泉には、「このエリアでなんとしても仕入をするんだ」という担当者の強い想いがあります。この地における実績はけっしてラッキーが重なったものではありません。担当者は町内会の組織に参加し、朝早くからの町内清掃など、町内のさまざまな活動に足しげく通って人間関係をつくるところからスタートしました。\n\nそして徐々に地域の情報が入るようになり、成果をあげていったのです。マリモコンサルティングにも情熱が不可能を可能にした事例があります。同社の仕事に惚れ込んでいただいたオーナー様から２棟目の物件購入を検討したいと相談を受けました。しかし、銀行融資は難航。個人への投資アパート融資が非常に厳しくなっていた時期であり、オーナー様自身もすでに６棟を所有して総借入額が数億円になっていたことが原因でした。マリモコンサルティングの担当者は思いつく銀行を手当たり次第に訪問しましたが、やはり結果はNG。さすがに無理か…とあきらめかけましたが、「こんなに当社の物件を気に入ってくださっているのだから何とかしたい」と思い直して、最後のつもりでもう１行に訪問。銀行担当者を熱い気持ちで説得し、前向きに検討するという回答を引き出したのです。銀行とオーナー様との面談では、オーナー様自らも「何としても購入したい」という情熱を語り、最終的に融資を受けられることになりました。マリモコンサルティングの担当者の強い想いとオーナー様の情熱がかけ合わされ、何倍もの大きな熱量となったことで実現できた成果といえます。これらの実例は、いずれも情熱をもって自ら一歩踏み出すことの重要性を教えてくれます。しかしながら、人は誰しも自燃性のタイプとはかぎりません。では、情熱をもつために必要なものは何か。それは「好き」だという気持ちです。何かのきっかけがあれば燃えることができる、そんな可燃性の人は、燃えるきっかけを求めてほしいと思います。求めるということは、たとえば「こんな人間になりたいな」「こんなプロジェクトがやりたいな」とイメージすることです。自燃性の人も初めから自ら燃えていたわけではありません。仕事を好きになるきっかけがあり、やがて情熱を燃やすようになったのだと思います。最初は指示されて取り組んだ仕事でも、その仕事に没頭しているうちに責任感や使命感が芽生え、「気がついたらその仕事が好きになっていた」というケースは数多くあります。そして好きになれば、求めるようになります。好きを追求するために、いろいろなものを求め、欲し、やがてそれが情熱になるのです。チャンスやきっかけは求めている人にだけ訪れます。「求めよ、さらば与えられん」です。","rel":[14]},{"no":13,"title":"明暗を分けるのはスピード","ex":"情報収集、分析、意思決定、日々の業務、報告・連絡・相談・確認、その他すべての職務においてスピードが非常に重要です。時代に乗り遅れないよう、スピードを重視して日々邁進しよう。歴史上、スピードの差が天下を分けた例は枚挙に暇がありません。誰もが知っているのは豊臣秀吉の中国大返しでしょうか。本能寺の変をその2日後に備中で知った秀吉は、対戦中だった毛利軍とすぐさま和睦し、本能寺の変からわずか６日間という当時では考えられないスピードで姫路への帰還を果たしました（日数には諸説あり）。結果はご承知のとおり、本能寺の変から11日後には、他の武将に先駆け明智光秀を討ち、天下統一への足がかりとしました。決断、情報伝達、行動のすべてが迅速だったからこそ成し得た軍事戦略でした。マリモにもスピードが事業の明暗を分けた歴史があります。2007年当時、不動産市場は建築コストの急騰による空前の価格上昇状況にありました。マンションの売れ行きに陰りが出始め、さらにサブプライムローン問題や金融機関の貸し渋り・貸し剥がしなどにより、業界全体が先行き不透明な状態でした。その状況をいち早く予見していた当社マリモは、大胆な判断を下しました。事業予定だった21のプロジェクトの事業用地の売却。売上にすると425億円以上のプロジェクトを中止するという決断です。仕入担当者たちは号令のもとに着工前・契約中の物件を売却リストとしてピックアップ。そして寸暇を惜しんで猛烈に売りまくりました。まさに秀吉の大返しの行軍のごとくです。その後、社会に衝撃が走ります。世に言うリーマンショックです。失意に覆われていたこのとき、マリモほど積極的に活動していたデベロッパーは他に見当たりません。マリモの決断スピード・実行スピードが他社を圧倒し、当時における最高のパフォーマンスを発揮できた実例といえます。\n\n広島市の幟町における土地取得もマリモのスピードが功を奏した成果でした。その物件は先行検討している競合他社からすでに買付（購入の意思表示）が出ていました。ただし、売り主の希望金額には届いていませんでした。「先行する競合に勝ってこの土地を入手するには、即断即決のスピード感が必要だ」そう感じた担当者は、すぐさま社長に状況を報告。状況を理解した社長の行動は速く、即日現地を確認し、その足で仲介業者へ出向いて購入の意思を示しました。結果、所有者との面談が実現し、その場で交渉を進めて土地取得に成功したのです。社長と所有者の面談は、競合他社よりわずか数時間前に実現しました。他社より一歩先に行えた面談で合意形成をとったことで、形勢は逆転。私不動産業界は大きな打撃を受け、倒産の憂き目にあう企業が続出しました。2008年の上場企業の倒産件数は戦後最多の34社でしたが、そのうちマリモはその前代未聞の急降下のダメージを、状況が悪化する直前の決断・行動のスピードによって最小限に抑えました。さらにマリモは、このマンション不況の中で新たな戦略を打ち出しました。経営が破綻した会社の物件を購入し、アウトレット物件として販売するという買取再販事業です。日本のマンションに新たな灯をともすという使命を掲げ、「街に再び活気を」という意味の「re:move」という言葉から『リーモ』と名づけたブランドをリリースしました。「消費意欲が落ち込んだ不動産市場でも、この戦略ならいける。再販というより“再生”という使命を掲げて、日本のマンションに再び灯をともし、社員一丸となって先行き不透明な時代を切り拓こう」振り返れば、買取再生事業に舵を切り、一定の成果をおさめた要因もスピードでした。業界全体が","rel":[]},{"no":14,"title":"渦の中心になれ","ex":"仕事は一人ではできません。上司、部下、お取引先など、周囲にいる人々といっしょに協力しあって行うのが仕事です。その場合には、自分から積極的に仕事を求めて働きかけ、周囲の人が自然と協力してくれる状態にしていかなければなりません。これが「渦の中心で仕事をする」ということです。周囲を巻き込むような渦を自らつくっていきましょう。渦の中心になるのは、上司、先輩、管理者だけとはかぎりません。命令で人を動かすのではなく、問題意識を提示すれば自然に人がそこに集まり、周囲に渦をつくっていきます。ですから渦の中心には、年齢や肩書きに関係なく誰もがなれます。たとえば「今年度は売上を倍増しよう」という目標があるとします。入社したばかりの若い社員でも「経営陣が売上を倍にするとおっしゃっていますが、みんなで集まってどうすれば倍にできるか検討してみませんか」と言い出す人がいたら、その人の周りにみんなが集まってきて渦ができる。1つのテーマが1つの渦をつくります。そして、同じような渦があちらこちらでいくつも動いている。こういう会社が活力、活気のある会社だと思います。マリモ・グローバル・テクノロジーのあるシステムエンジニアは、大手企業の基幹システム開発のメンバーとして参画していました。\n\n彼は指示されたことをこなすだけでなく、大手企業の環境にも臆せずプロジェクト会議で常に提案を行なっていました。すると、いつしか開発会議は彼を中心に進行するようになりました。さらには人柄や提案力が認められ、開発リーダーを任されるまでになったのです。渦の中心になることは、けっして大げさなことではありません。ほんの小さな改善提案について、みんなが集まって話し合い、実際に改善活動が行われる。これもひとつの渦ですし、改善を提案した人は「渦の中心」になれています。ただし、渦の中心になるために自ら発言・行動するには勇気がいります。とりわけ若い社員や部下の立場にある人は、先輩や上司に対して言い出しにくい面があると思います。問題を提起したりテーマを掲げたりすると生意気に思われるのではないか。そんな不安を抱く気持ちはよく理解できますが、そこはやはり勇気をもって渦をつくるべきです。上司であっても先輩であっても渦の中に引っぱりこんで、そこで揉まれながら仕事をすることは、自らの成長の糧となり、ひいては会社の発展へとつながります。一方で、目的意識をもって自ら積極的に発言・行動できる人材を多く育てることは、上司としての責務です。『創業のこころ』に「部下を殺す上司は退場すべし」という言葉がありますが、上司のみなさんは","rel":[]},{"no":15,"title":"値決めは経営である","ex":"経営の死命を制するのは値決めです。自分たちの商品やサービスの価値を正確に把握したうえで、販売数量と利幅の積が極大値になる１点を求めること。それはお客様にとっても当社にとっても、共にハッピーである値でなくてはなりません。値決めは、この１点を求めて熟慮に熟慮を重ねて行われなければならないのです。利幅を少なくして大量に売るのも戦略ですし、少量であっても利幅を多くとるのも戦略です。価格の設定方法は無限にありますが、だからこそ非常に難しいといえますし、売れ行きや最終利益の額を予測するのは容易ではありません。では、いかにして値段を決定するのか。結果が予測できないから相場を頼りにするというのは安直すぎます。相場という常識にとらわれず、“価格設定を発想する”ことが大切です。たとえば、「このエリアの相場は○万円だから、このくらいの値段だったら多くの人が買ってくれるだろう」というのが常識的な価格設定方法だと思います。しかし、「多くの人」をイメージするのではなく、「全国でたった一人買い手が見つかればいい」と発想し、価格を決定しても良いわけです。そもそも私たちは、商品に値段をつけて、あとはお客様が来るのをただじっと待つような商いはしていません。販売にさまざまな工夫を凝らしながら買い手を探します。その結果、価格に対する価値を認めてくださる“たった一人”を見つけることが重要なのです。実際に収益不動産事業では、そのような例は多々あります。かつてポレスターマンションの新築未入居で数年経過していた住戸を当初の販売価格よりプレミアをつけて高い価格設定をして販売したときも、貴重な1件の買い手を見つけることができました。定価よりも高くして売れるはずがない…という意識にとらわれず値決めをして良かった好例です。販売と同様に、購買・仕入についても値決めは重要です。売上を最大にすることも、経費を最小にすることも、どちらも経営の基本です。いかに１円でも安く買うかという哲学をもっていなければ、必要な利益が損なわれ、販売努力は無に帰することにもなりかねません。\n\nまた、買い手となっていただくお客様に対しても、設定価格に関して最善の努力をしていることにはならないでしょう。分譲マンション事業であれば、値決めをしたその瞬間に利益が確定してしまいます。用地仕入、事業資金の調達、設計、施工管理、販売というプロセスのなかで一生懸命に知恵を絞って交渉を重ねてきた社内の各部門、さらには事務所の回線1本、文房具1個にいたるまで、できるかぎり原価を抑える努力をしてきた仲間が大勢います。にもかかわらず最も重要な値決めが「○万円くらいでいいんじゃない」というような安易なものであってはならないのです。価格を最終提案するリーダーは、いわばリレーのアンカーです。多くの人がつないでくれたバトンを受けとり、ゴールを決める最終走者としての緊張感をもちながら、お客様にとっても当社にとっても共にハッピーになる１点の値段を求めていかなければならないのです。この値決めの考え方は、価格を決めるリーダーや営業担当者だけが理解すべきことではありません。私たちは物事を決定するときや条件設定などの折衝の際、「今までこうだったから」と、固定概念にとらわれた意思決定をしていないでしょうか。たとえば外部のお取引先と契約条件を決めるとき、「これまで通りで」「他社と同じように」といった考えのもとで何となく契約してしまうと、双方にとって発展的な関係にはなりません。熟考した結果、やはり現在の条件内容こそがお互いにとってベストだと、同条件で継続するという判断に至ることも、もちろんあるでしょう。しかし、昨日のベストは今日のベストとはかぎりません。お互いをより良い関係にしていくためにも、そのつど条件のアップデートを検討することが必要でしょう。値決めの考え方は、仕事におけるさまざまなシーンで応用すべきものです。お客様、お取引先、仕入先、入社希望者など、あらゆる関係性の中で、両者がハッピーになるための仕組みや条件を、つねに熟慮を重ねて探求していきましょう。","rel":[]},{"no":16,"title":"ギャラリーでなく、プレイヤーたれ","ex":"傍観者でなく、挑戦者であれ。評論家でなく、実践者であれ。他を批判することはたやすいことですが、自らが主人公として評価を得ることは難しい。理論を述べ、わかったつもりでいるのは簡単ですが、実践し、苦しみ、悩み、本質を見極めることは難しい。しかし、それが最も重要であることを私たちは認識しています。経験に勝る教科書はありません。自らの血肉となる経験は、自らプレーしなければ得られないものです。事象を眺めて評論に終始するのではなく、自身が渦中に飛び込んでいかなければ、真の知識や知恵は身につかない。マリモはそのことを創業時から体現し、成長してきた会社です。ポレスターマンションの初期、全国展開を始める2000年くらいまで、販売準備は社員みんなの手作業でした。たとえば、マリモの設計部の主な仕事はマンションの設計図を完成させて、確認済証を取得することですが、当時はパンフレットやプラン集に載せる図面を作ったり、デザインや説明コピーを考えたり、パンフレットづくりに興味が湧いてくると、挿絵のイメージ写真や環境写真の撮影まで、自分でできることは何でもやっていたといいます。「部署の縛りもなく、できることは協力しあって手作りで準備していた当時は、物件への愛着と社員同士の連帯感が強かったように思います。いまもプレイヤーとして仕事の中で楽しみを見つけられることによろこびを感じます」このようにプレイヤーとして30年以上にわたって第一線で活躍しつづけている当時のメンバーが言うとおり、プレイヤーでありつづけることを愛する精神はマリモの原点です。\n\n「社長を筆頭に、全員がプレイヤーとして現場の第一線に出ているところに、会社の勢いを感じます」と、転職してきた社員にもよく言われます。特に規模が大きな会社では、いかに組織を効率よく動かして利益を追求するか、についてギャラリーとして考える管理職が多いようです。しかし、より精度の高い判断をおこなうための情報は、教科書ではなく実務の中にこそあるのです。管理者の仕事の本質は、プレイヤーが挑戦できる環境をつくることです。そのためにも傍観するだけの管理者になるのではなく、刻一刻と変化する現場の状況をプレイヤー目線で理解する必要があるでしょう。マリモの社員がどんなに経験年数を重ねても、役職が上になっても、実践者・挑戦者であることをやめないのは、そんな理由があるからです。そしてもうひとつ、私たちが実践者・挑戦者でありつづけようとするのは、ギャラリーよりもプレイヤーのほうが深いよろこびがあることを、各々がよく理解しているからです。人生の豊かさやよろこびは、プレイヤーだからこそ得られることを、私たちは知っています。プレイヤーであるためには、プレイヤーたり得るだけの努力が必要ですが、その挑戦や実践が人生における糧となり、自分自身の成長につながり、自らの視座が広がっていくよろこびに通じるのです。マリモは、仕事を通して社員のみなさんに人間性を高めていってほしい、ひいてはマリモという会社が、社員のみなさんの豊かな人生のステージでありたい、と心から願っています。だからこそ、みなさん一人ひとりには、永遠のプレイヤーであってほしいのです。","rel":[10]},{"no":17,"title":"ベクトルを合わせる","ex":"）ために、マリモウェイがあるのです。毎年期末に開催している経営方針発表会も、同じく重要な位置付けにあると言えるでしょう。社長ならびにグループ各社とマリモ各本部のトップが当期の結果と次期の目標を発表しますが、それはまさに一堂に会した社員がベクトルを合わせて一丸となる大切なイベントです。ベクトルを合わせることは、「全員参加で経営する」ことと同義です。全員が経営への参加意識を持ち、会社の進むべき方向や目標を同じように認識していることが大事です。単に足並みを揃えるという次元の話ではありません。そこに向かうパワーを結集するという意味で重要なのです。たとえばグループのビジョンとして掲げている新規事業への挑戦についても、わたしたち社員がその意図まで把握し、一枚岩になって取り組むことが大切です。自分は管轄外だから…と対岸の火事として眺めていることがあってはなりません。ユーリックホームでは経営方針発表会で掲げられる全社テーマに即して、期初に独自のテーマを作成し、スローガン化して貼り出しています。過去に「変化への挑戦」「変革元年」「結果以上にプロセスを重視する」「絶対達成３０周年」などがありましたが、注目したいのは28期に掲げた「我々はベストチーム賞を獲得する」です。このスローガンの背景にあるのは、前年27期の『経営方針発表会』でした。ユーリックホームは不甲斐ない実績を発表することとなり、当時の社員は本当に悔しい思いをしたそうです。だからこそ「ベストチーム賞の獲得」を合言葉として掲げ、社員が個人としてふるまうのではなく、一枚岩となって業務に邁進することをスローガンに掲げました。結果、期は受注目標と経常利益目標を見事に達成し、経営方針発表会・マリモアワードでベストカンパニーとして表彰されたのです。ベクトル合わせは、グループの垣根を超えて行うべきです。さらに言えば、協力していただく社外のお取引先とも、私たちの考え方を共有することが肝要でしょう。たとえば分譲マンションの内覧会は、お客様が購入した住まいと初めて対面される一生に一度の記念日です。心を躍らせて足をはこんでくださるお客様をお迎えするにあたっては、最高のおもてなしで最高の１日を演出し、お客様によろこんでお帰りいただくことが重要です。\n\nそれはマリモの社員であれば誰もがあたりまえに認識していることです。しかし、内覧会に参加する施工会社・設備会社・電気会社などの協力業者様は、お客様の対応に慣れていない人も多く、内覧会に対する心構えもまちまちなので、しっかりとベクトルを合わせる必要があります。「大きな期待を胸に笑顔でお越しくださるお客様に、さらに大きな笑顔になって帰っていただくことが私たちのミッションです。そのためにできることを、みなさまのそれぞれの役割のなかで精いっぱい実行してください」マリモの内覧会担当者が、当日の朝礼でこの想いを伝えると、協力業者のみなさまの表情が一気に引き締まり、質の高い内覧会にしようという気運が高まるといいます。マリモ・アセットマネジメントの2016年の上場をめぐるエピソードも、社内を超えて社外の方々とのベクトル合わせの重要性を教えてくれます。2015年6月に設立したマリモ・アセットマネジメントは、マリモからの出向社員とプロパー社員の採用などで人員を拡充しながら、１年後に控えた『マリモ地方創生リート投資法人』の上場に向けて業務に邁進していました。もとより上場準備は、社内のメンバーだけではなく、証券会社・金融機関・弁護士などの多くの方々の協力なくして達成できないプロジェクトでした。ベクトルを合わせて成し得た上場という偉業。上場準備は日々対応すべき業務が山積し、担当者が「忙殺」という言葉で振り返るほどです。それでも明確な目標のもとにプロジェクトメンバーが一枚岩となって約1年のハードワークを乗り切り、いよいよ東京証券取引所の上場本審査直前までこぎつけました。しかし、本審査の数日前にアクシデントが起こります。震度７を観測する熊本地震が発生し、リートに組み入れる予定の商業施設が一部被災したのです。東証においても上場本審査前にリート対象物件が被災するケースは初。まさに想定外の事態を受けて、東証サイドもマリモ・アセットマネジメントも、さらに関係するすべての方々が対応に苦慮することになりました。関係者の誰もが思い入れのある物件でしたが、無理をせず完全復旧してから改めてリートへの組み入れを検討することに決めました。そして、当初の予定より２ヶ月ほど遅れはしたものの、2016年7月29日、晴れて東京証券取引所不動産投資信託市場に上場することができたのです。","rel":[1]},{"no":18,"title":"高い目標をもつ","ex":"高い目標を設定する人はそれに応じて大きな成功を得られますが、低い目標しかもたない人はそれなりの結果しか得られません。自ら高い目標を設定すれば、そこに向かってエネルギーを集中させることができます。高い目標に向けた一歩一歩の積み重ねがやがて大きな力となり、それが成功のカギとなるのです。高い目標は、一足飛びに実現することはありません。一歩一歩着実に歩みつづけること以外に方法はないと言っていいでしょう。高い目標を潜在意識として抱き続け、一日一日を一生懸命に生きていく。そんな生き方が大きな成功や素晴らしい人生を手繰り寄せるのです。私たちが会社としての高い目標を掲げる理由も同じです。目標は社員の足並みをひとつにします。一日一日に意義を持たせ、一歩一歩を意味のあるものにするためにも、大きな目標は必要です。マリモグループが掲げている「永続する企業になる」や「会社は社員の生きがいを創出するステージであり、道場である」というのも、非常に高い目標といえます。経営理念の「利他と感謝」もしかりです。\n\nこれらはどこまで行っても「達成できました」とは言えないものです。ある意味、理想論かもしれません。しかし、私たちはその目標に向かって歩みたいのです。私たちは、せっかく縁があって同じ会社に集まった同志です。そして、せっかくの一度しかない人生における多くの時間を会社で過ごし、仲間とともに仕事をするのです。その時間を有意義なものにするためにも、高い目標をもつことは大切です。掲げた目標が社員みんなの共感を得られるものであり、ともにチャレンジしたくなるものであれば、それぞれの人生は生き生きと素晴らしいものになるはずです。個人の目標設定も、まったく同じことが言えます。「何の目標も持たずに給料がもらえればいい」と考えて働いていたら、仕事をしている時間は無意味なものになるでしょう。目標に向かってがんばっている社員は当社には数多くいます。一度きりの人生なのですから、社員みんなでそれぞれに高い目標を設定し、成功に向かって互いに高め合える組織でありたいものです。","rel":[7]},{"no":19,"title":"人生・仕事の結果＝考え方×熱意×能力","ex":"人生や仕事の結果は、「考え方」と「熱意」と「能力」の３つの要素のかけ算で決まります。このうちの熱意と能力にはそれぞれ０点から100点まであります。この点数をかけ算していくので、自分の能力を鼻にかけて努力を怠る人よりは、熱意をもって誰よりも努力した人のほうが、はるかに素晴らしい結果を残せます。そして、ここに「考え方」のかけ算が加わります。考え方とは生きる姿勢ですから、点数をつけるとマイナス100点からプラス100点まであります。人間としての正しい考え方をもてるかどうかで、人生や仕事の結果は180度変わってくるのです。よい心を磨き、正しい考え方が持てるように日々精進しましょう。熱意を持つこと、能力を養うことは大事です。しかし、それだけでは不十分です。人間としての正しい考え方がベースになければ、仕事や人生の結果はよいものにはなりません。どんなに熱意と能力を発揮しても、考え方がマイナス点だったら、むしろどんどんマイナスが大きくなります。たとえば、能力があり世の中を変えようという熱意をもっていても、人をだましたり、傷つけたりしてまでも事を成し遂げようとするマイナスの考え方をもっていたら、かえって世の中に対して大きなマイナスの影響をあたえてしまいます。一方、仮に能力が小さくても、よい考え方と熱意があれば大きな成功をおさめる可能性があります。世の中の成功者たちの中には「私はもともと能力がなかった」と語る人が数多くいます。そこには謙遜もあるとは思いますが、自伝やインタビューなどにじっくり目を通すと、人並み以上の熱意と正しい考え方があることを読みとることができるはずです。しからば、「考え方」とは何なのか。それは福沢諭吉の言う「哲学」という意味でもありますし、「心」といっても構わないでしょう。または「思想」「理念」「信念」などと置き換えてもいいでしょうし、あるいは人間の「良心」といってもいいかもしれません。そういうものを総じて「考え方」と呼ぶわけです。「考え方」はプラスの方向とマイナスの方向に一直線になっています。プラスの方向とは「良い心」なのです。逆に、マイナスの方向とは「悪い心」です。つまり、方程式は「良い心×熱意×能力」といった方が分かりやすいのかもしれません。では、「良い心」とは何なのか。まず、常に前向きで、建設的であること。みんなと一緒に仕事をしようと考える協調性をもっていること。明るいこと。肯定的であること。善意に満ちていること。思いやりがあって、優しいこと。真面目で、正直で、謙虚で、努力家であること。利己的ではなく、強欲ではないこと。「足る」を知っていること。感謝の心を持っていること。良い心とは、いま言ったとりわけ考え方は非常に重要です。『正しい考え方』については、この人生の方程式を提唱されている稲盛和夫さんご自身が詳しく述べられていますのでぜひ熟読したいものです。＜『京セラフィロソフィ』より要約抜粋＞方程式の中の「能力」を、「才能」という言葉で言い換えることもできます。よく「才に使われるな」と言います。才能のある人はつい才気走り、そのために才能におぼれてしまいがちですが、才能に使われていたのではとんでもないことになってしまいます。\n\n才能を使うのは「心」です。心が自分の才能を動かしていかなければなりません。心を失い、才能だけ、商才だけがあるという人は、「才子才に倒れる」と言われるように、必ず失敗します。その意味でも、心、あるいは「考え方」というものはたいへん大事なのです。ようなことを全部持っている心だと考えています。その反対に、持ってはならない悪い考え方、「悪い心」とはどういうものかといいますと、いま挙げた良い心の対極にくるものです。同じように一つひとつ挙げていきます。後ろ向き、否定的、非協調的。暗く、悪意に満ちて、意地が悪く、他人を陥れようとする。ふまじめで、嘘つきで、傲慢で、怠け者。利己的、強欲、不平不満ばかり。人を恨み、人を妬む。こういったものが悪い心、悪い考え方です。さて、この方程式の「考え方」には、マイナス100からプラス100まであります。その中で、自分の「考え方」はどの辺りに位置づけられるのか。それを知る方法を教えましょう。良い心として先ほど挙げていったもので、自分に当てはまると思うものにマルを付けていってみてください。これもマル、あれもマルというふうに、全部にマルが付くようであれば、プラス100点と考えていいと思います。悪い心で挙げた項目についても、同じようにマルを付けていってください。こちらにマルが付いたものは、点数をマイナスとして数えます。このようにすれば、自分の「考え方」がどの辺りにあるのかが分かります。単純ですが、自分の心がどのような状態にあるかを知る手段として、みなさんにも分かりやすいのではないかと思います。京セラフィロソフィにも書かれているように「フィロソフィとは、良い“考え方”を説明しているもの」です。マリモウェイもしかりです。マリモウェイを教材とし、理念や行動指針を学びつづけることは、社員の皆さん一人ひとりが、しっかりとした『考え方』を身につけることにつながっています。『経営のこころ』に記された「マリモは、社員の人間性を高める道場でありたい」という想いはここから来ています。人生や仕事の結果をより良いものにするために、マリモウェイを通じて正しい考え方を学びつづけていきましょう。部まで臨場感をもって伝わるような仕組みを積極的に設けているのです。たとえば、私たちは部署連携のミーティングを重要視しています。それは、各部署が一体になって、現場を知り、現場と向き合うための大切な機会です。営業の現場はお客様との接点になる場所を指しますが、その現場は事務職の方々も、設計担当者も、仕入担当者も、広告宣伝担当者も、すべての人が意識すべき“お客様をおもてなしする現場”です。あるいは、仕入担当者にとっての現場は仕入候補地ですが、そこはすべての部署の人が意識すべき“マンションをつくる現場”でもあります。「もともとは社長が自ら現場を見て物件購入を最終決定していました。これがマリモの大きな特徴であり、同業他社よりいい開発ができている要因であることは間違いありません」仕入担当者は、この事実が現場主義に徹するマリモを体現していると語ります。この点について社長自身が文書を綴っているので紹介します。","rel":[14]},{"no":20,"title":"現場主義に徹する","ex":"現場は宝の山であると言われます。現場には問題を解決するための情報があり、新しいアイデアを生み出す種があります。“現場”のない仕事はありません。“現場”を意識しなくていいセクションは、マリモにはありません。だからこそ横のつながりを重視し、現場の声が内仕事の原点は現場にあります。現場には問題を解くためのあらゆる情報が隠されています。何かを発想するためのヒントが潜んでいます。机上でいくら理論や理屈をこね回しても、正しい答えやアイデアは見つかりません。現場を知る、現場をイメージする、現場に立ち戻る。その姿勢が私たちの仕事を高めていきます。＜2009年11月27日付社長メッセージ「弊社の健全な経営状態について」より要約抜粋＞マンション事業は、用地仕入をした段階で正否が８割決まると言われています。つまり、マンションにおける立地は売れ行き（＝経営）に大きな影響を与えます。弊社はすべての事業用地について社長である私自身が現地に赴き、この目で場所を確認し、マンションがそこに建設されたとイメージし、事業計画を精査・確認したうえでなければ購入しないこととしています。弊社は大都市での過剰な競争市場を避け、中小規模の地方都市で少ない需要を的確に読み取り、適量を供給していくという独自の展開をしています。そのため市場選定・マーケティングがきわめて重要になります。\n\n社長自身が現地に赴くことを重視しているため、私自身、全国47都道府県の主要都市すべてを視察済みであるのは当然ながら、弊社の主戦場である人口10万人以上の全国219都市（東京都・大阪府・沖縄県を除く）のうち90%にあたる197都市までは、実際に訪問したうえでマーケティング分析を行っています。社長自身が現地確認をしたうえで事業判断を下すという、あたりまえのようで意外にあたりまえでないことを着実に実践することも、弊社の真面目さが表れていると自負しています。いまや、パソコンで地図アプリなどを使えば、現地の写真をいつでもどこでも見ることができます。しかし、現地のにおい、音、人の流れまではわかりません。さらに朝、昼、夜と現場は時間帯によって姿形を変えます。朝は目の前の道路が大渋滞する、夜は隣接する商業施設の看板からまぶしいライトが当たるなど、現場はさまざまな表情を見せます。その地域に暮らす人のことも、現場でないとわかりません。資料に記載されているマーケティングデータはあくまでも数字です。その地域性や、そこに住まう人たちの特性は、数値だけで理解できるはずがありません。私たちは現場を「知っているつもり」になってはいないでしょうか。知っているという思い込みから、現場に立ち戻ることをおろそかにし、机上の論理だけで「わかっているつもり」になって判断しようとする。これが失敗を生む典型的な例です。マリモでは、社長がすべての現場を見て最終判断をし、お客様にいい買い物をしていただくことに一生懸命徹してきたことが、最終的に現場主義となっているのです。自分の心を高めるために。","rel":[10,254]},{"no":21,"title":"利他の心を判断基準にする","ex":"なとき、判断のよりどころにすべきは「利他の心」です。よりよい仕事をしていくためには、自分だけのことを考えて判断するのではなく、他の人を助けようとする心で、周囲のことを考え、思いやりに満ちた心で判断するべきです。アフターサービス関係者の打ち合わせで「そこに利他はあるの？」という問いかけがなされているのを見かけた社員は、こんな議論ができる人たちがいることに心強さを感じたといいます。利他の心で判断すると、相手のことを第一に考えるわけですから、マリモが一見損をしたように感じます。しかし、後で必ず双方にとってよい結果をもたらすことになります。利他の心で判断することが大切だということを関係者たちはよく理解しているのです。一方で、「小善は大悪に似たり」という観点も大切です。お客様相談係を務める社員は「押しの強い小善は大悪に似たり。人にだけその場しのぎの対応をしそうになるものですが、それは弱さゆえの利己であるとの認識が必要です」と話します。重要なのは、相手にとって何が本当にいいことなのかを考えることです。たとえば自分の子どもを可愛がるあまり、甘やかし放題に育てる。その一瞬一瞬は子どもも喜んでくれるのですが、結果として、わがまま勝手に育ち、とんでもない人間になってしまい、不幸な運命をたどる。このように目先のことしか考えずに相手に施そうとする善行を「小善」と言います。そのときはいいように見えても、後々悪い結果を招くことになります。「小善は大悪に似たり」と言いますが、つまらない善をなすことは、かえって悪をなすことになるのです。「大善は非情に似たり」とも言います。たとえば仕事の現場で、部下が問題に直面します。そのとき上司は、上司自らが問題を解決するのではなく、部下に対処させます。その問題に対してどのように考え、行動し、対処すればいいのかを部下に伝え、直接的には手を差し伸べません。一見すると非情なようですが、大事なのは部下自身の成長です。問題に対する考え方と対処法を理解できれば、後にまた困難に直面したとき自分自身で解決できるようになる。そう考えて、あえて愛の鞭で部下を鍛えていく。これが「大善」です。上司が自ら解決するのはその場しのぎの「小善」にすぎず、優しい上司に見えたとしても部下の成長を妨げることになります。「利他」を考える場合、この「大善と小善」の意味を、十分理解しておく必要があります。\n\nマリモが全国でマンションを建設する際に、近隣、特に北側住民のみなさまから、階数の引き下げや建設中止を求められることは多くあります。その際に、私たちの経営理念「利他と感謝」を引き合いにして、反対を主張される方もいらっしゃいます。「利他と感謝」と事業活動は矛盾しているのか。このような場合、私たちはどのように考えるべきでしょうか。経営理念「利他と感謝」における利他とは、顧客、社員、社会、家族、自然など自分以外のすべてを指して「他」と表現しています。その「他」を利することを理念としているわけです。もちろん、入居者様に幸せになっていただくことは、重要な利他と捉えていますが、会社の利益の中から、給与をもらって生計を立てている社員のみなさんやそのご家族に対しても、利他を実践していると考えています。また、必死に働いた結果として利益を出し、納税というかたちで社会に還元させていただいています。この納税も立派な利他と考えています。また、マンションを建てるという行為は住宅産業の一種です。過去に日本国政府が消費税増税による影響を懸念して、住宅購入者に対する優遇措置をたびたび講じてきたことからも分かるように、住宅産業は国家や社会にとって非常に重要な産業と認識されています。さらには、マリモの基本戦略であるニッチ市場での分譲においては、そこに定住人口が増えること自体が、その地域を活性化し、コミュニティやセキュリティ、そして環境が良好になると喜んでいただけることがほとんどです。最終的にマンションがそこに建設され、お客様がご入居されて、「ここにマンションを買ってよかった、ここに住んでよかった」と思っていただける方も多くいらっしゃいます。また、極端な発想かもしれませんが、自然の猛威に襲われたときに人類が未来に向けて取るべき行動は「自然尊重」「自然順応」の考え方ではないかと思います。もちろん科学技術の発展やITの進化などを否定して農耕生活に戻るべき、などと考えているわけではありません。技術や文明の発展は大切ですが、同時に自然環境の保護や、動植物の生態系の保存、人間の生き方そのものを、本来の自然なあり方に戻す側面も必要ではないかと考えるのです。マリモグループが利益追求だけを目的とせず、社会課題の解決を目的とするソーシャルビジネスを志向しているのも、こういった考えが根本にあります。","rel":[18,260]},{"no":22,"title":"お客様第一主義を貫く","ex":"お客様のよろこびを、自らのよろこびとする会社でありたいと思います。お客様によろこんでいただくことは商いの基本であり、それができなければ利益を生みつづけることはできません。自分たちの損得ばかりを考えるのではなく、お客様にとって何が最善か、お客様にとって何が最良かを考えながら日々仕事をしましょう。なぜマリモが1970年の設立から現在まで長い歴史を歩むことができたのか。その要因は、お客様第一主義という信念があったからに他なりません。たとえばお客様にマンションを「売り込む」という行為は、自分たちの損得ありきの活動です。はたしてそれでお客様によろこばれるでしょうか。私たちは「マリモのマンションを売り込む」のではなく、「マリモのマンションを理解していただく」という姿勢でお客様と接してきました。営業員である前に、お客様のよき相談相手であれという基本姿勢も同様です。住まいという人生最大のお買物を検討しておられる方々が求めているのは、損得勘定で動く営業員ではありません。親身になって相談に乗ってくれるパートナーです。私（お客様）のよろこびを自分のよろこびとしてくれる人なのです。マリモ不動産販売の社員は、「お客様を第一優先と考えて行動することを実践したことが、自分自身の成長のきっかけになった」と振り返ります。元々は営業に苦手意識があり数字もまったく伸びず、思い悩む時期が続いて「この仕事を辞めよう」と考えていたときのことです。以前、物件を購入していただいたお客様から「困っている知人がいる」との相談を受けました。ご紹介いただいたお客様は、止むに止まれぬ理由で不動産を売却しなければならない方でした。「自分の数字は抜きにして、なんとか助けてあげたい」と誠心誠意の対応をした結果、より良い条件で売却することができました。そのときお客様にとても喜んでいただけたことで、彼は考え方を大きく変えました。「自分の数字を追い求めるのではなく、つねにお客様に満足していただけることを最優先にしよう」と。すると、その後はご紹介をたくさんいただけるようになり、自然と営業成績もあがるようになったといいます。これが彼のターニングポイントでした。彼は毎年、年末には、売却をお手伝いしたお客様のもとにカレンダーを持参している、と言います。「それが私の１年の仕事納めとなっています」と成長のきっかけをいただいたお客様に、いまも感謝の気持ちを忘れずに行動しているのです。彼のように、多くのお客様を紹介いただけるようになるためには、もちろんお客様に満足していただける仕事をすることが大切です。そのためにはお客様が望むサービスを提供するだけでは足りません。望むもののさらに上をいくサービスの提供が必要です。むずかしいのは、自分が100％の仕事をしたと満足していても、ひょっとするとお客様は50％しか満足していないかもしれない、ということです。基準は“自分”ではなく“お客様”にあります。満足の押し売りとならないよう、気をつけなければなりません。お客様基準の判断が事業成長を加速させた例が、ココノミにあります。生鮮食品である野菜をお客様にお届けするココノミの事業は、仕事の達成度とお客様の満足度が乖離しやすいサービスと言えるでしょう。天候不良などによる欠品があたりまえの世界では、業務オペレーションが煩雑になりがちです。オペレーション工数が膨らみやすく、ミスも起きやすい。そのためお客様にご迷惑をかけてしまうことが多いのです。ココノミの事業責任者は「誰のためのサービスかを考えると早急に改善すべき点だ」と判断し、事業開始当初からオペレーションシステムの再構築にいち早く着手しました。時間をかけてシステムを構築し、運用を開始しましたが、やはりイレギュラーなことが多く発生するため日々アップデートを繰り返したそうです。そうして努力を重ねた結果、大幅な工数削減とミスの解消が実現できました。さらに野菜の欠品時にもお客様の満足度を上げるためにはどうすればいいかを考え、欠品した際に自動で商品が補填される仕組みを考案し、実装しました。\n\nその施策は結果的に売上アップにもつながっています。お客様を第一にとことん考え抜いたサービスづくりが、ひいては自分たちの求める業績にもつながったという一例です。事業責任者も「何を一番優先すべきかをあらためて考えることができた」と振り返っています。マリモにはお客様第一主義の姿勢から生まれた「おもてなし営業」という言葉があります。営業担当者はおもてなしの精神をもってお客様と接しお客様第一主義をかたちにした「おもてなし営業」。ており、現場ではマリモらしいエピソードが数多く生まれています。それは業務部から配信されるお客様アンケートにも表れています。「マンションを売りたいという接客ではなくて、マンションのことがわかるように丁寧に説明してもらってうれしかった」といったコメントは日常的に多く見ることができます。一人ひとりの姿勢だけでなく、会社として、部署としての取り組みや仕組みも多々あります。その好例として全営業担当者が実施している「自分ファイル」があります。営業担当者はご契約いただいたお客様とのエピソードを１件１件書いてファイリングしています。そこにはご契約時に撮影したお客様の写真も綴られます。お客様は住まいを所有したよろこびで、贈呈された花束を手にしてカメラの前でとびきりの表情を見せてくれます。「自分ファイル」という記録を残しておくことで、営業担当者は折にふれて担当させていただいたお客様のことを思い返し、自分を律し、落ち込んだときは励まされながら、自信と誇りをもって「おもてなし営業」を実践しています。あるとき「自分ファイル」で撮影した写真は遺影にも使われました。大変残念なことですが、マンションをご購入いただいたお客様が、お引き渡しの前に亡くなられました。営業担当者がお通夜に参列したところ、飾られていた遺影が契約時に撮影した写真だったのです。ご家族の方は「たくさん写真はあったけど、これが最高の笑顔だったから」とおっしゃっていたそうです。お客様を第一に考えた取り組みやエピソードは、接客時だけにかぎりません。いくつか例を挙げてみます。■お引渡し会マンションのご入居前に行われる「お引渡し会」は、お客様をおもてなしするセレモニーとして毎回華々しく開催しています。会場では「ご近所様挨拶」の時間を設け、お客様のご入居後のコミュニティ形成の第一歩をお手伝いしています。■つながりデザインプロジェクトお客様のご入居後の暮らしやすさを考えた、地域とのコミュニティ形成・地域貢献を目的とした取り組みです。竣工時には地域住民の方とマンションのご入居者のコミュニティを醸成する主旨で交流イベントを実施します。朝の清掃活動は日常的に行い、地域の小学校や中学校に必要な備品の寄贈などを行っています。ご入居後も季節にあわせてクリスマスイベントやみかん狩りツアーなど、さまざまな催しの企画をサポートしています。■お客様目線の物件調査新規物件調査の雛形には、現地で確認すべき項目があります。そのほとんどが「音・におい・振動、その他周辺環境」など、お客様目線での確認項目で占められています。物件調査は業者目線、デベロッパー視点になりがちですが、マリモではつねにお客様目線で仕入活動を行っています。■設計時の駐車場配置設計担当者が駐車場配置を考えるとき、台数効率を求めて決定することはありません。たとえば、入庫時にお客様の車が無理なく折り返せるスペースを設けるようにしています。折り返せるスペースを少なくすれば駐車場が増えて数字上の効率が上がりますが、毎回お客様の車のタイヤをすり減らすような配置はしません。■建設時の現場検査マリモの現場検査では、たとえば、住戸内の仕上げ工事に入る前の下地検査など、仕上げてしまえばわからない部分も、あとでお客様が困ることがないように入念にチェックしています。このように、売上や利益効率を追求する以前にお客様第一主義を貫いた行動は、みなさんの周囲にもまだまだ数多くあると思います。今後もお客様のことを考えた施策は改善をくりかえし、さらに","rel":[]},{"no":23,"title":"相手の立場になって考える","ex":"自分が相手の立場だったらどう思うかを考える習慣をつけよう。自分しか見えていないとき、人は自分中心の誤った判断をしてしまいます。自分以外の人を中心に考えたとき、正しい判断ができる可能性は格段に上昇します。「相手の立場になって考える」は、すべての職域における基本姿勢です。創業者が私たちに口酸っぱく言われていた「私たち供給者の都合でマンションをつくるのではなく、お客様の立場になって、お客様のためにつくりなさい」という想いが根底にあります。かつて物件パンフレットの表紙には「設計思想は愛。創作思想は思いやり。求めたのは永住クオリティ。」と書かれていました。これはまさに「相手（住まう人）の立場になって考えます」というマリモの宣誓文でした。営業担当者の名刺の裏には、いまもお客様への宣誓として以下の文章が記されています。『当社は住宅を介して社会的貢献度の高い企業をめざし、ささやかな気配りを第一理念としております。また、お客様に当社の商品を売却することを第一目的とするのではなく、お客様の立場に視点を移して、真に良き相談相手となるべく、私自身の人間性と専門分野への見識を深める努力をしております。めざしているのは「お客様へのおもてなしの精神」を高揚させることです。十二分ではありませんが、できるだけお役に立ちたいと心がけております。』マリモの提唱する“おもてなし営業”の理念がここにあります。この理念をベースに販売活動をしているからこそ、私たちの行動は他社とは違っているのです。たとえば、申込をキャンセルされたお客様がいらしたとします。「親族と話し合った結果、マンションではなく戸建住宅を検討することになった」という理由です。そこで担当者がとるべき行動は、「お客様の立場に視点を移して、真に良き相談相手」となることです。私たちは専門領域の見識を活かし、戸建住宅の間違いのない選び方を少しでもアドバイスできないかと考えるべきです。実際に、ポレスターセントラルシティ名西参番館の販売時にこれと同じ行動をとった営業員がいました。その結果、キャンセルのあった数ヶ月後に再契約をいただくことになりました。お客様いわく「キャンセルしたにもかかわらず、戸建住宅を購入するうえでのアドバイスをもらったことにすごく感動したから」。キャンセルを申し出たお客様は、苦渋の決断をされて、当社の担当営業に対しても心苦しい思いをしていたそうです。\n\nそんなときに自分の立場になってアドバイスをくれた担当営業のことが忘れられず、「住まいを買うならやっぱりこの人から」という思いに至ったといいます。マリモハウスの営業においても同様の話があります。他社の施工に関するお問い合わせを、マリモハウスの営業担当者が受けました。本来は施工した会社が対応すべきことでしたが、「お話をお伺いすると非常に困っていらっしゃることが分かり、なんとかしてあげたい一心で対応させていただいた」のです。まさに良き相談相手として親身になって対応した結果、後に新しい工事をご依頼いただくという成果に結び付いたのです。「相手の立場になって考える」という基本姿勢は、営業だけでなく、仕入や設計、さらには採用活動にまで浸透しています。分譲マンション用地の購入において「儲かればいいのか？」という自問自答の結果、仕入を断念したことは一度や二度ではありません。たとえ儲かるとわかっていても、「はたして自分の家族や友達にすすめられるのか？」「自分が住んだらどうなのか？自分は本当に住みたいと思えるのか？」といった思いをめぐらせ、事業化を厳しく判断しているからです。設計についても「生活者発想の設計」が基本スタンスです。「売れればいい」という考えで装飾過多を志向することはありません。パッと見のよさで売りやすくするのではなく、住んだ後に実感する良さを重視します。スクエアな構造、上下階の音などに配慮された設計など、目に見えないところ、後から変えられないところにこだわったマンションづくりは、マリモの真骨頂といえます。採用活動にもマリモらしさは表現されています。新入社員に「なぜマリモに決めたの？」と質問すると、会社説明会の内容や人事担当者の対応がよく挙がります。私たちの採用活動は、企業目線で全面的に当社をPRするものではありません。「当社にふさわしい人材か」という私たちの都合を押し出した見極めに終始するものでもありません。お客様に対するのと同様に「相手の立場になって考える」のです。人事担当者はこの基本姿勢にしたがって、会社説明会で参加型のディスカッションなどを通じて学生とコミュニケーションを図っています。そこで当社をアピールするのではなく、就職活動において大事なポイントなどを話したり、アドバイスを送ることを熱心に行っています。そ162163","rel":[192]},{"no":24,"title":"仲間のためにつくす","ex":"私たちは、全員で物心両面の幸福を実現しようとしている同志です。自分のことだけを考えるのではなく、仲間のために努力できる人に恵まれたからこそ、マリモは今日まで成長を遂げることができたのです。代償を求めず仲間を思いやる心と、手助けを惜しまない行動を大切にしましょう。人の行動のなかで最も美しく尊いものは、人のために何かをするという行為です。仲間のためにつくすという行為は美しい心がおこなうものであり、その行為によってその人の心はさらに美しく、かつ純粋になっていきます。つまり、人格を向上させていくために、とても大事な行為といえるのです。会社という集団は、個人ではできない大きな事業を成し遂げるために存在します。仲間の存在があればこそ、私たちは一人では困難な大きな仕事に取り組むことができるのです。「仲間のためにつくす」という行為は、いわば企業活動の原理原則です。さらに、マリモは社員みんなで幸福を実現しようとする組織であり、一人ひとりの人間性を高めるための道場のような存在です。もし、自分のことを最優先する人で構成された集団であれば、会社であることの意味すら失いかねません。仲間のためにつくすことは、会社の存在意義を考えても非常に大切であると認識してください。仲間を想う気持ちは、ときにその人の能力を最大化させ、大きな成果を生み出す原動力ともなり得ます。フィッシュフレンズを事業化する際のエピソードはその好例です。釣り人向けのWebサービス事業の立ち上げは、まさにゼロベースのスタートでした。「マリモ」というブランドや知名度が通用しない業界で、いかにしてスポンサー契約を獲得していくか。スタート当初は苦戦を強いられました。思うように契約がとれない状況に心が折れそうになった、と営業担当者は告白します。しかし、そんな状況下で担当者の心を支えたのは、「ともにがんばっているチームメンバーのためにも」という気持ちだったそうです。「このサービスができるまでに何人ものメンバーが汗を流してきました。\n\n営業担当者にはそのバトンを受け継ぎ、成果というゴールに導く役割があります。私は営業という立場で、なんとか仲間の努力に報いたかった。いっしょにがんばってきたチームに貢献したかったんです」その想いが“あきらめない営業”につながりました。「営業活動で門前払いされたり、断られたりしても、簡単にあきらめるのはやめよう。訪問営業やテレアポ(電話営業)の方法を見直して工夫を凝らしたり、マリモのことを知らないお客様には近隣のポレスターや市街地再開発事業の物件を話題にしてみるなど、信頼を得るためにできることはまだまだある」そうして試行錯誤を繰り返した結果、徐々に契約獲得数を増やすことができたといいます。0から１を生み出す新規事業は一人では成し得ないものですが、私たちはけっして一人ではないですし、孤独なベンチャーでもありません。ともにがんばる同志がいます。フィッシュフレンズの事業化は、仲間のために努力する人たちの大きな成果でもあるのです。たとえば、現場でこんなことがないでしょうか。成果を出せなかった、またそのプロセスもよくなかった部下がいた場合、上司としては、そこは徹底的に納得いくまで指導すべきところです。ところが、世の中は働き方改革やパワハラが叫ばれている。そこで上司は、どこまで指導すべきか迷いながら、結局軽く指導しただけで「次はがんばるんだよ」真の優しさは、厳しさ。仲間のために、ときに叱咤を。という程度で終わらせてしまう。このような事例は多くあると思われます。ですが、このようなときは上司は本気で叱って、体当たりで指導してほしいのです。事なかれ主義でスルーする「無関心」が最も冷たい対応です。真の優しさとは、厳しさです。部下を指導するのは大変です。叱るのはもっと大変です。しかし、それでもなお、自分の時間と心を割いて部下のためにストレスの多い指導に取り組むことは、部下に対する優しさ以外にありません。仲間のためにつくすとは、決して美辞麗句ではなく、真に相手のことを思っておこなう行動のことをいうのです。","rel":[2]},{"no":25,"title":"自分が困ったことを放置しない","ex":"」は、「お客様が困っていたら放置しない」と言い換えることもできます。たとえば、マリモのお客様相談係には日々さまざまな相談が寄せられます。その中には当然お客様の困りごともあり、担当者は関係者と協力しながら問題解決に臨んでいます。しかし、ときおりお客様の相談や困りごとを最初に聞いた担当者が、お客様相談係に丸投げするケースが見受けられます。お客様から直接相談を受けたにもかかわらず「その件は管理会社やお客様相談係に話してみてください」と投げてしまう。ステップ１にある「まず自分が解決する努力をする」「まず自分ができることを最大限に行う」が欠けているのです。お客様は“放置”されて不安に思うのではないでしょうか。最も信頼している担当者に相談したのに、たらい回しにされた印象を与えないでしょうか。「誰かがやるだろう」「それは私の担当ではない」ではなく、まずは率先してお客様の困りごとの解決にあたる姿勢をもってください。問題の解決に尽くしたら、その問題が二度と起こらないように、２）と３）の実行に努めるべきです。\n\n「駐車場に車庫入れをしたら車にキズが入った。駐車場の抽選のときはだいじょうぶと言われたので入庫したのだが…」以前、このような話をお客様からいただきました。詳しくお聞きすると、車高制限１，５５０㎜以下の駐車場区画に車高がオーバーした車を入庫し、天井をこすってしまったとのことです。なぜサイズ確認をせずに契約を交わすことになったのか。確認はお客様の責任で行うものなのか。当社に責任はないのか。この問題は全社に水平展開され、駐車場抽選時のルールが策定されました。抽選前に、応募いただいた駐車区画と車検証を照合する。さらに抽選後も、すぐにそのまま結果を公表せず、再度、抽選結果と車検証を照合したうえで公表する、というルールです。こうした営業基本ルールができた背景には、問題を周囲に報告し、全社的に二度と起こらないように対策を講じよう、という姿勢がありました。生じた問題の一つひとつと真摯に向き合い、共有し、新しいルールや仕組みをつくっていくことは、会社経営の本質です。","rel":[]},{"no":26,"title":"素直に学ぶ","ex":"ことは、未知を切り拓くための大きな力になる。そして素直な心があれば、多くの人が自身の学びを助けてくれる。そのことをココノミのエピソードは教えてくれます。社長であっても、社員であっても、素直に学びつづけなければ成長はない。素直な心で学ぶことは、もとより新規事業を立ち上げるメンバーや若い人にだけ求められることではありません。年齢を重ねても、キャリアを積んでも、どんな役職にある人でも、素直さや謙虚さをもって学ぶ姿勢をもたなければ、そこで成長は止まってしまいます。「素直さを失っていた自分に気づいた」キャリアを積んできたある社員は告白します。転属を機に新しい環境に身を置いてはじめて自分のいたらなさに気づいた、と。彼は転属して重要なポストをあたえられました。重責ですが、「これまでの人生で培ってきた経験や直感で勝負すれば新天地でもなんとかなる」と自信をもっていました。ところが思うような結果を出すことはできませんでした。それは人生において経験したことのない大きな挫折でした。約１年後、苦難を抱え込んだ本人は、逃げ出したい気持ちに駆られ、意を決して社長と面談しました。そのとき社長にいただいた言葉がいまも忘れられないといいます。それは「偉くなっては駄目。素直に学ぶこと」という言葉でした。「それまでの自分は、自分の力で人生を切り拓いてきたんだと思い込んでいました。子どものころから友人や先生に恵まれ、社会人になってからも会社の仲間、上司、お客様、お取引先様などの多くの人に支えられてきたことに何ら感謝することなく…。素直な心で学ぶ姿勢が足りなかったんだなぁと」人は年齢やキャリアを重ねると、謙虚さを無くしがちです。能力を身につけ、実績をあげ、役職が上になるほど、人の意見を聞かなかったり、他から学ぼうとしなくなる傾向があります。しかし、たとえそれが社長であっても、我を通していいか、素直でなくてもいいかといえば、そうではありません。\n\n社長であっても、社員であっても、素直な心で学びつづけるからこそ、成長があり、成功があり、進歩があるのです。マリモの事業展開は、経営トップが素直に学ぶことから始まったものが数多くあります。たとえば青森県進出は、社長が日経新聞で同業他社の成功事例を見つけたのがきっかけでした。小さな記事を目にして「素晴らしい！ぜひ見て学びたい」と思い視察に訪れたことに端を発し、事業が加速していったのです。他社が成功したことを斜に構えて眺めていたら、その後のマリモの青森県での成功はありませんでした。学びの最初は、真似でもいいのだと思います。「学ぶ」は「真似ぶ（まねぶ）」から転じて生まれた言葉だという説もあります。「守破離（しゅはり）」の精神も同様の意味です。もともとは茶道や武道の世界で使われていた考え方ですが、師の教えを守ることは、師を真似ることにも置き換えられます。まず素直に真似てみて、そこから得たものを活かしてオリジナリティを付加していくのです。このようなやり方でマリモはさまざまな事業を興し、成長発展を遂げてきました。世の中にあるほとんどのものは、何かにヒントを得た模倣や改良から産まれているのではないかと思います。たとえば、アメリカにウォルマートという有名な会社があります。創業者であるサム・ウォルトンはインタビューの際に「あなたはなぜ世界一の小売業を創り上げることができたのか？」という質問にこう答えたそうです。「それはね、世界中で優れたものがあれば、飛んでいってすぐ真似たからなんだ」「いま我が社にあるものは何一つ独自のものは無い。世界のどこかにあったいいものしか無いんだよ」この素直さが、サム・ウォルトンが世界一の小売業経営者になった要因の一つなのでしょう。新規ビジネスの模索や社内改革のやり方など、すべての取り組みに関して、いいことを世界中から探すようにしましょう。そして、それらをどんどん真似て成長していけたらよいと思います。","rel":[5,9]},{"no":27,"title":"つねに謙虚であらねばならない","ex":"中国の古典に「謙のみ福を受く（受ける）」という言葉があります。また「人の一生の最大痛恨は“傲”の一字に尽きる」ともいいます。傲慢な人間は幸運を得られず、謙虚な心の持ち主しかそれを得ることはできないということです。企業経営者でも、少し儲かりだしたら天狗になる人がいますが、それでは会社の発展は見込めないでしょう。たまたま結果を残して傲慢になる社員もいますが、謙虚さを失った時点でやはりそれ以上の結果や成長は期待できません。謙虚になる、つまり、謙る（へりくだる）。こう言うと、どこかみっともないような感じを抱く人もいるかもしれません。しかし、それは誤りです。人は自分に誇るものがないからこそ威張り、ふんぞり返って自己顕示欲を満たそうとするものです。たとえ謙虚にふるまうことで他人からバカにされたとしても、それは相手のほうが間違っているのです。また「謙虚になる」ことは「下手に出る」ことではありません。そして「控えめになる」こととも異なります。たとえば相手が上司だから、年上だから、偉い人だからと、自分の意見をまったく主張しないのは間違っています。謙虚さとは、相手に敬意を表することであり、下手に出ることでも控えめになることでもないのです。","rel":[]},{"no":28,"title":"感謝の気持ちを表わす","ex":"社内に人の和がなければ、お客様によろこばれる商品やサービスはつくれません。お互いに信じ合える仲間となり、ともに目標に向かって仕事をつづけていくためには、つねに周囲に感謝の気持ちを表すことが大切です。お客様やお取引先はもちろん、職場の仲間や家族といった周囲の人々の多くの支援があったからこそ、今日の私たちがあり、存分に働けているのです。感謝の気持ちを「持つ」だけでは相手に伝わらないかもしれません。「ありがとう」「助かります」といった一言を述べ、感謝の気持ちを「表わす」ことが大切です。その小さな心がけが社内の“和”をつくりだします。では「感謝する」とは、どのような状態なのでしょうか。まず、自分自身が他の存在に対して謙虚でなければ、感謝の心は生まれません。たとえば営業員であれば、自分が成果をあげられているのは、もちろんお客様からご契約いただけるからですし、社内の仲間の協力があってのことです。周囲に感謝することなく、「オレが、ワタシが」と利己的な考え方をもつばかりでは、継続して結果を出しつづけることは困難になるでしょう。ある営業員の話です。マリモに入社した後なかなか結果を出せず、思い悩んだ末に販売事務所の同僚に「自分はなぜ契約がとれないのだろう？」と訊ねました。\n\nそして、さまざまな指摘をもらう中で気づいたそうです。「これまでずっと自分中心の考え方をしていた」と。他の営業担当者がとった契約に嫉妬心をおぼえたり、契約をとれないことを責任転嫁したり…。そこには利己的な自分がいました。自分さえよければいいという考え方で仕事と向き合っていたことを知りました。それ以降、接客について同僚に積極的に相談したり、情報交換をしたり、自分の経験を踏まえて同僚の仕事をサポートするなど、周囲との和を意識して行動したといいます。すると契約件数は徐々に上がるようになり、自身の心が前向きになったと振り返ります。「同僚には感謝してもし尽くせないほどの恩義を感じるとともに、私も他の営業員にフィードバックしていかなければならないと感じるようになりました。“感謝が感謝を生む”という好循環を体感できたと思います」このように営業員同士が人の和を重んじながら仕事をすることは、実は業界内では珍しいことのようです。「自分のもっている貴重な情報や経験を、ある意味ライバルである同僚に伝えることは多くない」とは同業他社の営業担当者のコメントです。「それを実践しているマリモはすばらしいと思いますし、御社の強みになっている」と評価してくださいました。“感謝が感謝を生む”ことを知っているマリモは、","rel":[18]},{"no":29,"title":"つねに明るく、未来を前向きにとらえる","ex":"人生がうまくいっている人は、必ず明るい心をもっています。心根が暗く、不平不満ばかりこぼしているようでは、けっして素晴らしい人生を歩くことはできません。もちろん、誰にも負けない努力をするという「根性」は必要です。そのうえで、自分の未来はきっと素晴らしい幸運に恵まれているはずだと常に信じることが必要なのです。「この先、何が起こるかも分からないのに楽観的にはなれない」と考える人もいるかもしれません。しかし、そうではないのです。誰にでも明るい人生はひらかれているのです。そのことを信じ、誰にも負けないような努力を重ねていけば、必ず素晴らしい未来が待っています。どんな仕事も楽ではなく、辛くて、きついことがあたりまえです。営業担当者であれば、ときには思うように契約をあげられず苦しむことがあると思います。事務系の仕事をしている人は、忙しいとき、納期が迫っているときなど余裕がなくなることもあるでしょう。上司であれば、責務を背負ってさまざまな重圧に押しつぶされそうになることもあるはずです。\n\nそんなときも未来を信じて、困難や苦労に負けることなく、厳しい現実の中で自分を励ましながら、明るくふるまっていくこと。たとえどんなことがあろうとも、物事を善意に解釈していくことが大事です。悪意に受けとっていたのでは、人生はどんどん暗くなります。世の事象はすべて自分の心が招いたものです。明るい心をもって生きていれば、自分に起こる事柄も明るく希望に満ちあふれたものになるはずです。ご承知のとおり、マリモグループはいま2030年に向けて10年ビジョン「殻を破れ」を掲げています。私たちは2030年にどのような会社になっていたいのか。不確実性の高い昨今、先のことなど分かるはずはありません。しかし、それでも社員一人ひとりが自らの殻を破り、想像力を働かせて、「霧の向こうにある何か」をつかもうと努力していかなくてはならないのです。どんよりと曇った分厚い雲の上に必ず存在する蒼い空をめざして、ともに歩み続けていきましょう。192193","rel":[]},{"no":30,"title":"心に描いたとおりになる","ex":"」ということは、いま思っていることがすぐにかたちになるという意味ではなく、もっと長い目で見た時間軸のなかで起こる現象なのです。自分の若かったころから現在にいたるまで、20〜人の人生についても、昔と今がどうなっているのかを考えてみてください。子どものころは苦労したけれども、途中で運命が好転したという人がいます。あるいは、幼少時は裕福な家庭に育って幸せでしたが、社会に出てからは非常に苦労したという人もいます。人の一生は千差万別ですが、長いスパンで考え方と結果との関係を見ていけば、ほぼ辻褄は合っているのではないでしょうか。人生にかぎらず、会社の歴史も同じようなところがあります。たとえば企業理念やビジョンは、会社が「心に描くこと」であり、描きつづけていれば自然とそこに近づいていきます。マリモという会社も「こんな会社になりたい」という想いをもって活動してきた結果が、いま現在のマリモの姿になって現れています。全国のさまざまな地域でいいマンションをつくりたいという想いがあり、いつか海外で日本式のマンションをつくりたいという夢があり、実際にそれが実現されました。また、事業を進めるなかでマンションビジネスだけではいけないという想いの中から、収益不動産事業などがかたちになっていきました。これらはけっして結果論ではなく、心に描いていなければかたちにはなっていなかったものです。人も会社も、やはり「心に描いたとおりになる」ものなのです。だからこそ、「心に何を描くか」ということの重要性を、いつも肝に銘じていたいものです。社員の皆さん一人ひとりが、仕事のことだけでなく、家庭のこと、自分自身のことなど、各々の人生や未来に対して、きれいな想いを描いて、それぞれの夢を実現し、よりよい人生を送ってくれることを心から願っています。コミュニケーションを保ち、問題を解決へと導くためにお客様対応7つの心得一生懸命に仕事をしていても、お客様よりお叱りを受けることは誰にでもあります。原因は我々の伝達不足、配慮不足、お客様の勘違い等さまざまです。誰でもこのような対応は、恐ろしい、怖い、何を言われるのだろう、自分は法律的に詳しくない等、不安もあると思います。しかし、ほんの少し勇気を振り絞り、一歩前に出て謝罪し、お客様の話をよく聞き、お客様の立場で考えてその話を復唱し、会社として出来ることと出来ないことを丁寧に説明し、１回で終わらない場合は、いつまでに何を行うかを相手方と共有する、という対応を繰り返せば、必ず解決します。次に、厳しい場面に対応するための７つのポイントを説明しますので、これらを実践して、自ら解決に導けるようになりましょう。コミュニケーションを保ち、問題を解決へと導くためにお客様対応7つの心得一生懸命に仕事をしていても、お客様よりお叱りを受けることは誰にでもあります。原因は我々の伝達不足、配慮不足、お客様の勘違い等さまざまです。誰でもこのような対応は、恐ろしい、怖い、何を言われるのだろう、自分は法律的に詳しくない等、不安もあると思います。しかし、ほんの少し勇気を振り絞り、一歩前に出て謝罪し、お客様の話をよく聞き、お客様の立場で考えてその話を復唱し、会社として出来ることと出来ないことを丁寧に説明し、１回で終わらない場合は、いつまでに何を行うかを相手方と共有する、という対応を繰り返せば、必ず解決します。次に、厳しい場面に対応するための７つのポイントを説明しますので、これらを実践して、自ら解決に導けるようになりましょう。ましょう。そうすると、お客様はあなたを交渉相手として認識されるようになります。198199お客様の要望であっても、断らなくてはならない場面があります。お客様は要望が通らないと「あなたでは話にならない。上司に代わってください」と言われる場合があります。その時「自分では対応ができない。上司になんとかしてもらおう」という考えが頭をよぎると思います。しかし、上司の回答も同じであれば、上司が出ても結果は変わらないはずです。\n\nもし上司の回答があなたの回答と違うなら、あなたの確認が不足していたと反省しましょう。あなたの回答は、会社からの正式な回答ですから、お客様の状況をよく聞き、社内にもよく確認して、正確な回答ができるようになりましょう。「本件についての担当者は、私です。上司に代わっても回答は変わりません」と何回もお客様に伝えお客様は、ご自分が不満に思われている状況を説明されます。その話の途中で「お客様、それは違います」と口を挟むと、話を遮ったことに対してお客様を怒らせてしまい、交渉相手としての信頼が得られない状態となります。これはあなたの行動が招いた結果と考えてください。まずは最後まで相手の話を聞きましょう。❶あなたが解決する強い意志を持つこと❷お客様の話をよく聞くことお客様の話を最後まで聞いた後、いきなり会社の立場からの意見を伝えると、「あなたは何もわかっていない。あなたでは話にならない、上司に代わってください」となってしまいます。「お客様は、この❸お客様の話を復唱すること200201お客様の要望を断る場合は、入念な準備が必要です。契約書、お客様に発行した書面、その他法規等の必要な書類を正確に確認したうえで、世の中の誰が聞いても絶対に間違いないという回答を用意して、懇切丁寧に説明しましょう。事をこのように思われたから、ご不満に感じられているのですね」と復唱すれば、意志が伝わったことで、解決の第一歩が見えてきます。❹を実践するには、確認する時間が必要です。ただし「折り返し連絡しますので、少しお時間をください」という発言は危険です。お客様の「少し」は何分でしょうか。あなたは３０分と思っていても、お客様は５分と考えているかもしれません。「すぐ❺回答期限を共有すること❹充分な説明をすることに、速やかに、ちょっと」等の曖昧な表現は、人によって感覚が異なります。よって「詳細を確認したうえで、〇日の〇時までにご連絡しますので、一度電話を切らせてください」と回答期限を明確に伝えましょう。特にお客様がお怒りの場合、早く回答しなければという気持ちになります。そこで、１時間かかるものを３０分と、出来ない約束をすると信頼を失います。正確に回答できるよう、余裕をみて回答期限を設定しましょう。また、回答期限までに満足いく準備ができなかった場合も、必ず連絡をして「ここまで調べました。あとこれだけ時間をください」と伝えましょう。お客様対応は、１回で解決するものばかりではありません。繰り返すうちに、お客様の主張が増えたり、想定外の質問をされたりする場合もあります。これは、お客様があなたを立派な相談相手と認めている証拠です。対応回数が増えるほど、あなたに対するお客様の信頼度は上がります。何について回答するのかを、お客様と共有しておかないと、苦労して調べた内容が無駄になってしまいます。よって、電話を切る前に、❺の回答期限とセットで、「次回のご連絡では、この内容について回答します」と明確に伝えましょう。❻何について回答するかを共有すること❼何度も繰り返すこと最後にお客様対応は、放置すると増大し、解決しにくくなります。この7つの心得を念頭に、速やかに自分で対応しましょう。「マリモホットライン」とは、みなさんが働きやすい職場環境を作ることを目的とした社内相談窓口のことです。■フリーダイヤルはこちらから■メールはこちらから−５−marimo@e−goiken.com※携帯電話からも利用可能。上記アドレスからのメールを受信できる設定にしてください。受付時間９〜８時土日祝・年末年始休みMARIMOHotLinemynameis...この窓口は法律やルール違反の内容だけを受け付ける窓口とは違います。仕事をする上でおかしいと感じたこと、不安に思うこと、悩んでいることなどがありましたら、とにかくお気軽に「マリモホットライン」までご相談ください。※当窓口は第三者機関が運営しており、相談は会社側に匿名で報告されます。また、事前に窓口担当者とどのように会社側に報告するかを打ち合わせることができます。","rel":[]}];
+  const principleByNo = {}; PRINCIPLE_DETAILS.forEach(p => { principleByNo[p.no] = p; });
+  const mw30Overlay = document.getElementById("mw30Overlay");
+  const mw30Body = document.getElementById("mw30Body");
+  const chapterTitles = { 1: "第一章　よりよい仕事をするために。", 2: "第二章　志高く挑みつづけるために。", 3: "第三章　自分の心を高めるために。" };
+  (function renderMw30() {
+    if (!DATA.principles) return;
+    const byCh = {1:[], 2:[], 3:[]};
+    DATA.principles.forEach(p => { byCh[p.ch].push(p); });
+    const parts = [1,2,3].map(ch => {
+      const cards = byCh[ch].map(p => `<div class="mw30-card" data-pno="${p.no}"><span class="mwno">No. ${p.no}</span><span class="mwtitle">${escapeHtml(p.title)}</span></div>`).join('');
+      return `<div class="mw30-chapter"><h3>${chapterTitles[ch]}</h3><div class="mw30-grid">${cards}</div></div>`;
+    }).join('');
+    mw30Body.innerHTML = parts + `<div class="mw30-detail" id="mw30Detail"></div>`;
+  })();
+  // Detail click handler
+  function showPrincipleDetail(no) {
+    const detail = principleByNo[no];
+    if (!detail) return;
+    const detailEl = document.getElementById("mw30Detail");
+    // Build related issues HTML
+    let relHtml = '';
+    if (detail.rel && detail.rel.length > 0) {
+      const items = detail.rel.map(rno => {
+        const k = keyByNo[rno];
+        const t = (TITLES && TITLES[rno]) ? TITLES[rno] : (k ? k.title : `第${rno}号`);
+        return `<a class="mw30-rel-item" data-no="${rno}"><span class="rno">第 ${rno} 号</span><span class="rttl">${escapeHtml(t)}</span></a>`;
+      }).join('');
+      relHtml = `<div class="mw30-detail-rel"><div class="mw30-detail-rel-h">Related Issues ／ 関連号</div><div class="mw30-rel-list">${items}</div></div>`;
+    } else {
+      relHtml = `<div class="mw30-detail-rel"><div class="mw30-detail-rel-h">Related Issues ／ 関連号</div><div class="mw30-rel-empty">紐付けされた号はまだありません</div></div>`;
+    }
+    detailEl.innerHTML = `
+      <button class="mw30-detail-back" id="mw30DetailBack">← 三十則 一覧へ戻る</button>
+      <div class="mw30-detail-num">No. ${no} ／ 行動指針</div>
+      <h2 class="mw30-detail-ttl">${escapeHtml(detail.title)}</h2>
+      <div class="mw30-detail-ex">${escapeHtml(detail.ex)}</div>
+      <div class="mw30-detail-source"><span class="src-label">SOURCE</span>『MARIMO WAY』 行動指針 三十則 解説（公式冊子より）</div>
+      ${relHtml}
+    `;
+    detailEl.classList.add("open");
+    // Hide chapters
+    mw30Body.querySelectorAll(".mw30-chapter").forEach(c => c.style.display = "none");
+    detailEl.scrollIntoView({behavior: "smooth", block: "start"});
+    document.getElementById("mw30DetailBack").addEventListener("click", () => {
+      detailEl.classList.remove("open");
+      mw30Body.querySelectorAll(".mw30-chapter").forEach(c => c.style.display = "");
+      mw30Body.scrollTop = 0;
+    });
+    // Wire related-issue clicks
+    detailEl.querySelectorAll(".mw30-rel-item").forEach(a => {
+      a.addEventListener("click", (e) => {
+        const rno = parseInt(a.dataset.no, 10);
+        const k = keyByNo[rno];
+        mw30Close();
+        if (k) {
+          openIssue(k);
+        } else {
+          // open as plain
+          const allEntry = (DATA.allIssues || []).find(x => x.no === rno);
+          if (allEntry) openPlainIssue(allEntry);
+        }
+      });
+    });
+  }
+  mw30Body.addEventListener("click", (e) => {
+    const card = e.target.closest(".mw30-card");
+    if (!card) return;
+    const no = parseInt(card.dataset.pno, 10);
+    if (!isNaN(no)) showPrincipleDetail(no);
+  });
+  function mw30Open() { mw30Overlay.classList.add("open"); mw30Overlay.setAttribute("aria-hidden","false"); }
+  function mw30Close() { mw30Overlay.classList.remove("open"); mw30Overlay.setAttribute("aria-hidden","true"); }
+  document.getElementById("mw30Btn").addEventListener("click", mw30Open);
+  document.getElementById("mw30Close").addEventListener("click", mw30Close);
+  mw30Overlay.addEventListener("click", (e) => { if (e.target === mw30Overlay) mw30Close(); });
+
+  const all272Overlay = document.getElementById("all272Overlay");
+  const all272Body = document.getElementById("all272Body");
+  (function renderAll272() {
+    const byPhase = {};
+    DATA.allIssues.forEach(iss => {
+      if (!byPhase[iss.phase]) byPhase[iss.phase] = [];
+      byPhase[iss.phase].push(iss);
+    });
+    const html = DATA.phases.map(p => {
+      const list = (byPhase[p.id] || []).sort((a,b) => a.no - b.no);
+      if (list.length === 0) return "";
+      const cells = list.map(iss => {
+        const k = keyByNo[iss.no];
+        const rank = k ? ("r" + k.rank) : "regular";
+        const yearFloor = Math.floor(iss.y);
+        const m = monthLabel(iss.y);
+        const realTitle = TITLES[iss.no] || null;
+        const dispTitle = realTitle || (k ? k.title : "");
+        const titleHtml = dispTitle ? `<span class="ct">${escapeHtml(dispTitle)}</span>` : `<span class="ct" style="color:var(--ink-faint);font-style:italic;">欠番</span>`;
+        return `<button class="all272-cell ${rank}" data-no="${iss.no}">
+          <span class="cn">No.${iss.no}<span class="cm">${yearFloor.toString().slice(2)}.${m}</span></span>
+          ${titleHtml}
+        </button>`;
+      }).join("");
+      return `<div class="all272-phase">
+        <div class="all272-phase-title" style="background:${p.color};"><span class="pr">P${p.num}</span>${escapeHtml(p.name)}　<span style="opacity:0.85;">No.${p.issue_start}–${p.issue_end}（${list.length} 号）</span></div>
+        <div class="all272-grid">${cells}</div>
+      </div>`;
+    }).join("");
+    all272Body.innerHTML = html;
+    all272Body.querySelectorAll(".all272-cell").forEach(cell => {
+      cell.addEventListener("click", () => {
+        const no = parseInt(cell.dataset.no, 10);
+        const iss = DATA.allIssues.find(x => x.no === no);
+        const k = keyByNo[no];
+        all272Close();
+        setTimeout(() => k ? openIssue(k) : openPlainIssue(iss), 60);
+      });
+    });
+  })();
+  function all272Open() { all272Overlay.classList.add("open"); all272Overlay.setAttribute("aria-hidden","false"); }
+  function all272Close() { all272Overlay.classList.remove("open"); all272Overlay.setAttribute("aria-hidden","true"); }
+  document.getElementById("all272Btn").addEventListener("click", all272Open);
+  document.getElementById("all272Close").addEventListener("click", all272Close);
+  all272Overlay.addEventListener("click", (e) => { if (e.target === all272Overlay) all272Close(); });
+
+  function escapeHtml(s) {
+    return String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+})();
+</script>
+
+</body>
+</html>
