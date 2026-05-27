@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>THE PRESIDENT CHRONICLE ／ マリモクロニクル</title>
+<style>
+:root{
+  --paper:#f5f2ea; --paper-warm:#fbf8ee; --ink:#14223f; --ink-soft:#3a3630;
+  --ink-mute:#6b6657; --ink-faint:#8a8276; --rule:#bdb7a9;
+  --vermilion:#8b3a2a; --marimo-blue:#0096D6;
+  --serif-en:"Cormorant Garamond","Garamond",Georgia,serif;
+  --serif-jp:"Noto Serif JP","YuMincho","Hiragino Mincho Pro",serif;
+  --sans-jp:"Noto Sans JP","Yu Gothic","Hiragino Sans",sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink-soft);font-family:var(--sans-jp);min-height:100vh;}
+
+.wrap{max-width:980px;margin:0 auto;padding:64px 32px 100px;}
+
+.hero{padding:48px 0 56px;border-bottom:1px solid var(--rule);margin-bottom:56px;}
+.hero .en{font-family:var(--serif-en);font-style:italic;font-size:13px;letter-spacing:0.24em;color:var(--vermilion);text-transform:uppercase;margin-bottom:14px;}
+.hero h1{font-family:var(--serif-en);font-size:56px;font-weight:500;letter-spacing:0.02em;color:var(--ink);line-height:1.0;margin:0 0 18px;}
+.hero .copy{font-family:var(--serif-jp);font-size:18px;line-height:1.85;color:var(--ink);font-weight:600;letter-spacing:0.03em;margin:0 0 12px;max-width:720px;}
+.hero .sub{font-family:var(--sans-jp);font-size:14px;font-weight:800;letter-spacing:0.16em;color:var(--vermilion);margin-top:18px;}
+.hero .stats{display:flex;gap:36px;margin-top:32px;font-family:var(--serif-en);font-style:italic;font-size:11px;letter-spacing:0.18em;color:var(--ink-faint);}
+.hero .stats .num{font-size:28px;font-style:normal;color:var(--ink);font-weight:500;}
+
+.section-h{font-family:var(--serif-en);font-style:italic;font-size:11px;letter-spacing:0.22em;color:var(--ink-faint);text-transform:uppercase;border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:24px;}
+
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:48px;}
+.card{display:block;padding:22px 22px 24px;background:var(--paper-warm);border:1px solid var(--rule);border-left:4px solid var(--marimo-blue);text-decoration:none;color:inherit;transition:background 0.15s,border-color 0.15s,transform 0.15s;}
+.card:hover{background:#fff;border-color:var(--ink);border-left-color:var(--vermilion);transform:translateX(2px);}
+.card .label{font-family:var(--serif-en);font-style:italic;font-size:10px;letter-spacing:0.22em;color:var(--vermilion);text-transform:uppercase;margin-bottom:6px;}
+.card .title{font-family:var(--sans-jp);font-weight:800;font-size:17px;color:var(--ink);letter-spacing:0.04em;margin-bottom:8px;}
+.card .desc{font-family:var(--serif-jp);font-size:13px;line-height:1.7;color:var(--ink-mute);}
+
+.foot{margin-top:48px;padding-top:24px;border-top:1px dotted var(--rule);font-family:var(--serif-jp);font-size:12.5px;color:var(--ink-mute);line-height:1.85;}
+.foot strong{color:var(--ink);font-weight:700;}
+
+@media(max-width:700px){
+  .hero h1{font-size:38px;}
+  .hero .copy{font-size:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="en">President Chronicle ／ Editorial Engineering</div>
+    <h1>THE PRESIDENT CHRONICLE</h1>
+    <p class="copy">深川真が、社員に贈り続けた全 272 通のメッセージ。全 709,501 文字で語る。</p>
+    <div class="sub">マリモクロニクル</div>
+    <div class="stats">
+      <div><span class="num">19</span> Years</div>
+      <div><span class="num">268</span> Issues</div>
+      <div><span class="num">709,501</span> 字</div>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-h">Chronicle ／ ビジュアル年代記</div>
+    <div class="card-grid">
+      <a class="card" href="chronicle/chronicle_TOP.html">
+        <div class="label">Main · 統合版</div>
+        <div class="title">縦の年表 / 3 トラック</div>
+        <div class="desc">深川真 ／ MARIMO WAY ／ 社会・経済 を縦の年表で並走。照応キーと詩的字句が左右に追従。</div>
+      </a>
+      <a class="card" href="chronicle/chronicle_TOP_mixed.html">
+        <div class="label">Mixed · 混合版</div>
+        <div class="title">全軌道混合 / 3 列ランダム</div>
+        <div class="desc">思想・組織・社会・経済を区別せず、3 列にランダム配置。社長メッセージは号数順保持。</div>
+      </a>
+      <a class="card" href="chronicle/chronicle_TOP_makimono.html">
+        <div class="label">Makimono · 巻物版</div>
+        <div class="title">縦書き / 横スクロール</div>
+        <div class="desc">縦書きで横にスクロールする巻物スタイル。右が古い、左が新しい時の流れ。</div>
+      </a>
+      <a class="card" href="chronicle/chronicle_FULLTEXT_complete.html">
+        <div class="label">Fulltext · 全文版</div>
+        <div class="title">全 268 号 本文全文</div>
+        <div class="desc">書式（太字・赤字・リスト）付きの本文。タグベース関連記事ナビ付き、巻別切替。</div>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-h">Variants ／ 旧バージョン</div>
+    <div class="card-grid">
+      <a class="card" href="chronicle/chronicle_TOP_3track.html" style="border-left-color:var(--ink-mute);">
+        <div class="label">Archive</div>
+        <div class="title">3 トラック版（旧）</div>
+        <div class="desc">統合前の 3 トラック版。トラックヘッダー＋列罫線あり。</div>
+      </a>
+      <a class="card" href="chronicle/chronicle_TOP_4track_backup.html" style="border-left-color:var(--ink-mute);">
+        <div class="label">Archive</div>
+        <div class="title">4 トラック版（旧）</div>
+        <div class="desc">社会と経済を分離した初期 4 トラック版。</div>
+      </a>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>松岡正剛『情報の歴史21』に倣った編集工学的クロニクル。<strong>4 トラック並走</strong>（思想／組織／社会／経済）と <strong>照応キー</strong>（開示・万策・再生・面影・喪失・転回・交代・人づくり…）を背骨に、全 272 通を <strong>縦帯照応</strong> として読み直す。</p>
+    <p style="margin-top:12px;font-size:11px;color:var(--ink-faint);letter-spacing:0.06em;">© Marimo Group / Editorial Engineering 2025</p>
+  </footer>
+</div>
+
+</body>
+</html>
